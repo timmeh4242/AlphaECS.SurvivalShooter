@@ -6,11 +6,11 @@ namespace EcsRx.SurvivalShooter
 {
 	public class Application : EcsRxApplication
     {
-		[Inject]
-		public PlayerMovementSystem PlayerMovementSystem { get; private set; }
 		protected override void GameStarted ()
 		{
-			SystemExecutor.AddSystem(PlayerMovementSystem);
+			var defaultPool = PoolManager.GetPool ();
+			var testEntity = defaultPool.CreateEntity ();
+			testEntity.AddComponent<ViewComponent> ();
 		}
 
 //

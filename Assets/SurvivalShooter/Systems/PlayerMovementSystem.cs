@@ -13,7 +13,6 @@ namespace EcsRx.SurvivalShooter
 		public readonly float MovementSpeed = 2.0f;
 		public int FloorMask;
 
-
 		public PlayerMovementSystem()
 		{
 			FloorMask = LayerMask.GetMask("Floor");

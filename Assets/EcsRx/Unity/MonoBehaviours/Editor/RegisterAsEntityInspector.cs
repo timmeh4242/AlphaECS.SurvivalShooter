@@ -98,9 +98,49 @@ namespace EcsRx.Unity.Helpers
             return null;
         }
 
+		public static Type TryGetConvertedType(string typeName)
+		{
+			var type = Type.GetType(typeName);
+			var namePortions = typeName.Split(',')[0].Split('.');
+			typeName = namePortions.Last();
+
+			foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
+			{
+				Type[] assemblyTypes = a.GetTypes();
+				for (int j = 0; j < assemblyTypes.Length; j++)
+				{
+					if (typeName == assemblyTypes[j].Name)
+					{
+						type = assemblyTypes [j];
+						if (type != null)
+						{
+							return type;
+						}
+					}
+				}
+			}
+			return null;
+		}
+
         private void ShowComponentProperties(int index)
         {
             var type = GetTypeWithAssembly(_setupView.Components[index]);
+			if (type == null)
+			{
+				if (GUILayout.Button ("TYPE NOT FOUND. TRY TO CONVERT TO BEST MATCH?"))
+				{
+					type = TryGetConvertedType (_setupView.Components [index]);
+					if (type == null)
+					{
+						Debug.LogWarning ("UNABLE TO CONVERT " + _setupView.Components [index]);
+						return;
+					}
+				}
+				else
+				{
+					return;
+				}
+			}
             var component = Activator.CreateInstance(type);
             var node = JSON.Parse(_setupView.Properties[index]);
             component.DeserializeComponent(node);

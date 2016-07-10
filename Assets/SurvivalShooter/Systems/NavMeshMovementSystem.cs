@@ -14,12 +14,6 @@ namespace EcsRx.SurvivalShooter
 		Transform Target;
 		HealthComponent TargetHealth;
 
-		public NavMeshMovementSystem()
-		{
-			Target = GameObject.FindGameObjectWithTag ("Player").transform;
-			TargetHealth = Target.GetComponent<EntityView> ().Entity.GetComponent<HealthComponent>();
-		}
-
 		public IGroup TargetGroup
 		{
 			get 
@@ -41,6 +35,15 @@ namespace EcsRx.SurvivalShooter
 		{
 			var navMeshAgent = entity.GetComponent<ViewComponent> ().View.GetComponent<NavMeshAgent> ();
 			var health = entity.GetComponent<HealthComponent> ();
+
+			if (Target == null)
+			{
+				Target = GameObject.FindGameObjectWithTag ("Player").transform;
+				if (Target == null)
+					return;
+				
+				TargetHealth = Target.GetComponent<EntityView> ().Entity.GetComponent<HealthComponent>();
+			}
 
 			if(health.CurrentHealth.Value > 0 && TargetHealth.CurrentHealth.Value > 0)
 	        {

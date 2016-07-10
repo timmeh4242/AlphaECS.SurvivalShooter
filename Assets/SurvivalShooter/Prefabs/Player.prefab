@@ -13,7 +13,7 @@ GameObject:
   - 82: {fileID: 8265888}
   - 136: {fileID: 13616800}
   - 114: {fileID: 11494342}
-  - 114: {fileID: 11474044}
+  - 114: {fileID: 11495670}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -337,30 +337,6 @@ Light:
   m_ShadowRadius: 0
   m_ShadowAngle: 0
   m_AreaSize: {x: 1, y: 1}
---- !u!114 &11474044
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 118526}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 224b36ae4dac9814681cc19e5444e40b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  PoolName: 
-  Components:
-  - Assets.EcsRx.Examples.SurvivalShooter.InputComponent
-  - Assets.EcsRx.Examples.SurvivalShooter.Components.DamagerComponent
-  - Assets.EcsRx.Examples.SurvivalShooter.ShooterComponent
-  Properties:
-  - "{\n\t\"Horizontal\":0\t, \n\t\"Vertical\":0}\n"
-  - '{
-
-    }
-
-'
-  - "{\n\t\"Damage\":0\t, \n\t\"ShotsPerSecond\":0\t, \n\t\"Range\":0}\n"
 --- !u!114 &11494342
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -379,6 +355,32 @@ MonoBehaviour:
   deathClip: {fileID: 8300000, guid: d36a393bca4582043982db9089e1694f, type: 3}
   flashSpeed: 5
   flashColour: {r: 1, g: 0, b: 0, a: 0.1}
+--- !u!114 &11495670
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 118526}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 224b36ae4dac9814681cc19e5444e40b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PoolName: 
+  Components:
+  - EcsRx.SurvivalShooter.InputComponent
+  - EcsRx.SurvivalShooter.HealthComponent
+  - EcsRx.SurvivalShooter.ShooterComponent
+  - EcsRx.SurvivalShooter.DamagerComponent
+  Properties:
+  - "{\n\t\"Horizontal\":0\t, \n\t\"Vertical\":0}\n"
+  - "{\n\t\"StartingHealth\":100\t, \n\t\"IsDamaged\":false\t, \n\t\"IsDead\":false}\n"
+  - "{\n\t\"Damage\":80\t, \n\t\"ShotsPerSecond\":10\t, \n\t\"Range\":1000}\n"
+  - '{
+
+    }
+
+'
 --- !u!120 &12023252
 LineRenderer:
   m_ObjectHideFlags: 1
