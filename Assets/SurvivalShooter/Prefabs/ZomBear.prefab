@@ -314,30 +314,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 100000}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 224b36ae4dac9814681cc19e5444e40b, type: 3}
+  m_Script: {fileID: 11500000, guid: 3d3b779299fd9422c84574c1e7cc2345, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   PoolName: 
-  Components:
-  - EcsRx.SurvivalShooter.DamagerComponent
+  CachedComponents:
   - EcsRx.SurvivalShooter.HealthComponent
   - EcsRx.SurvivalShooter.MeleeComponent
-  Properties:
-  - '{
-
-    }
-
-'
-  - '{
-
-    }
-
-'
-  - '{
-
-    }
-
-'
+  CachedProperties:
+  - "{\n\t\"StartingHealth\":100\t, \n\t\"CurrentHealth\":0\t, \n\t\"IsDamaged\":false\t,
+    \n\t\"IsDead\":false}\n"
+  - "{\n\t\"Damage\":10\t, \n\t\"AttacksPerSecond\":2\t, \n\t\"TargetInRange\":false}\n"
 --- !u!135 &13500000
 SphereCollider:
   m_ObjectHideFlags: 1

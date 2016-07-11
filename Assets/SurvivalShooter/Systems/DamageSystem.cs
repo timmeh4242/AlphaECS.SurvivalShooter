@@ -31,15 +31,16 @@ namespace EcsRx.SurvivalShooter
 			var health = entity.GetComponent<HealthComponent> ();
 			health.CurrentHealth = new IntReactiveProperty ();
 			health.CurrentHealth.Value = health.StartingHealth;
+			health.IsDead = new BoolReactiveProperty ();
 			
 			health.CurrentHealth.DistinctUntilChanged ().Where (value => value <= 0).Subscribe (_ =>
 			{
-				health.IsDead = true;
+				health.IsDead.Value = true;
 			});
 
 			health.CurrentHealth.DistinctUntilChanged ().Where (value => value > 0).Subscribe (_ =>
 			{
-				health.IsDead = false;
+				health.IsDead.Value = false;
 			});
 //			}).AddTo (health);
 		}
@@ -48,7 +49,6 @@ namespace EcsRx.SurvivalShooter
 		{
 			EventSystem.Receive<DamageEvent> ().Subscribe (_ =>
 			{
-				Debug.Log(_.Target.Id);
 				var targetHealth = _.Target.GetComponent<HealthComponent>();
 				if(targetHealth.CurrentHealth.Value <= 0)
 					return;

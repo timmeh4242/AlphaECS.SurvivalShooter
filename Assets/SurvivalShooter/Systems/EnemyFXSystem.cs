@@ -11,7 +11,7 @@ using EcsRx.Pools;
 
 namespace EcsRx.SurvivalShooter
 {
-	public class EnemyFXSystem : IManualSystem
+	public class EnemyFXSystem : IManualSystem, ISetupSystem
 	{
 		[Inject]
 		public IEventSystem EventSystem { get; set; }
@@ -31,11 +31,47 @@ namespace EcsRx.SurvivalShooter
 			}
 		}
 
+		public void Setup (IEntity entity)
+		{
+			var viewComponent = entity.GetComponent<ViewComponent> ();
+			var health = entity.GetComponent<HealthComponent> ();
+			var view = viewComponent.View;
+			health.IsDead.DistinctUntilChanged ().Where (value => value == true).Subscribe (_ =>
+			{
+				view.GetComponent<CapsuleCollider> ().isTrigger = true;
+				view.GetComponent<Animator> ().SetTrigger ("Die");
+				var audio = view.GetComponent<AudioSource> ();
+				audio.Play ();
+
+//				audio.clip = DeathClip;
+				audio.Play ();
+
+				view.GetComponent<Rigidbody> ().isKinematic = true;
+				//					ScoreManager.score += scoreValue;
+
+				Observable.Timer (TimeSpan.FromSeconds (1)).Subscribe (_2 =>
+				{
+					var sink = Observable.EveryUpdate ().Subscribe (_3 =>
+					{
+//						view.transform.Translate (-Vector3.up * sinkSpeed * Time.deltaTime);
+						view.transform.Translate (-Vector3.up * 2.5f * Time.deltaTime);
+					});
+
+					Observable.Timer (TimeSpan.FromSeconds (2)).Subscribe (_3 =>
+					{
+						sink.Dispose ();
+//						PoolManager.GetPool().RemoveEntity(_.Target);
+						GameObject.Destroy (view);
+					});
+				});
+			}).AddTo (view);
+		}
+
 		public void StartSystem (GroupAccessor group)
 		{
 			EventSystem.Receive<DamageEvent> ().Subscribe (_ =>
 			{
-				if(_.Target.GetComponent<HealthComponent>().IsDead == true)
+				if(_.Target.GetComponent<HealthComponent>().IsDead.Value == true)
 					return;
 
 				// take damage
@@ -45,36 +81,6 @@ namespace EcsRx.SurvivalShooter
 				var particles = view.GetComponentInChildren <ParticleSystem> ();
 				particles.transform.position = _.HitPoint;
 				particles.Play();
-
-				var targetHealth = _.Target.GetComponent<HealthComponent>();
-				if(targetHealth.CurrentHealth.Value <= 0 && targetHealth.IsDead == false)
-				{
-					targetHealth.IsDead = true;
-					view.GetComponent<CapsuleCollider>().isTrigger = true;
-					view.GetComponent<Animator>().SetTrigger("Die");
-					
-//					audio.clip = DeathClip;
-					audio.Play ();
-
-					view.GetComponent<Rigidbody>().isKinematic = true;
-//					ScoreManager.score += scoreValue;
-
-					Observable.Timer(TimeSpan.FromSeconds(1)).Subscribe(_2 =>
-					{
-						var sink = Observable.EveryUpdate().Subscribe(_3 => 
-						{
-//							view.transform.Translate (-Vector3.up * sinkSpeed * Time.deltaTime);
-							view.transform.Translate (-Vector3.up * 2.5f * Time.deltaTime);
-						});
-
-						Observable.Timer(TimeSpan.FromSeconds(2)).Subscribe(_3 => 
-						{
-							sink.Dispose();
-							PoolManager.GetPool().RemoveEntity(_.Target);
-							GameObject.Destroy(view);
-						});
-					});
-				}
 			}).AddTo (Subscriptions);
 		}
 

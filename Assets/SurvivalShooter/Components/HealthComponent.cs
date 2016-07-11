@@ -8,7 +8,7 @@ namespace EcsRx.SurvivalShooter
 		public int StartingHealth { get; set; }
 		public IntReactiveProperty CurrentHealth { get; set; }
 		public bool IsDamaged { get; set; }
-		public bool IsDead { get; set; }
+		public BoolReactiveProperty IsDead { get; set; }
 
 //		public Slider healthSlider;
 //		public Image damageImage;
