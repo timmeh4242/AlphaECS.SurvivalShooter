@@ -49,6 +49,7 @@ GameObject:
   - 135: {fileID: 13537682}
   - 136: {fileID: 13676708}
   - 114: {fileID: 11431774}
+  - 114: {fileID: 11480484}
   m_Layer: 9
   m_Name: ZomBunny
   m_TagString: Untagged
@@ -304,6 +305,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   timeBetweenAttacks: 0.5
   attackDamage: 10
+--- !u!114 &11480484
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 120476}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 224b36ae4dac9814681cc19e5444e40b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PoolName: 
+  Components:
+  - EcsRx.SurvivalShooter.DamagerComponent
+  - EcsRx.SurvivalShooter.HealthComponent
+  - EcsRx.SurvivalShooter.MeleeComponent
+  Properties:
+  - '{
+
+    }
+
+'
+  - "{\n\t\"StartingHealth\":100\t, \n\t\"IsDamaged\":false\t, \n\t\"IsDead\":false}\n"
+  - "{\n\t\"AttacksPerSecond\":10\t, \n\t\"Damage\":10}\n"
 --- !u!135 &13537682
 SphereCollider:
   m_ObjectHideFlags: 1

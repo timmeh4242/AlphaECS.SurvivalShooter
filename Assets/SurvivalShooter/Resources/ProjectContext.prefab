@@ -1,5 +1,21 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &111824
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 4
+  m_Component:
+  - 4: {fileID: 494960}
+  - 114: {fileID: 11464210}
+  m_Layer: 0
+  m_Name: PoolManagerView
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
 --- !u!1 &112274
 GameObject:
   m_ObjectHideFlags: 0
@@ -9,8 +25,26 @@ GameObject:
   m_Component:
   - 4: {fileID: 422616}
   - 114: {fileID: 11412176}
+  - 114: {fileID: 11425536}
+  - 114: {fileID: 11401198}
   m_Layer: 0
   m_Name: ProjectContext
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!1 &171734
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 4
+  m_Component:
+  - 4: {fileID: 498996}
+  - 114: {fileID: 11474820}
+  m_Layer: 0
+  m_Name: SystemsView
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -25,9 +59,48 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
+  m_Children:
+  - {fileID: 498996}
+  - {fileID: 494960}
   m_Father: {fileID: 0}
   m_RootOrder: 0
+--- !u!4 &494960
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 111824}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 422616}
+  m_RootOrder: 1
+--- !u!4 &498996
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 171734}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 422616}
+  m_RootOrder: 0
+--- !u!114 &11401198
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 112274}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ce8cd311659f8349b637c0014a207c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SystemNamespaces:
+  - EcsRx.SurvivalShooter
 --- !u!114 &11412176
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -39,9 +112,44 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a4e6589720da476459dc6dd71624b071, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _installers: []
+  _installers:
+  - {fileID: 11425536}
+  - {fileID: 11401198}
   _installerPrefabs: []
   _scriptableObjectInstallers: []
+--- !u!114 &11425536
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 112274}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1cad3a1dee1da334da8afe0da681fd94, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &11464210
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 111824}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38afda5297e86624d8264f35379b240a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &11474820
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 171734}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed3392df3e6de0a4d9a3d2b001583955, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &100100000
 Prefab:
   m_ObjectHideFlags: 1

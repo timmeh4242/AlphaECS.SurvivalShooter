@@ -15,6 +15,7 @@ GameObject:
   - 195: {fileID: 19500000}
   - 114: {fileID: 11400004}
   - 82: {fileID: 8200000}
+  - 114: {fileID: 11485922}
   m_Layer: 9
   m_Name: ZomBear
   m_TagString: Untagged
@@ -305,6 +306,38 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   timeBetweenAttacks: 0.5
   attackDamage: 15
+--- !u!114 &11485922
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 100000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 224b36ae4dac9814681cc19e5444e40b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PoolName: 
+  Components:
+  - EcsRx.SurvivalShooter.DamagerComponent
+  - EcsRx.SurvivalShooter.HealthComponent
+  - EcsRx.SurvivalShooter.MeleeComponent
+  Properties:
+  - '{
+
+    }
+
+'
+  - '{
+
+    }
+
+'
+  - '{
+
+    }
+
+'
 --- !u!135 &13500000
 SphereCollider:
   m_ObjectHideFlags: 1

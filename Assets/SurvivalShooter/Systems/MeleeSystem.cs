@@ -12,12 +12,12 @@ namespace EcsRx.SurvivalShooter
 {
 	public class MeleeSystem : ISetupSystem
 	{
-//		public IEventSystem EventSystem { get; private set; }
+		public IEventSystem EventSystem { get; private set; }
 
-//		public MeleeSystem(EventSystem eventSystem)
-//		{
-//			EventSystem = eventSystem;
-//		}
+		public MeleeSystem(IEventSystem eventSystem)
+		{
+			EventSystem = eventSystem;
+		}
 
 		public IGroup TargetGroup
 		{
@@ -34,8 +34,8 @@ namespace EcsRx.SurvivalShooter
 		{
 			var view = entity.GetComponent<ViewComponent> ();
 			var attacker = entity.GetComponent<MeleeComponent> ();
+			attacker.TargetInRange = new BoolReactiveProperty ();
 			var collider = view.View.GetComponent<Collider> ();
-
 
 			collider.OnTriggerEnterAsObservable ().Subscribe (_ =>
 			{
@@ -70,7 +70,7 @@ namespace EcsRx.SurvivalShooter
 				if(_ == true)
 				{
 					var attackPosition = attacker.Target.GetComponent<ViewComponent>().View.transform.position;
-//					EventSystem.Publish (new DamageEvent (entity, attacker.Target, attacker.Damage, attackPosition));
+					EventSystem.Publish (new DamageEvent (entity, attacker.Target, attacker.Damage, attackPosition));
 
 					Debug.Log("target in range");
 				}

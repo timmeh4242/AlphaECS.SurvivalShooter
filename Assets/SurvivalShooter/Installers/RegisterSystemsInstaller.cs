@@ -14,7 +14,6 @@ namespace EcsRx.SurvivalShooter
 		{
 			Container.Bind<DamageSystem> ().AsSingle ();
 			Container.Bind<EnemyFXSystem> ().AsSingle ();
-			Container.Bind<HealthSystem> ().AsSingle ();
 			Container.Bind<MeleeSystem> ().AsSingle ();
 			Container.Bind<NavMeshMovementSystem> ().AsSingle ();
 			Container.Bind<PlayerFXSystem> ().AsSingle ();

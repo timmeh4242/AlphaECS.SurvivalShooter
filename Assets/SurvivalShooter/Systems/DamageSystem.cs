@@ -48,6 +48,7 @@ namespace EcsRx.SurvivalShooter
 		{
 			EventSystem.Receive<DamageEvent> ().Subscribe (_ =>
 			{
+				Debug.Log(_.Target.Id);
 				var targetHealth = _.Target.GetComponent<HealthComponent>();
 				if(targetHealth.CurrentHealth.Value <= 0)
 					return;
