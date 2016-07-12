@@ -78,6 +78,7 @@ namespace EcsRx.Json {
             if (type == typeof(int)) return node.AsInt;
             if (type == typeof(Vector2)) return node.AsVector2;
             if (type == typeof(Vector3)) return node.AsVector3;
+			if (type == typeof(Color)) return node.AsColor;
             if (type == typeof(string)) return node.Value;
             if (type == typeof(bool)) return node.AsBool;
             if (type == typeof(float)) return node.AsFloat;
@@ -228,6 +229,7 @@ namespace EcsRx.Json {
             if (type == typeof(int)) node = new JSONData((int)value);
             else if (type == typeof(Vector2)) node = new JSONClass() { AsVector2 = (Vector2)value };
             else if (type == typeof(Vector3)) node = new JSONClass() { AsVector3 = (Vector3)value };
+			else if (type == typeof(Color)) node = new JSONClass() { AsColor = (Color)value };
             else if (type == typeof(string)) node = new JSONData((string)value);
             else if (type == typeof(bool)) node = new JSONData((bool)value);
             else if (type == typeof(float)) node = new JSONData((float)value);
@@ -431,6 +433,10 @@ namespace EcsRx.Json {
         {
             AsVector2 = value;
         }
+		public JSONData(Color value)
+		{
+			AsColor = value;
+		}
 #if UNITY
         public JSONData(Quaternion value)
         {
@@ -971,6 +977,23 @@ namespace EcsRx.Json {
                 ob.Add("w", new JSONData(value.w));
             }
         }
+
+		public virtual Color AsColor
+		{
+			get
+			{
+				var cl = this as JSONClass;
+				return new Color(cl["r"].AsFloat, cl["g"].AsFloat, cl["b"].AsFloat, cl["a"].AsFloat);
+			}
+			set
+			{
+				var ob = this.AsObject;
+				ob.Add("r", new JSONData(value.r));
+				ob.Add("g", new JSONData(value.g));
+				ob.Add("b", new JSONData(value.b));
+				ob.Add("a", new JSONData(value.a));
+			}
+		}
 
         #endregion typecasting properties
 

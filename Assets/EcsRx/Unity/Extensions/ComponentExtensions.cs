@@ -68,30 +68,95 @@ namespace Assets.EcsRx.Unity.Extensions
 					}
 					if (property.PropertyType == typeof(Vector2))
 					{
-						node.Add(property.Name, new JSONData((Vector2)property.GetValue(component, null)));
+						var value = (Vector2)property.GetValue(component, null);
+						var data = new JSONClass ();
+						data.Add("x", new JSONData(value.x));
+						data.Add("y", new JSONData(value.y));
+
+						node.Add(property.Name, data);
 						continue;
 					}
 					if (property.PropertyType == typeof(Vector2ReactiveProperty))
 					{
 						var reactiveProperty = property.GetValue(component, null) as Vector2ReactiveProperty;
 						if (reactiveProperty == null)
-							reactiveProperty = new Vector2ReactiveProperty ();					
-						node.Add(property.Name, new JSONData((Vector2)reactiveProperty.Value));
+							reactiveProperty = new Vector2ReactiveProperty ();	
+
+						var value = (Vector2)property.GetValue(component, null);
+						var data = new JSONClass ();
+						data.Add("x", new JSONData(value.x));
+						data.Add("y", new JSONData(value.y));
+
+						node.Add(property.Name, data);
 						continue;
 					}
                     if (property.PropertyType == typeof(Vector3))
                     {
-                        node.Add(property.Name, new JSONData((Vector3)property.GetValue(component, null)));
-                        continue;
+						var value = (Vector3)property.GetValue(component, null);
+						var data = new JSONClass ();
+						data.Add("x", new JSONData(value.x));
+						data.Add("y", new JSONData(value.y));
+						data.Add("z", new JSONData(value.z));
+
+						node.Add(property.Name, data);
+						continue;
                     }
 					if (property.PropertyType == typeof(Vector3ReactiveProperty))
 					{
 						var reactiveProperty = property.GetValue(component, null) as Vector3ReactiveProperty;
 						if (reactiveProperty == null)
-							reactiveProperty = new Vector3ReactiveProperty ();						
-						node.Add(property.Name, new JSONData((Vector3)reactiveProperty.Value));
+							reactiveProperty = new Vector3ReactiveProperty ();	
+						
+//						var value = (Vector3)property.GetValue(component, null);
+						var data = new JSONClass ();
+						data.Add("x", new JSONData(reactiveProperty.Value.x));
+						data.Add("y", new JSONData(reactiveProperty.Value.y));
+						data.Add("z", new JSONData(reactiveProperty.Value.z));
+
+						node.Add(property.Name, data);
 						continue;
 					}
+
+					if (property.PropertyType == typeof(Color))
+					{
+						var value = (Color)property.GetValue(component, null);
+						var data = new JSONClass ();
+						data.Add("r", new JSONData(value.r));
+						data.Add("g", new JSONData(value.g));
+						data.Add("b", new JSONData(value.b));
+						data.Add("a", new JSONData(value.a));
+
+						node.Add(property.Name, data);
+						continue;
+					}
+
+					if (property.PropertyType == typeof(ColorReactiveProperty))
+					{
+						var reactiveProperty = property.GetValue(component, null) as ColorReactiveProperty;
+						if (reactiveProperty == null)
+							reactiveProperty = new ColorReactiveProperty ();	
+						
+						var data = new JSONClass ();
+						data.Add("r", new JSONData(reactiveProperty.Value.r));
+						data.Add("g", new JSONData(reactiveProperty.Value.g));
+						data.Add("b", new JSONData(reactiveProperty.Value.b));
+						data.Add("a", new JSONData(reactiveProperty.Value.a));
+
+						node.Add(property.Name, data);
+						continue;
+					}
+
+//					if (property.PropertyType == typeof(Bounds))
+//					{
+//						var value = (Bounds)property.GetValue(component, null);
+//						var asdf = JsonExtensions.SerializeObject (value); 
+//						var data = new JSONClass ();
+//						data.Add("min", new JSONData(value.min));
+//						data.Add("max", new JSONData(value.max));
+//
+//						node.Add(property.Name, data);
+//						continue;
+//					}
                 }
             }
             return node;
@@ -176,6 +241,11 @@ namespace Assets.EcsRx.Unity.Extensions
 				{
 					var reactiveProperty = new Vector3ReactiveProperty(propertyData.AsVector3);
 					property.SetValue(component, reactiveProperty, null);
+					return;
+				}
+				if (property.PropertyType == typeof(Color))
+				{
+					property.SetValue(component, propertyData.AsColor, null);
 					return;
 				}
             }

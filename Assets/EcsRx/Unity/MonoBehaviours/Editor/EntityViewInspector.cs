@@ -83,24 +83,18 @@ namespace EcsRx.Unity.Helpers
 				var index = -1;
 				index = EditorGUILayout.Popup("Add Component", index, types);
 
-				if(!Application.isPlaying)
+				if(Application.isPlaying && index >= 0)
 				{
-					if (index >= 0)
-					{
-						var component = availableTypes.ElementAt(index);
-						var componentName = component.ToString();
-						_view.CachedComponents.Add(componentName);
-						var json = component.SerializeComponent();
-						_view.CachedProperties.Add(json.ToString());
-					}
+					var component = (IComponent)Activator.CreateInstance(availableTypes[index]);
+					_view.Entity.AddComponent(component);
 				}
-				else
+				else if (index >= 0)
 				{
-					if (index >= 0)
-					{
-						var component = (IComponent)Activator.CreateInstance(availableTypes[index]);
-						_view.Entity.AddComponent(component);
-					}
+					var component = (IComponent)Activator.CreateInstance(availableTypes[index]);
+					var componentName = component.ToString();
+					_view.CachedComponents.Add(componentName);
+					var json = component.SerializeComponent();
+					_view.CachedProperties.Add(json.ToString());
 				}
 			});
 		}
@@ -175,48 +169,15 @@ namespace EcsRx.Unity.Helpers
             }
         }
 
-        public static Type GetTypeWithAssembly(string typeName)
-        {
-            var type = Type.GetType(typeName);
-            if (type != null) return type;
-            foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                type = a.GetType(typeName);
-                if (type != null)
-                    return type;
-            }
-            return null;
-        }
-
-		public static Type TryGetConvertedType(string typeName)
+		private void ShowComponentProperties(int index)
 		{
-			var type = Type.GetType(typeName);
-			var namePortions = typeName.Split(',')[0].Split('.');
-			typeName = namePortions.Last();
-
-			foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
-			{
-				Type[] assemblyTypes = a.GetTypes();
-				for (int j = 0; j < assemblyTypes.Length; j++)
-				{
-					if (typeName == assemblyTypes[j].Name)
-					{
-						type = assemblyTypes [j];
-						if (type != null)
-						{
-							return type;
-						}
-					}
-				}
-			}
-			return null;
-		}
-
-        private void ShowComponentProperties(int index)
-        {
 			IComponent component;
 
-			if (!Application.isPlaying)
+			if (Application.isPlaying)
+			{
+				component = _view.Entity.Components.ElementAt (index);
+			}
+			else
 			{
 				var type = GetTypeWithAssembly(_view.CachedComponents[index]);
 				if (type == null)
@@ -239,19 +200,15 @@ namespace EcsRx.Unity.Helpers
 				var node = JSON.Parse(_view.CachedProperties[index]);
 				component.DeserializeComponent(node);
 			}
-			else
+
+			var members = component.GetType().GetMembers();
+			foreach (var property in component.GetType().GetProperties())
 			{
-				component = _view.Entity.Components.ElementAt(index);
-			}
+				bool isTypeSupported = true;
 
-            var members = component.GetType().GetMembers();
-            foreach (var property in component.GetType().GetProperties())
-            {
-                bool isTypeSupported = true;
-
-                EditorGUILayout.BeginHorizontal();
-                var _type = property.PropertyType;
-                var _value = property.GetValue(component, null);
+				EditorGUILayout.BeginHorizontal();
+				var _type = property.PropertyType;
+				var _value = property.GetValue(component, null);
 
 				if (_type == typeof(int))
 				{
@@ -316,24 +273,24 @@ namespace EcsRx.Unity.Helpers
 					var reactiveProperty = _value as ColorReactiveProperty;
 					reactiveProperty.Value = EditorGUILayout.ColorField(property.Name, reactiveProperty.Value);
 				}
-				else if (_type == typeof(Bounds))
-				{
-					_value = EditorGUILayout.BoundsField(property.Name, (Bounds)_value);
-				}
-				else if (_type == typeof(BoundsReactiveProperty))
-				{
-					var reactiveProperty = _value as BoundsReactiveProperty;
-					reactiveProperty.Value = EditorGUILayout.BoundsField(property.Name, reactiveProperty.Value);
-				}
-				else if (_type == typeof(Rect))
-				{
-					_value = EditorGUILayout.RectField(property.Name, (Rect)_value);
-				}
-				else if (_type == typeof(RectReactiveProperty))
-				{
-					var reactiveProperty = _value as RectReactiveProperty;
-					reactiveProperty.Value = EditorGUILayout.RectField(property.Name, reactiveProperty.Value);
-				}
+//				else if (_type == typeof(Bounds))
+//				{
+//					_value = EditorGUILayout.BoundsField(property.Name, (Bounds)_value);
+//				}
+//				else if (_type == typeof(BoundsReactiveProperty))
+//				{
+//					var reactiveProperty = _value as BoundsReactiveProperty;
+//					reactiveProperty.Value = EditorGUILayout.BoundsField(property.Name, reactiveProperty.Value);
+//				}
+//				else if (_type == typeof(Rect))
+//				{
+//					_value = EditorGUILayout.RectField(property.Name, (Rect)_value);
+//				}
+//				else if (_type == typeof(RectReactiveProperty))
+//				{
+//					var reactiveProperty = _value as RectReactiveProperty;
+//					reactiveProperty.Value = EditorGUILayout.RectField(property.Name, reactiveProperty.Value);
+//				}
 				else if (_type == typeof(Enum))
 				{
 					_value = EditorGUILayout.EnumPopup(property.Name, (Enum)_value);
@@ -348,10 +305,10 @@ namespace EcsRx.Unity.Helpers
 					isTypeSupported = false;
 				}
 
-                if (isTypeSupported == true)
-                {
-                    property.SetValue(component, _value, null);
-                }
+				if (isTypeSupported == true)
+				{
+					property.SetValue(component, _value, null);
+				}
 
 				if (!Application.isPlaying)
 				{
@@ -359,9 +316,46 @@ namespace EcsRx.Unity.Helpers
 					var json = component.SerializeComponent();
 					_view.CachedProperties[index] = json.ToString();
 				}
-                EditorGUILayout.EndHorizontal();
+				EditorGUILayout.EndHorizontal();
+			}
+		}
+
+        public static Type GetTypeWithAssembly(string typeName)
+        {
+            var type = Type.GetType(typeName);
+            if (type != null) return type;
+            foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                type = a.GetType(typeName);
+                if (type != null)
+                    return type;
             }
+            return null;
         }
+
+		public static Type TryGetConvertedType(string typeName)
+		{
+			var type = Type.GetType(typeName);
+			var namePortions = typeName.Split(',')[0].Split('.');
+			typeName = namePortions.Last();
+
+			foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
+			{
+				Type[] assemblyTypes = a.GetTypes();
+				for (int j = 0; j < assemblyTypes.Length; j++)
+				{
+					if (typeName == assemblyTypes[j].Name)
+					{
+						type = assemblyTypes [j];
+						if (type != null)
+						{
+							return type;
+						}
+					}
+				}
+			}
+			return null;
+		}
 
 		private void PersistChanges()
 		{

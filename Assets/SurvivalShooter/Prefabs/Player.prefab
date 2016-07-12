@@ -13,7 +13,7 @@ GameObject:
   - 82: {fileID: 8265888}
   - 136: {fileID: 13616800}
   - 114: {fileID: 11494342}
-  - 114: {fileID: 11406462}
+  - 114: {fileID: 11420378}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -337,7 +337,7 @@ Light:
   m_ShadowRadius: 0
   m_ShadowAngle: 0
   m_AreaSize: {x: 1, y: 1}
---- !u!114 &11406462
+--- !u!114 &11420378
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -350,14 +350,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PoolName: 
   CachedComponents:
-  - EcsRx.SurvivalShooter.InputComponent
-  - EcsRx.SurvivalShooter.HealthComponent
-  - EcsRx.SurvivalShooter.ShooterComponent
+  - EcsRx.SurvivalShooter.TestComponent
   CachedProperties:
-  - "{\n\t\"Horizontal\":0\t, \n\t\"Vertical\":0}\n"
-  - "{\n\t\"StartingHealth\":100\t, \n\t\"CurrentHealth\":0\t, \n\t\"IsDamaged\":false\t,
-    \n\t\"IsDead\":false}\n"
-  - "{\n\t\"Damage\":10\t, \n\t\"ShotsPerSecond\":10\t, \n\t\"Range\":100\t, \n\t\"IsShooting\":false}\n"
+  - "{\n\t\"Position\":\t{\n\t\t\"x\":0\t\t, \n\t\t\"y\":0\t}\n\t, \n\t\"Color\":\t{\n\t\t\"r\":\"0.8676471\"\t\t,
+    \n\t\t\"g\":0\t\t, \n\t\t\"b\":0\t\t, \n\t\t\"a\":0\t}\n}\n"
 --- !u!114 &11494342
 MonoBehaviour:
   m_ObjectHideFlags: 1
