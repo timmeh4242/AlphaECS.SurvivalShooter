@@ -5,7 +5,7 @@ using EcsRx.Pools;
 
 public class EnemyManager : MonoBehaviour
 {
-    public PlayerHealth playerHealth;
+//    public PlayerHealth playerHealth;
     public GameObject enemy;
     public float spawnTime = 3f;
     public Transform[] spawnPoints;
@@ -23,10 +23,10 @@ public class EnemyManager : MonoBehaviour
 
     void Spawn ()
     {
-        if(playerHealth.currentHealth <= 0f)
-        {
-            return;
-        }
+//        if(playerHealth.currentHealth <= 0f)
+//        {
+//            return;
+//        }
 
         int spawnPointIndex = Random.Range (0, spawnPoints.Length);
 

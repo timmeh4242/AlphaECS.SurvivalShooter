@@ -45,11 +45,7 @@ namespace EcsRx.Unity.Helpers
         {
             this.UseVerticalBoxLayout(() =>
             {
-				if(!Application.isPlaying)
-				{
-					_view.PoolName = this.WithTextField("Pool: ", _view.PoolName);
-				}
-				else
+				if(Application.isPlaying)
 				{
 					if (GUILayout.Button("Destroy Entity"))
 					{
@@ -67,6 +63,10 @@ namespace EcsRx.Unity.Helpers
 					{
 						this.WithLabelField("Pool: ", _view.Pool.Name);
 					});
+				}
+				else
+				{
+					_view.PoolName = this.WithTextField("Pool: ", _view.PoolName);
 				}
             });
         }
@@ -119,13 +119,13 @@ namespace EcsRx.Unity.Helpers
                     this.UseVerticalBoxLayout(() =>
                     {
 						Type componentType;
-						if(!Application.isPlaying)
+						if(Application.isPlaying)
 						{
-							componentType = GetTypeWithAssembly(_view.CachedComponents[i]);
+							componentType = _view.Entity.Components.ElementAt(i).GetType();
 						}
 						else
 						{
-							componentType = _view.Entity.Components.ElementAt(i).GetType();
+							componentType = GetTypeWithAssembly(_view.CachedComponents[i]);
 						}
 
 						var typeName = componentType == null ? "" : componentType.Name;
@@ -156,15 +156,15 @@ namespace EcsRx.Unity.Helpers
 
             for (var i = 0; i < componentsToRemove.Count(); i++)
             {
-				if (!Application.isPlaying)
-				{
-					_view.CachedComponents.RemoveAt (componentsToRemove [i]);
-					_view.CachedProperties.RemoveAt (componentsToRemove [i]);	
-				} 
-				else
+				if (Application.isPlaying)
 				{
 					var component = _view.Entity.Components.ElementAt(i);
 					_view.Entity.RemoveComponent(component);
+				} 
+				else
+				{
+					_view.CachedComponents.RemoveAt (componentsToRemove [i]);
+					_view.CachedProperties.RemoveAt (componentsToRemove [i]);
 				}
             }
         }
@@ -359,7 +359,7 @@ namespace EcsRx.Unity.Helpers
 
 		private void PersistChanges()
 		{
-			if (GUI.changed)
+			if (GUI.changed && !Application.isPlaying)
 			{ this.SaveActiveSceneChanges(); }
 		}
     }

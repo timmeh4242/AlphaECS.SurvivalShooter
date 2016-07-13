@@ -43,12 +43,14 @@ namespace EcsRx.SurvivalShooter
 				var targetView = _.GetComponent <EntityView> ();
 				if (targetView != null)
 				{
-					var targetHealth = targetView.Entity.GetComponent<HealthComponent> ();
-					if (targetHealth != null)
-					{
-						attacker.Target = targetView.Entity;
-						attacker.TargetInRange.Value = true;
-					}
+					if(targetView.Entity.HasComponent<InputComponent>() == false)
+						return;
+
+					if(targetView.Entity.HasComponent<HealthComponent>() == false)
+						return;
+					
+					attacker.Target = targetView.Entity;
+					attacker.TargetInRange.Value = true;
 				}
 			}).AddTo(collider);
 
@@ -57,12 +59,14 @@ namespace EcsRx.SurvivalShooter
 				var targetView = _.GetComponent <EntityView> ();
 				if (targetView != null)
 				{
-					var targetHealth = targetView.Entity.GetComponent<HealthComponent> ();
-					if (targetHealth != null)
-					{
-						attacker.Target = null;
-						attacker.TargetInRange.Value = false;
-					}
+					if(targetView.Entity.HasComponent<InputComponent>() == false)
+						return;
+					
+					if(targetView.Entity.HasComponent<HealthComponent>() == false)
+						return;
+					
+					attacker.Target = null;
+					attacker.TargetInRange.Value = false;
 				}
 			}).AddTo(collider);
 

@@ -1,5 +1,20 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &109170
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 4
+  m_Component:
+  - 4: {fileID: 465590}
+  m_Layer: 0
+  m_Name: SoundFX
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
 --- !u!1 &118526
 GameObject:
   m_ObjectHideFlags: 0
@@ -10,10 +25,9 @@ GameObject:
   - 4: {fileID: 401004}
   - 95: {fileID: 9543940}
   - 54: {fileID: 5494352}
-  - 82: {fileID: 8265888}
   - 136: {fileID: 13616800}
-  - 114: {fileID: 11494342}
   - 114: {fileID: 11420378}
+  - 114: {fileID: 11475324}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -73,6 +87,38 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!1 &162372
+GameObject:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 4
+  m_Component:
+  - 4: {fileID: 408330}
+  - 82: {fileID: 8212400}
+  m_Layer: 0
+  m_Name: Death
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!1 &162734
+GameObject:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 4
+  m_Component:
+  - 4: {fileID: 497152}
+  - 82: {fileID: 8237078}
+  m_Layer: 0
+  m_Name: Hurt
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
 --- !u!4 &401004
 Transform:
   m_ObjectHideFlags: 1
@@ -86,8 +132,21 @@ Transform:
   - {fileID: 460642}
   - {fileID: 456720}
   - {fileID: 442102}
+  - {fileID: 465590}
   m_Father: {fileID: 0}
   m_RootOrder: 0
+--- !u!4 &408330
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 162372}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 465590}
+  m_RootOrder: 1
 --- !u!4 &442102
 Transform:
   m_ObjectHideFlags: 1
@@ -124,6 +183,32 @@ Transform:
   m_Children: []
   m_Father: {fileID: 401004}
   m_RootOrder: 0
+--- !u!4 &465590
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 109170}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 497152}
+  - {fileID: 408330}
+  m_Father: {fileID: 401004}
+  m_RootOrder: 3
+--- !u!4 &497152
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 162734}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 465590}
+  m_RootOrder: 0
 --- !u!54 &5494352
 Rigidbody:
   m_ObjectHideFlags: 1
@@ -139,6 +224,80 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 84
   m_CollisionDetection: 0
+--- !u!82 &8212400
+AudioSource:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 162372}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 8300000, guid: d36a393bca4582043982db9089e1694f, type: 3}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+    - time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 0
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 0
 --- !u!82 &8226778
 AudioSource:
   m_ObjectHideFlags: 1
@@ -213,17 +372,17 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 0
---- !u!82 &8265888
+--- !u!82 &8237078
 AudioSource:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 118526}
+  m_GameObject: {fileID: 162734}
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: 9922a12f34d0a084aab32de985459723, type: 3}
-  m_PlayOnAwake: 0
+  m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
@@ -350,28 +509,29 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PoolName: 
   CachedComponents:
-  - EcsRx.SurvivalShooter.TestComponent
+  - EcsRx.SurvivalShooter.InputComponent
+  - EcsRx.SurvivalShooter.ShooterComponent
+  - EcsRx.SurvivalShooter.HealthComponent
   CachedProperties:
-  - "{\n\t\"Position\":\t{\n\t\t\"x\":0\t\t, \n\t\t\"y\":0\t}\n\t, \n\t\"Color\":\t{\n\t\t\"r\":\"0.8676471\"\t\t,
-    \n\t\t\"g\":0\t\t, \n\t\t\"b\":0\t\t, \n\t\t\"a\":0\t}\n}\n"
---- !u!114 &11494342
+  - "{\n\t\"Horizontal\":0\t, \n\t\"Vertical\":0}\n"
+  - "{\n\t\"Damage\":10\t, \n\t\"ShotsPerSecond\":10\t, \n\t\"Range\":100\t, \n\t\"IsShooting\":false}\n"
+  - "{\n\t\"StartingHealth\":100\t, \n\t\"CurrentHealth\":0\t, \n\t\"IsDamaged\":false\t,
+    \n\t\"IsDead\":false}\n"
+--- !u!114 &11475324
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 118526}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 544f2064df03e95419b4a5147c506b08, type: 3}
+  m_Script: {fileID: 11500000, guid: 72e6625fcca4f420fb4747960a8e6a37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startingHealth: 100
-  currentHealth: 0
-  healthSlider: {fileID: 0}
-  damageImage: {fileID: 0}
-  deathClip: {fileID: 0}
-  flashSpeed: 5
-  flashColour: {r: 1, g: 0, b: 0, a: 0.1}
+  HealthSlider: {fileID: 0}
+  DamageImage: {fileID: 0}
+  FlashSpeed: 5
+  FlashColor: {r: 1, g: 0, b: 0, a: 0.1}
 --- !u!120 &12023252
 LineRenderer:
   m_ObjectHideFlags: 1

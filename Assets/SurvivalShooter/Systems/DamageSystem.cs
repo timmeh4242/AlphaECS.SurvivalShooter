@@ -7,6 +7,8 @@ using UnityEngine;
 using EcsRx.Unity.MonoBehaviours;
 using EcsRx.Events;
 using Zenject;
+using System;
+using EcsRx.Pools;
 
 namespace EcsRx.SurvivalShooter
 {
@@ -14,6 +16,8 @@ namespace EcsRx.SurvivalShooter
 	{
 		[Inject]
 		public IEventSystem EventSystem { get; private set; }
+		[Inject]
+		public IPoolManager PoolManager { get; private set; }
 		private CompositeDisposable Subscriptions = new CompositeDisposable();
 
 		public IGroup TargetGroup 
@@ -28,6 +32,7 @@ namespace EcsRx.SurvivalShooter
 
 		public void Setup (IEntity entity)
 		{
+			var view = entity.GetComponent<ViewComponent> ();
 			var health = entity.GetComponent<HealthComponent> ();
 			health.CurrentHealth = new IntReactiveProperty ();
 			health.CurrentHealth.Value = health.StartingHealth;
@@ -36,13 +41,21 @@ namespace EcsRx.SurvivalShooter
 			health.CurrentHealth.DistinctUntilChanged ().Where (value => value <= 0).Subscribe (_ =>
 			{
 				health.IsDead.Value = true;
-			});
+			}).AddTo(view.View);
 
 			health.CurrentHealth.DistinctUntilChanged ().Where (value => value > 0).Subscribe (_ =>
 			{
 				health.IsDead.Value = false;
-			});
-//			}).AddTo (health);
+			}).AddTo(view.View);
+
+			health.IsDead.DistinctUntilChanged ().Where(value => value == true).Subscribe (_ =>
+			{
+				Observable.Timer (TimeSpan.FromSeconds (2)).Subscribe (_2 =>
+				{
+					PoolManager.GetPool().RemoveEntity(entity);
+					GameObject.Destroy (view.View);
+				});
+			}).AddTo(view.View);
 		}
 
 		public void StartSystem (GroupAccessor group)
@@ -54,6 +67,9 @@ namespace EcsRx.SurvivalShooter
 					return;
 				
 				targetHealth.CurrentHealth.Value -= _.DamageAmount;
+
+				if(targetHealth.CurrentHealth.Value <= 0)
+					EventSystem.Publish (new DeathEvent (_.Attacker, _.Target));
 			}).AddTo (Subscriptions);
 		}
 

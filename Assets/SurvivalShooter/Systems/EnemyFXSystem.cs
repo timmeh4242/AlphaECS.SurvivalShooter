@@ -8,6 +8,7 @@ using Zenject;
 using EcsRx.Entities;
 using System;
 using EcsRx.Pools;
+using System.Linq;
 
 namespace EcsRx.SurvivalShooter
 {
@@ -18,6 +19,8 @@ namespace EcsRx.SurvivalShooter
 		[Inject]
 		public IPoolManager PoolManager { get; private set; }
 		CompositeDisposable Subscriptions = new CompositeDisposable ();
+
+		const float DeathSinkSpeed = 2.5f;
 
 		public IGroup TargetGroup 
 		{
@@ -36,32 +39,28 @@ namespace EcsRx.SurvivalShooter
 			var viewComponent = entity.GetComponent<ViewComponent> ();
 			var health = entity.GetComponent<HealthComponent> ();
 			var view = viewComponent.View;
+
 			health.IsDead.DistinctUntilChanged ().Where (value => value == true).Subscribe (_ =>
 			{
 				view.GetComponent<CapsuleCollider> ().isTrigger = true;
 				view.GetComponent<Animator> ().SetTrigger ("Die");
-				var audio = view.GetComponent<AudioSource> ();
-				audio.Play ();
-
-//				audio.clip = DeathClip;
-				audio.Play ();
+				var soundFX = view.GetComponentsInChildren<AudioSource> ();
+				var deathFX = soundFX.Where(_2 => _2.clip.name.Contains("Death")).FirstOrDefault();
+				deathFX.Play();
 
 				view.GetComponent<Rigidbody> ().isKinematic = true;
-				//					ScoreManager.score += scoreValue;
+//				ScoreManager.score += scoreValue;
 
 				Observable.Timer (TimeSpan.FromSeconds (1)).Subscribe (_2 =>
 				{
 					var sink = Observable.EveryUpdate ().Subscribe (_3 =>
 					{
-//						view.transform.Translate (-Vector3.up * sinkSpeed * Time.deltaTime);
-						view.transform.Translate (-Vector3.up * 2.5f * Time.deltaTime);
-					});
+						view.transform.Translate (-Vector3.up * DeathSinkSpeed * Time.deltaTime);
+					}).AddTo(view);
 
 					Observable.Timer (TimeSpan.FromSeconds (2)).Subscribe (_3 =>
 					{
 						sink.Dispose ();
-//						PoolManager.GetPool().RemoveEntity(_.Target);
-						GameObject.Destroy (view);
 					});
 				});
 			}).AddTo (view);
@@ -74,10 +73,11 @@ namespace EcsRx.SurvivalShooter
 				if(_.Target.GetComponent<HealthComponent>().IsDead.Value == true)
 					return;
 
-				// take damage
 				var view = _.Target.GetComponent<ViewComponent>().View;
-				var audio = view.GetComponent<AudioSource>();
-				audio.Play();
+				var soundFX = view.GetComponentsInChildren<AudioSource>();
+				var hurtFX = soundFX.Where(_2 => _2.clip.name.Contains("Hurt")).FirstOrDefault();
+				hurtFX.Play();
+
 				var particles = view.GetComponentInChildren <ParticleSystem> ();
 				particles.transform.position = _.HitPoint;
 				particles.Play();

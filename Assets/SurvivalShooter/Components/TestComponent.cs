@@ -9,5 +9,6 @@ namespace EcsRx.SurvivalShooter
 	{
 		public Vector2 Position { get; set; }
 		public Color Color { get; set; }
+//		public Bounds Bounds { get; set; }
 	}
 }

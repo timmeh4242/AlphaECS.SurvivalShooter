@@ -43,6 +43,8 @@ namespace EcsRx.SurvivalShooter
 					return;
 				
 				TargetHealth = Target.GetComponent<EntityView> ().Entity.GetComponent<HealthComponent>();
+				if (TargetHealth == null)
+					return;
 			}
 
 			if(health.CurrentHealth.Value > 0 && TargetHealth.CurrentHealth.Value > 0)

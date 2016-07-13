@@ -39,11 +39,11 @@ namespace EcsRx.SurvivalShooter
 		{
 			// execute movement
 			var input = entity.GetComponent<InputComponent> ();
-			input.Horizontal = Input.GetAxisRaw("Horizontal");
-			input.Vertical = Input.GetAxisRaw("Vertical");
+			input.Horizontal.Value = Input.GetAxisRaw("Horizontal");
+			input.Vertical.Value = Input.GetAxisRaw("Vertical");
 
 			var movement = Vector3.zero;
-			movement.Set(input.Horizontal, 0f, input.Vertical);
+			movement.Set(input.Horizontal.Value, 0f, input.Vertical.Value);
 			var speed = 6f;
 			movement = movement.normalized * speed * Time.deltaTime;
 			var rb = entity.GetComponent<ViewComponent> ().View.transform.GetComponent<Rigidbody>();
