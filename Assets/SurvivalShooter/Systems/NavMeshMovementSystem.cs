@@ -38,7 +38,11 @@ namespace EcsRx.SurvivalShooter
 
 			if (Target == null)
 			{
-				Target = GameObject.FindGameObjectWithTag ("Player").transform;
+				var go = GameObject.FindGameObjectWithTag ("Player");
+				if (go == null)
+					return;
+				
+				Target = go.transform;
 				if (Target == null)
 					return;
 				

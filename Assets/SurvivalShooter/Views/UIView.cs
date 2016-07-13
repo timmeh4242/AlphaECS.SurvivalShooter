@@ -5,6 +5,7 @@ using EcsRx.SurvivalShooter;
 using UnityEngine.UI;
 using UniRx;
 using EcsRx.Events;
+using UniRx.Triggers;
 
 public class UIView : MonoBehaviour {
 
@@ -19,6 +20,10 @@ public class UIView : MonoBehaviour {
 		EventSystem.Receive<DeathEvent> ().Where (_ => _.Target.HasComponent<InputComponent> ()).Subscribe (_ =>
 		{
 			animator.SetTrigger("GameOver");
+			this.OnMouseDownAsObservable().Subscribe(x => 
+			{
+				Debug.Log("restarting level");
+			});
 		}).AddTo (this);
 	}
 }

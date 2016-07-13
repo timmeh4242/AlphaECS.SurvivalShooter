@@ -23,7 +23,7 @@ public class PlayerFXView : MonoBehaviour
 	{
 		animator = GetComponent <Animator> ();
 
-		Observable.TimerFrame (30).Subscribe (_ =>
+		Observable.TimerFrame (15).Subscribe (_ =>
 		{
 			var entityView = GetComponent<EntityView> ();
 			var health = entityView.Entity.GetComponent<HealthComponent> ();
@@ -59,28 +59,6 @@ public class PlayerFXView : MonoBehaviour
 			{
 				animator.SetBool("IsWalking", input.Horizontal.Value != 0f || input.Vertical.Value != 0f);
 			}).AddTo (this).AddTo (gameObject);
-
-
 		}).AddTo (this);
-//			horizontal.Merge
-//			{
-//				if(value >= previousValue)
-//					return;
-//
-//				DamageVFX.color = FlashColor;
-//				DOTween.To(() => DamageVFX.color, x => DamageVFX.color = x, Color.clear, FlashSpeed);
-//
-//				HealthSlider.value = value;
-//				AudioSource.Play ();
-//			}).AddTo(this).AddTo (gameObject);
-//		}).AddTo (this);
-//
-//		this.OnEvent<EquipItem>().AsUnitObservable()
-//			.Merge(OnEvent<UnequipItem>().AsUnitObservable())
-
-//		playerShooting.DisableEffects ();
-//		anim.SetTrigger ("Die");
-//		playerAudio.clip = deathClip;
-//		playerAudio.Play ();
 	}
 }
