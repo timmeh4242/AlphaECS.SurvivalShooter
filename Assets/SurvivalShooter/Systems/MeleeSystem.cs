@@ -40,7 +40,7 @@ namespace EcsRx.SurvivalShooter
 
 			collider.OnTriggerEnterAsObservable ().Subscribe (_ =>
 			{
-				var targetView = _.GetComponent <EntityView> ();
+				var targetView = _.GetComponent <EntityBehaviour> ();
 				if (targetView != null)
 				{
 					if(targetView.Entity.HasComponent<InputComponent>() == false)
@@ -56,7 +56,7 @@ namespace EcsRx.SurvivalShooter
 
 			collider.OnTriggerExitAsObservable ().Subscribe (_ =>
 			{
-				var targetView = _.GetComponent <EntityView> ();
+				var targetView = _.GetComponent <EntityBehaviour> ();
 				if (targetView != null)
 				{
 					if(targetView.Entity.HasComponent<InputComponent>() == false)

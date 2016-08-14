@@ -22,7 +22,7 @@ namespace EcsRx.Unity.Systems
         {
             viewToRecycle.transform.parent = null;
 
-            var entityView = viewToRecycle.GetComponent<EntityView>();
+            var entityView = viewToRecycle.GetComponent<EntityBehaviour>();
             entityView.Entity = null;
             entityView.Pool = null;
             ViewPool.ReleaseInstance(viewToRecycle);
@@ -31,7 +31,7 @@ namespace EcsRx.Unity.Systems
         protected override GameObject AllocateView(IEntity entity, IPool pool)
         {
             var viewToAllocate = ViewPool.AllocateInstance();
-            var entityView = viewToAllocate.GetComponent<EntityView>();
+            var entityView = viewToAllocate.GetComponent<EntityBehaviour>();
             entityView.Entity = entity;
             entityView.Pool = pool;
             viewToAllocate.SetActive(true);

@@ -38,10 +38,10 @@ namespace EcsRx.Systems.Executor
             ReactToDataSystemHandler = reactToDataSystemHandler;
             ManualSystemHandler = manualSystemHandler;
 
-            EventSystem.Receive<EntityAddedEvent>().Subscribe(OnEntityAddedToPool);
-            EventSystem.Receive<EntityRemovedEvent>().Subscribe(OnEntityRemovedFromPool);
-            EventSystem.Receive<ComponentAddedEvent>().Subscribe(OnEntityComponentAdded);
-            EventSystem.Receive<ComponentRemovedEvent>().Subscribe(OnEntityComponentRemoved);
+			EventSystem.OnEvent<EntityAddedEvent>().Subscribe(OnEntityAddedToPool);
+			EventSystem.OnEvent<EntityRemovedEvent>().Subscribe(OnEntityRemovedFromPool);
+			EventSystem.OnEvent<ComponentAddedEvent>().Subscribe(OnEntityComponentAdded);
+			EventSystem.OnEvent<ComponentRemovedEvent>().Subscribe(OnEntityComponentRemoved);
             
             _systems = new List<ISystem>();
             _systemSubscriptions = new Dictionary<ISystem, IList<SubscriptionToken>>();

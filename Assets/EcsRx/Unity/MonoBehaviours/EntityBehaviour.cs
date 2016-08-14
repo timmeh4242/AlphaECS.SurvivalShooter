@@ -12,7 +12,7 @@ using Assets.EcsRx.Unity.Extensions;
 
 namespace EcsRx.Unity.MonoBehaviours
 {
-    public class EntityView : MonoBehaviour
+    public class EntityBehaviour : MonoBehaviour
     {
         public IPool Pool { get; set; }
         public IEntity Entity { get; set; }
@@ -53,7 +53,7 @@ namespace EcsRx.Unity.MonoBehaviours
 
 		private void SetupEntityBinding(IEntity entity, IPool pool)
 		{
-			var entityBinding = gameObject.AddComponent<EntityView>();
+			var entityBinding = gameObject.AddComponent<EntityBehaviour>();
 			entityBinding.Entity = entity;
 			entityBinding.Pool = pool;
 		}

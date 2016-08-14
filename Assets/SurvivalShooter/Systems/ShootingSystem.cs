@@ -66,7 +66,7 @@ namespace EcsRx.SurvivalShooter
 
 						if (Physics.Raycast (ShotRay, out ShotRaycastHit, shooter.Range, ShootableMask))
 						{
-							var targetView = ShotRaycastHit.collider.GetComponent <EntityView> ();
+							var targetView = ShotRaycastHit.collider.GetComponent <EntityBehaviour> ();
 							if (targetView != null)
 							{
 								var targetHealth = targetView.Entity.GetComponent<HealthComponent> ();

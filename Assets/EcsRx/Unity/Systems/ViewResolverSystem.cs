@@ -56,10 +56,10 @@ namespace EcsRx.Unity.Systems
             var viewObject = ResolveView(entity);
             viewComponent.View = viewObject;
 
-            var entityBinding = viewObject.GetComponent<EntityView>();
+            var entityBinding = viewObject.GetComponent<EntityBehaviour>();
             if (entityBinding == null)
             {
-                entityBinding = viewObject.AddComponent<EntityView>();
+                entityBinding = viewObject.AddComponent<EntityBehaviour>();
                 entityBinding.Entity = entity;
                 
                 entityBinding.Pool = PoolManager.GetContainingPoolFor(entity);
@@ -73,7 +73,7 @@ namespace EcsRx.Unity.Systems
                     .AddTo(viewObject);
             }
 
-            EventSystem.Receive<EntityRemovedEvent>()
+			EventSystem.OnEvent<EntityRemovedEvent>()
                 .First(x => x.Entity == entity)
                 .Subscribe(x =>
                 {

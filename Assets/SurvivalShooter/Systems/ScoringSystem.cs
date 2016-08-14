@@ -36,7 +36,7 @@ namespace EcsRx.SurvivalShooter
 
 		public void StartSystem (GroupAccessor group)
 		{
-			EventSystem.Receive<DeathEvent> ().Subscribe (_ =>
+			EventSystem.OnEvent<DeathEvent> ().Subscribe (_ =>
 			{
 				Score.Value ++;
 			}).AddTo(Subscriptions);

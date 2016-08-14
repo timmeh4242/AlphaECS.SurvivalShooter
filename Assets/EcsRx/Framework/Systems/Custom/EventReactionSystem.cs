@@ -19,7 +19,7 @@ namespace EcsRx.Systems.Custom
 
         public virtual void StartSystem(GroupAccessor @group)
         {
-            _subscription = EventSystem.Receive<T>().Subscribe(EventTriggered);
+			_subscription = EventSystem.OnEvent<T>().Subscribe(EventTriggered);
         }
 
         public virtual void StopSystem(GroupAccessor @group)

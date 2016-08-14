@@ -46,7 +46,7 @@ namespace EcsRx.Unity.Systems
             var viewObject = AllocateView(entity, containingPool);
             viewComponent.View = viewObject;
 
-            EventSystem.Receive<EntityRemovedEvent>()
+			EventSystem.OnEvent<EntityRemovedEvent>()
                 .First(x => x.Entity == entity)
                 .Subscribe(x => RecycleView(viewObject));
         }

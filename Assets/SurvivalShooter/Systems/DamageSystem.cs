@@ -60,7 +60,7 @@ namespace EcsRx.SurvivalShooter
 
 		public void StartSystem (GroupAccessor group)
 		{
-			EventSystem.Receive<DamageEvent> ().Subscribe (_ =>
+			EventSystem.OnEvent<DamageEvent> ().Subscribe (_ =>
 			{
 				var targetHealth = _.Target.GetComponent<HealthComponent>();
 				if(targetHealth.CurrentHealth.Value <= 0)

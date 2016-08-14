@@ -12,7 +12,7 @@ namespace EcsRx.Events
         public void Publish<T>(T message)
         { MessageBroker.Publish(message); }
 
-        public IObservable<T> Receive<T>()
+        public IObservable<T> OnEvent<T>()
         { return MessageBroker.Receive<T>(); }
 
     }

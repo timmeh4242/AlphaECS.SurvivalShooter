@@ -17,7 +17,7 @@ public class UIView : MonoBehaviour {
 	{
 		EventSystem = eventSystem;
 
-		EventSystem.Receive<DeathEvent> ().Where (_ => _.Target.HasComponent<InputComponent> ()).Subscribe (_ =>
+		EventSystem.OnEvent<DeathEvent> ().Where (_ => _.Target.HasComponent<InputComponent> ()).Subscribe (_ =>
 		{
 			animator.SetTrigger("GameOver");
 			this.OnMouseDownAsObservable().Subscribe(x => 

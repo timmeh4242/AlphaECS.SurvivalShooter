@@ -12,10 +12,10 @@ using UnityEngine;
 
 namespace EcsRx.Unity.Helpers
 {
-    [CustomEditor(typeof(EntityView))]
-    public class EntityViewInspector : Editor
+    [CustomEditor(typeof(EntityBehaviour))]
+    public class EntityBehaviourInspector : Editor
     {
-        private EntityView _view;
+        private EntityBehaviour _view;
 
         public bool showComponents;
 
@@ -26,7 +26,7 @@ namespace EcsRx.Unity.Helpers
 
 		public override void OnInspectorGUI()
 		{
-			_view = (EntityView)target;
+			_view = (EntityBehaviour)target;
 
 			if (Application.isPlaying && _view.Entity == null)
 			{
