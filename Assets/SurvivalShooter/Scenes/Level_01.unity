@@ -3042,6 +3042,7 @@ Transform:
   - {fileID: 137785977}
   - {fileID: 641978428}
   - {fileID: 241861343}
+  - {fileID: 1971804504}
   m_Father: {fileID: 0}
   m_RootOrder: 0
 --- !u!114 &1384153776
@@ -4274,6 +4275,50 @@ CapsuleCollider:
   m_Height: 1
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!1 &1971804503
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 4
+  m_Component:
+  - 4: {fileID: 1971804504}
+  - 114: {fileID: 1971804505}
+  m_Layer: 0
+  m_Name: Systems
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1971804504
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1971804503}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_Children: []
+  m_Father: {fileID: 1384153775}
+  m_RootOrder: 10
+--- !u!114 &1971804505
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1971804503}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68201ae368f924f55954573b6e6027e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  HealthSlider: {fileID: 84919051}
+  DamageImage: {fileID: 1581398047}
+  FlashSpeed: 5
+  FlashColor: {r: 1, g: 0, b: 0, a: 0.1}
 --- !u!1 &1981064180
 GameObject:
   m_ObjectHideFlags: 0
@@ -4655,6 +4700,14 @@ Prefab:
       propertyPath: DamageImage
       value: 
       objectReference: {fileID: 1581398047}
+    - target: {fileID: 8237078, guid: 08d28d023f4d74289929bbbbffb63a71, type: 2}
+      propertyPath: spreadCustomCurve.m_RotationOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8212400, guid: 08d28d023f4d74289929bbbbffb63a71, type: 2}
+      propertyPath: spreadCustomCurve.m_RotationOrder
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 08d28d023f4d74289929bbbbffb63a71, type: 2}
   m_IsPrefabParent: 0

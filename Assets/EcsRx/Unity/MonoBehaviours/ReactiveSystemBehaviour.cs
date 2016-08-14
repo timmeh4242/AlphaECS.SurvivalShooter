@@ -11,7 +11,7 @@ using System;
 
 namespace EcsRx.Systems
 {
-	public abstract class ReactiveSystemBehaviour : MonoBehaviour, IReactiveSystem
+	public abstract class ReactiveSystemBehaviour : MonoBehaviour, IReactiveSystem, IDisposableContainer
 	{		
 		[Inject] public IEventSystem EventSystem { get; set; }
 

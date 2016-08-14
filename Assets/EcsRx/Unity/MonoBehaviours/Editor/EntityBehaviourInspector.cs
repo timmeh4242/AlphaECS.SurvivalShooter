@@ -201,7 +201,7 @@ namespace EcsRx.Unity.Helpers
 				component.DeserializeComponent(node);
 			}
 
-			var members = component.GetType().GetMembers();
+//			var members = component.GetType().GetMembers();
 			foreach (var property in component.GetType().GetProperties())
 			{
 				bool isTypeSupported = true;

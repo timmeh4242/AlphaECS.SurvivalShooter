@@ -15,7 +15,7 @@ namespace EcsRx.Systems
 	{		
 		[Inject] public IEventSystem EventSystem { get; set; }
 
-		private CompositeDisposable _disposer = new CompositeDisposable();
+		protected CompositeDisposable _disposer = new CompositeDisposable();
 		public CompositeDisposable Disposer
 		{
 			get { return _disposer; }
