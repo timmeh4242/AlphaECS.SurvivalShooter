@@ -9,6 +9,7 @@ using Zenject;
 using UnityEngine.UI;
 using DG.Tweening;
 using System.Linq;
+using System.Collections;
 
 namespace EcsRx.SurvivalShooter
 {
@@ -19,8 +20,8 @@ namespace EcsRx.SurvivalShooter
 		public float FlashSpeed = 5f;
 		public Color FlashColor = new Color(1f, 0f, 0f, 0.1f);
 
-		[Inject]
-		DiContainer Container = null;
+//		[Inject]
+//		DiContainer Container = null;
 
 		void Awake()
 		{
@@ -69,10 +70,11 @@ namespace EcsRx.SurvivalShooter
 				}).AddTo (this).AddTo (gameObject);
 			}).AddTo(this).AddTo(group);
 
-			Container.Inject (group);
+//			Container.Inject (group);
+
 		}
 
-		public override System.Collections.IEnumerator SetupAsync ()
+		public override IEnumerator SetupAsync ()
 		{
 			return base.SetupAsync ();
 		}

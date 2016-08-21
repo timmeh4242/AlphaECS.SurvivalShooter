@@ -3056,7 +3056,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89715ad69b973a14899afa2c6730b30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _installers: []
+  _installers:
+  - {fileID: 1384153777}
   _installerPrefabs: []
   _scriptableObjectInstallers: []
   _parentNewObjectsUnderRoot: 0
@@ -3068,7 +3069,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1384153774}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3fc1e31fbc72c43b69c82778b19ce813, type: 3}
+  m_Script: {fileID: 11500000, guid: b09df70cc6be544b98b4b72edf4e596d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1415822133
