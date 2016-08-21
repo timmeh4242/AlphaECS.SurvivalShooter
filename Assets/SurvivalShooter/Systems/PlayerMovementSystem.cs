@@ -13,9 +13,6 @@ namespace EcsRx.SurvivalShooter
 		public readonly float MovementSpeed = 2.0f;
 		private int FloorMask;
 
-		[Inject]
-		DiContainer Container = null;
-
 		public override void Setup ()
 		{
 			base.Setup ();

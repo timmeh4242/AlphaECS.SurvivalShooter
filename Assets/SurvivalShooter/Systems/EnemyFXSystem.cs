@@ -8,14 +8,8 @@ using EcsRx;
 
 namespace EcsRx.SurvivalShooter
 {
-	public class EnemyFXSystem : ISystem
+	public class EnemyFXSystem
 	{
-		[Inject]
-		public IEventSystem EventSystem { get; set; }
-		[Inject]
-		public IPoolManager PoolManager { get; private set; }
-		CompositeDisposable Subscriptions = new CompositeDisposable ();
-
 		const float DeathSinkSpeed = 2.5f;
 
 //		public IGroup TargetGroup 

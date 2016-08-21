@@ -12,9 +12,6 @@ namespace EcsRx.SurvivalShooter
 		Ray ShotRay;
 		RaycastHit ShotRaycastHit;
 		int ShootableMask;
-
-		[Inject]
-		DiContainer Container = null;
 			
 		public override void Setup ()
 		{

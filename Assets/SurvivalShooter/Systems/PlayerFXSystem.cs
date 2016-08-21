@@ -15,17 +15,6 @@ namespace EcsRx.SurvivalShooter
 		public Image DamageImage;
 		public float FlashSpeed = 5f;
 		public Color FlashColor = new Color(1f, 0f, 0f, 0.1f);
-
-		[Inject]
-		DiContainer Container = null;
-
-		void Awake()
-		{
-		}
-
-		void Start()
-		{
-		}
 			
 		public override void Setup ()
 		{
