@@ -293,7 +293,7 @@ AudioSource:
       tangentMode: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
-    m_RotationOrder: 4
+    m_RotationOrder: 0
   reverbZoneMixCustomCurve:
     serializedVersion: 2
     m_Curve:
@@ -441,7 +441,7 @@ AudioSource:
       tangentMode: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
-    m_RotationOrder: 4
+    m_RotationOrder: 0
   reverbZoneMixCustomCurve:
     serializedVersion: 2
     m_Curve:
@@ -536,10 +536,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 72e6625fcca4f420fb4747960a8e6a37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  HealthSlider: {fileID: 0}
-  DamageImage: {fileID: 0}
-  FlashSpeed: 5
-  FlashColor: {r: 1, g: 0, b: 0, a: 0.1}
 --- !u!120 &12023252
 LineRenderer:
   m_ObjectHideFlags: 1

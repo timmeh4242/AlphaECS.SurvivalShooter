@@ -1,9 +1,5 @@
-﻿using EcsRx.Systems;
-using EcsRx.Unity.Components;
-using UnityEngine;
-using EcsRx.Unity.MonoBehaviours;
-using EcsRx.Events;
-using EcsRx.Groups;
+﻿using UnityEngine;
+using EcsRx.Unity;
 using UniRx;
 using Zenject;
 using UnityEngine.UI;
@@ -13,15 +9,15 @@ using System.Collections;
 
 namespace EcsRx.SurvivalShooter
 {
-	public class PlayerFXSystem : ReactiveSystemBehaviour
+	public class PlayerFXSystem : SystemBehaviour
 	{
 		public Slider HealthSlider;
 		public Image DamageImage;
 		public float FlashSpeed = 5f;
 		public Color FlashColor = new Color(1f, 0f, 0f, 0.1f);
 
-//		[Inject]
-//		DiContainer Container = null;
+		[Inject]
+		DiContainer Container = null;
 
 		void Awake()
 		{
@@ -35,7 +31,7 @@ namespace EcsRx.SurvivalShooter
 		{
 			base.Setup ();
 
-			var group = new ReactiveGroup (typeof(ViewComponent), typeof(HealthComponent), typeof(InputComponent));
+			var group = new Group (typeof(ViewComponent), typeof(HealthComponent), typeof(InputComponent));
 
 			group.Entities.ObserveAdd ().Subscribe (_ =>
 			{
@@ -70,8 +66,7 @@ namespace EcsRx.SurvivalShooter
 				}).AddTo (this).AddTo (gameObject);
 			}).AddTo(this).AddTo(group);
 
-//			Container.Inject (group);
-
+			Container.Inject (group);
 		}
 
 		public override IEnumerator SetupAsync ()

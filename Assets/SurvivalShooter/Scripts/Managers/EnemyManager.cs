@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
-using EcsRx.Unity.MonoBehaviours;
+using EcsRx;
 using Zenject;
-using EcsRx.Pools;
 
 public class EnemyManager : MonoBehaviour
 {

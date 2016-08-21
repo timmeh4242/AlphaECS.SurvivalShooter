@@ -3072,6 +3072,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b09df70cc6be544b98b4b72edf4e596d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  SystemNamespaces:
+  - EcsRx.SurvivalShooter
 --- !u!1 &1415822133
 GameObject:
   m_ObjectHideFlags: 0
@@ -4285,6 +4287,7 @@ GameObject:
   m_Component:
   - 4: {fileID: 1971804504}
   - 114: {fileID: 1971804505}
+  - 114: {fileID: 1971804506}
   m_Layer: 0
   m_Name: Systems
   m_TagString: Untagged
@@ -4320,6 +4323,17 @@ MonoBehaviour:
   DamageImage: {fileID: 1581398047}
   FlashSpeed: 5
   FlashColor: {r: 1, g: 0, b: 0, a: 0.1}
+--- !u!114 &1971804506
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1971804503}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 95d145ad2b6a34ce6ab9bd32366d8b16, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1981064180
 GameObject:
   m_ObjectHideFlags: 0
@@ -4692,22 +4706,6 @@ Prefab:
     - target: {fileID: 401004, guid: 08d28d023f4d74289929bbbbffb63a71, type: 2}
       propertyPath: m_RootOrder
       value: 7
-      objectReference: {fileID: 0}
-    - target: {fileID: 11475324, guid: 08d28d023f4d74289929bbbbffb63a71, type: 2}
-      propertyPath: HealthSlider
-      value: 
-      objectReference: {fileID: 84919051}
-    - target: {fileID: 11475324, guid: 08d28d023f4d74289929bbbbffb63a71, type: 2}
-      propertyPath: DamageImage
-      value: 
-      objectReference: {fileID: 1581398047}
-    - target: {fileID: 8237078, guid: 08d28d023f4d74289929bbbbffb63a71, type: 2}
-      propertyPath: spreadCustomCurve.m_RotationOrder
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8212400, guid: 08d28d023f4d74289929bbbbffb63a71, type: 2}
-      propertyPath: spreadCustomCurve.m_RotationOrder
-      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 08d28d023f4d74289929bbbbffb63a71, type: 2}

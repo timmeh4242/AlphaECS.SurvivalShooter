@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using EcsRx.Extensions;
-using EcsRx.Systems;
-using EcsRx.Systems.Executor;
-using EcsRx.Unity.Systems;
+using EcsRx;
+//using EcsRx.Systems.Executor;
+using EcsRx.Unity;
 using Zenject;
 
 namespace EcsRx.SurvivalShooter
@@ -20,18 +20,18 @@ namespace EcsRx.SurvivalShooter
 			Container.Bind<PlayerMovementSystem> ().AsSingle ();
 			Container.Bind<ShootingSystem> ().AsSingle ();
 
-			RegisterSystems();
+//			RegisterSystems();
 		}
 
 		private void RegisterSystems()
 		{
-			var allSystems = Container.ResolveAll<ISystem>();
-			var systemExecutor = Container.Resolve<ISystemExecutor>();
-
-			var orderedSystems = allSystems
-				.OrderByDescending(x => x is ViewResolverSystem)
-				.ThenByDescending(x => x is ISetupSystem);
-			orderedSystems.ForEachRun(systemExecutor.AddSystem);
+//			var allSystems = Container.ResolveAll<ISystem>();
+//			var systemExecutor = Container.Resolve<ISystemExecutor>();
+//
+//			var orderedSystems = allSystems
+//				.OrderByDescending(x => x is ViewResolverSystem)
+//				.ThenByDescending(x => x is ISetupSystem);
+//			orderedSystems.ForEachRun(systemExecutor.AddSystem);
 		}
 	}
 }

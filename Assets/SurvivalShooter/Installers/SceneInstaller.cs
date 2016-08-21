@@ -1,6 +1,6 @@
 using UnityEngine;
 using Zenject;
-using EcsRx.Systems;
+using EcsRx;
 using System.Linq;
 using System.Collections.Generic;
 
@@ -10,7 +10,7 @@ public class SceneInstaller : MonoInstaller
 
     public override void InstallBindings()
     {
-		var systemTypes = GetComponentsInChildren<IReactiveSystem> ().Select (x => x.GetType ());
+		var systemTypes = GetComponentsInChildren<ISystem> ().Select (x => x.GetType ());
 		Container.Bind (systemTypes).AsSingle ();
     }
 }

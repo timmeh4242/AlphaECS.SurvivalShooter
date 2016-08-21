@@ -1,67 +1,62 @@
-﻿using EcsRx.Entities;
-using EcsRx.Groups;
-using EcsRx.Systems;
-using EcsRx.Unity.Components;
-using UniRx;
+﻿using UniRx;
 using UnityEngine;
+using EcsRx.Unity;
 using Zenject;
+using System;
+using System.Collections;
+using EcsRx;
 
 namespace EcsRx.SurvivalShooter
 {
-	public class PlayerMovementSystem : IReactToGroupSystem
+	public class PlayerMovementSystem : SystemBehaviour
 	{
 		public readonly float MovementSpeed = 2.0f;
-		public int FloorMask;
+		private int FloorMask;
 
-		public PlayerMovementSystem()
+		[Inject]
+		DiContainer Container = null;
+
+		public override void Setup ()
 		{
+			base.Setup ();
+
 			FloorMask = LayerMask.GetMask("Floor");
-		}
 
-		public IGroup TargetGroup
-		{
-			get
+			var group = new Group (typeof(ViewComponent), typeof(InputComponent));
+//				.WithPredicate(x => x.GetComponent<ViewComponent>().View.GetComponent<Rigidbody>() != null)
+//				.Build();
+
+			Observable.EveryFixedUpdate ().Subscribe (_ =>
 			{
-				return new GroupBuilder()
-					.WithComponent<ViewComponent>()
-					.WithComponent<InputComponent>()
-					.WithPredicate(x => x.GetComponent<ViewComponent>().View.GetComponent<Rigidbody>() != null)
-					.Build();
-			}
-		}
+				foreach(var entity in group.Entities)
+				{
+					var input = entity.GetComponent<InputComponent> ();
+					input.Horizontal.Value = Input.GetAxisRaw("Horizontal");
+					input.Vertical.Value = Input.GetAxisRaw("Vertical");
 
-		public IObservable<GroupAccessor> ReactToGroup(GroupAccessor @group)
-		{
-			return Observable.EveryFixedUpdate().Select(x => @group);
-		}
+					var movement = Vector3.zero;
+					movement.Set(input.Horizontal.Value, 0f, input.Vertical.Value);
+					var speed = 6f;
+					movement = movement.normalized * speed * Time.deltaTime;
+					var rb = entity.GetComponent<ViewComponent> ().View.transform.GetComponent<Rigidbody>();
+					rb.MovePosition(rb.transform.position + movement);
 
-		public void Execute(IEntity entity)
-		{
-			// execute movement
-			var input = entity.GetComponent<InputComponent> ();
-			input.Horizontal.Value = Input.GetAxisRaw("Horizontal");
-			input.Vertical.Value = Input.GetAxisRaw("Vertical");
+					// execute turning
+					Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+					RaycastHit hit;
 
-			var movement = Vector3.zero;
-			movement.Set(input.Horizontal.Value, 0f, input.Vertical.Value);
-			var speed = 6f;
-			movement = movement.normalized * speed * Time.deltaTime;
-			var rb = entity.GetComponent<ViewComponent> ().View.transform.GetComponent<Rigidbody>();
-			rb.MovePosition(rb.transform.position + movement);
+					if (Physics.Raycast(ray, out hit, 1000f, FloorMask))
+					{
+						Vector3 playerToMouse = hit.point - rb.transform.position;
+						playerToMouse.y = 0f;
 
+						Quaternion newRotation = Quaternion.LookRotation(playerToMouse);
+						rb.MoveRotation(newRotation);
+					}
+				}
+			}).AddTo (this);
 
-			// execute turning
-			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-			RaycastHit hit;
-
-			if (Physics.Raycast(ray, out hit, 1000f, FloorMask))
-			{
-				Vector3 playerToMouse = hit.point - rb.transform.position;
-				playerToMouse.y = 0f;
-
-				Quaternion newRotation = Quaternion.LookRotation(playerToMouse);
-				rb.MoveRotation(newRotation);
-			}
+			Container.Inject (group);
 		}
 	}
 }

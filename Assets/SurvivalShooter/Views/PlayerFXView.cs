@@ -4,8 +4,8 @@ using Zenject;
 using EcsRx.SurvivalShooter;
 using UnityEngine.UI;
 using UniRx;
-using EcsRx.Events;
-using EcsRx.Unity.MonoBehaviours;
+using EcsRx;
+using EcsRx.Unity;
 using DG.Tweening;
 using System.Linq;
 

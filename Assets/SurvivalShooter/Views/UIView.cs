@@ -4,7 +4,7 @@ using Zenject;
 using EcsRx.SurvivalShooter;
 using UnityEngine.UI;
 using UniRx;
-using EcsRx.Events;
+using EcsRx;
 using UniRx.Triggers;
 
 public class UIView : MonoBehaviour {

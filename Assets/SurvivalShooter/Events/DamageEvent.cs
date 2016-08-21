@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using EcsRx.Entities;
+using EcsRx;
 
 namespace EcsRx.SurvivalShooter
 {

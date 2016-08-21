@@ -1,4 +1,4 @@
-﻿using EcsRx.Components;
+﻿using EcsRx;
 using UniRx;
 using System;
 

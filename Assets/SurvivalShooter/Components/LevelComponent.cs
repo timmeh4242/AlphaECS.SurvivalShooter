@@ -1,4 +1,4 @@
-﻿using EcsRx.Components;
+﻿using EcsRx;
 
 namespace EcsRx.SurvivalShooter
 {

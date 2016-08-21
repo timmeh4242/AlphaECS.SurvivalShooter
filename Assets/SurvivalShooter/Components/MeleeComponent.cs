@@ -1,6 +1,5 @@
-﻿using EcsRx.Components;
+﻿using EcsRx;
 using UniRx;
-using EcsRx.Entities;
 using System;
 
 namespace EcsRx.SurvivalShooter
