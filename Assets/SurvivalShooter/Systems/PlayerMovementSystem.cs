@@ -19,7 +19,7 @@ namespace EcsRx.SurvivalShooter
 
 			FloorMask = LayerMask.GetMask("Floor");
 
-			var group = new Group (typeof(ViewComponent), typeof(InputComponent));
+			var group = GroupFactory.Create(new Type[] { typeof(ViewComponent), typeof(InputComponent) });
 //				.WithPredicate(x => x.GetComponent<ViewComponent>().View.GetComponent<Rigidbody>() != null)
 //				.Build();
 
@@ -53,7 +53,7 @@ namespace EcsRx.SurvivalShooter
 				}
 			}).AddTo (this);
 
-			Container.Inject (group);
+//			Container.Inject (group);
 		}
 	}
 }

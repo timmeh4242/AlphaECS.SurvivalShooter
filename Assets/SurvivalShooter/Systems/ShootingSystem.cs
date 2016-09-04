@@ -17,10 +17,10 @@ namespace EcsRx.SurvivalShooter
 		{
 			ShootableMask = LayerMask.GetMask("Shootable");
 
-			var group = new Group (typeof(ViewComponent), typeof(ShooterComponent));
-			group.Entities.ObserveAdd ().Subscribe (e =>
+			var group = GroupFactory.Create(new Type[] { typeof(ViewComponent), typeof(ShooterComponent) });
+
+			Action<IEntity> ShooterCreatedHandler = (entity) =>
 			{
-				var entity = e.Value;
 				var view = entity.GetComponent<ViewComponent> ();
 				var shooter = entity.GetComponent<ShooterComponent> ();
 				shooter.IsShooting = new BoolReactiveProperty ();
@@ -84,6 +84,14 @@ namespace EcsRx.SurvivalShooter
 							shooter.Shoot.Dispose();
 					}
 				}).AddTo(view.View);	
+			};
+
+			foreach(var entity in group.Entities)
+			{ ShooterCreatedHandler.Invoke (entity); }
+
+			group.Entities.ObserveAdd ().Select(e => e.Value).Subscribe (e =>
+			{
+				ShooterCreatedHandler.Invoke(e);
 			}).AddTo (this);
 
 			Observable.EveryUpdate().Subscribe(_ =>
@@ -102,7 +110,7 @@ namespace EcsRx.SurvivalShooter
 				}
 			}).AddTo(this);
 
-			Container.Inject(group);
+//			Container.Inject(group);
 		}
 	}
 }

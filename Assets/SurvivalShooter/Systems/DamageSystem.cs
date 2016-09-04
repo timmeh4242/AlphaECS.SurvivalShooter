@@ -12,7 +12,7 @@ namespace EcsRx.SurvivalShooter
 	{
 		public override void Setup ()
 		{
-			var group = new Group (typeof(HealthComponent));
+			var group = GroupFactory.Create(new Type[] { typeof(HealthComponent) });
 			group.Entities.ObserveAdd ().Subscribe (e =>
 			{
 				var entity = e.Value;
@@ -42,7 +42,7 @@ namespace EcsRx.SurvivalShooter
 				}).AddTo (view.View);
 			}).AddTo (group);
 
-			Container.Inject (group);
+//			Container.Inject (group);
 
 			EventSystem.OnEvent<DamageEvent> ().Subscribe (_ =>
 			{

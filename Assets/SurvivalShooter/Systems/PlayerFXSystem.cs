@@ -4,6 +4,7 @@ using UniRx;
 using Zenject;
 using UnityEngine.UI;
 using DG.Tweening;
+using System;
 using System.Linq;
 using System.Collections;
 
@@ -20,7 +21,8 @@ namespace EcsRx.SurvivalShooter
 		{
 			base.Setup ();
 
-			var group = new Group (typeof(ViewComponent), typeof(HealthComponent), typeof(InputComponent));
+//			var group = new Group (typeof(ViewComponent), typeof(HealthComponent), typeof(InputComponent));
+			var group = GroupFactory.Create(new Type[] { typeof(ViewComponent), typeof(HealthComponent), typeof(InputComponent) });
 
 			group.Entities.ObserveAdd ().Subscribe (_ =>
 			{
@@ -55,7 +57,7 @@ namespace EcsRx.SurvivalShooter
 				}).AddTo (this).AddTo (gameObject);
 			}).AddTo(this).AddTo(group);
 
-			Container.Inject (group);
+//			Container.Inject (group);
 		}
 
 		public override IEnumerator SetupAsync ()

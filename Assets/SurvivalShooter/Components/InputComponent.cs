@@ -3,7 +3,7 @@ using UniRx;
 
 namespace EcsRx.SurvivalShooter
 {
-	public class InputComponent : IComponent
+	public class InputComponent
 	{
 		public FloatReactiveProperty Horizontal { get; set; }
 		public FloatReactiveProperty Vertical { get; set; }
