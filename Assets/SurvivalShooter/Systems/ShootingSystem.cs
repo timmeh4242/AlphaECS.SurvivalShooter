@@ -19,7 +19,7 @@ namespace EcsRx.SurvivalShooter
 
 			var group = GroupFactory.Create(new Type[] { typeof(ViewComponent), typeof(ShooterComponent) });
 
-			Action<IEntity> ShooterCreatedHandler = (entity) =>
+			group.Entities.ObserveAdd ().Select(x => x.Value).StartWith(group.Entities).Subscribe (entity =>
 			{
 				var view = entity.GetComponent<ViewComponent> ();
 				var shooter = entity.GetComponent<ShooterComponent> ();
@@ -84,14 +84,6 @@ namespace EcsRx.SurvivalShooter
 							shooter.Shoot.Dispose();
 					}
 				}).AddTo(view.View);	
-			};
-
-			foreach(var entity in group.Entities)
-			{ ShooterCreatedHandler.Invoke (entity); }
-
-			group.Entities.ObserveAdd ().Select(e => e.Value).Subscribe (e =>
-			{
-				ShooterCreatedHandler.Invoke(e);
 			}).AddTo (this);
 
 			Observable.EveryUpdate().Subscribe(_ =>
@@ -109,8 +101,6 @@ namespace EcsRx.SurvivalShooter
 					}
 				}
 			}).AddTo(this);
-
-//			Container.Inject(group);
 		}
 	}
 }

@@ -13,9 +13,8 @@ namespace EcsRx.SurvivalShooter
 		public override void Setup ()
 		{
 			var group = GroupFactory.Create(new Type[] { typeof(HealthComponent) });
-			group.Entities.ObserveAdd ().Subscribe (e =>
+			group.Entities.ObserveAdd ().Select(x => x.Value).StartWith(group.Entities).Subscribe (entity =>
 			{
-				var entity = e.Value;
 				var view = entity.GetComponent<ViewComponent> ();
 				var health = entity.GetComponent<HealthComponent> ();
 				health.CurrentHealth = new IntReactiveProperty ();
@@ -25,12 +24,12 @@ namespace EcsRx.SurvivalShooter
 				health.CurrentHealth.DistinctUntilChanged ().Where (value => value <= 0).Subscribe (_ =>
 				{
 					health.IsDead.Value = true;
-				}).AddTo (view.View);
+				}).AddTo (health);
 
 				health.CurrentHealth.DistinctUntilChanged ().Where (value => value > 0).Subscribe (_ =>
 				{
 					health.IsDead.Value = false;
-				}).AddTo (view.View);
+				}).AddTo (health);
 
 				health.IsDead.DistinctUntilChanged ().Where (value => value == true).Subscribe (_ =>
 				{
@@ -39,11 +38,9 @@ namespace EcsRx.SurvivalShooter
 						PoolManager.GetPool ().RemoveEntity (entity);
 						GameObject.Destroy (view.View);
 					});
-				}).AddTo (view.View);
+				}).AddTo (health);
 			}).AddTo (group);
-
-//			Container.Inject (group);
-
+				
 			EventSystem.OnEvent<DamageEvent> ().Subscribe (_ =>
 			{
 				var targetHealth = _.Target.GetComponent<HealthComponent>();

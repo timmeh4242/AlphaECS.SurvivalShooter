@@ -8,7 +8,7 @@ using EcsRx;
 
 namespace EcsRx.SurvivalShooter
 {
-	public class EnemyFXSystem
+	public class EnemyFXSystem : SystemBehaviour
 	{
 		const float DeathSinkSpeed = 2.5f;
 
