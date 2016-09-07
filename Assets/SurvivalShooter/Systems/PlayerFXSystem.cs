@@ -21,20 +21,19 @@ namespace EcsRx.SurvivalShooter
 		{
 			base.Setup ();
 
-//			var group = new Group (typeof(ViewComponent), typeof(HealthComponent), typeof(InputComponent));
 			var group = GroupFactory.Create(new Type[] { typeof(ViewComponent), typeof(HealthComponent), typeof(InputComponent) });
 
-			group.Entities.ObserveAdd ().Subscribe (_ =>
+			group.Entities.ObserveAdd ().Select(x => x.Value).StartWith(group.Entities).Subscribe (entity =>
 			{
-				var health = _.Value.GetComponent<HealthComponent> ();
+				var health = entity.GetComponent<HealthComponent> ();
 				var previousValue = health.CurrentHealth.Value;
 
-				var audioSources = _.Value.GetComponent<ViewComponent> ().View.GetComponentsInChildren<AudioSource>();
+				var audioSources = entity.GetComponent<ViewComponent> ().View.GetComponentsInChildren<AudioSource>();
 
 				var hurtSound = audioSources.Where(audioSource => audioSource.clip.name.Contains("Hurt")).FirstOrDefault();
 				var deathSound = audioSources.Where(audioSource => audioSource.clip.name.Contains("Death")).FirstOrDefault();
 
-				var animator = _.Value.GetComponent<ViewComponent> ().View.GetComponent<Animator>();
+				var animator = entity.GetComponent<ViewComponent> ().View.GetComponent<Animator>();
 
 				health.CurrentHealth.DistinctUntilChanged ().Subscribe (value =>
 				{
@@ -56,13 +55,6 @@ namespace EcsRx.SurvivalShooter
 					}
 				}).AddTo (this).AddTo (gameObject);
 			}).AddTo(this).AddTo(group);
-
-//			Container.Inject (group);
-		}
-
-		public override IEnumerator SetupAsync ()
-		{
-			return base.SetupAsync ();
 		}
 	}
 }

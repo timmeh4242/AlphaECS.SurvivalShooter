@@ -4637,8 +4637,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68201ae368f924f55954573b6e6027e6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  HealthSlider: {fileID: 0}
-  DamageImage: {fileID: 0}
+  HealthSlider: {fileID: 84919051}
+  DamageImage: {fileID: 1581398047}
   FlashSpeed: 5
   FlashColor: {r: 1, g: 0, b: 0, a: 0.1}
 --- !u!114 &2030727171
