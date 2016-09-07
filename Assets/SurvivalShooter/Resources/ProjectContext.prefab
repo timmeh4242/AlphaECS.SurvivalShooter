@@ -10,6 +10,7 @@ GameObject:
   - 4: {fileID: 422616}
   - 114: {fileID: 11412176}
   - 114: {fileID: 114000013083129944}
+  - 114: {fileID: 114000011319983044}
   m_Layer: 0
   m_Name: ProjectContext
   m_TagString: Untagged
@@ -75,6 +76,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _installers:
   - {fileID: 114000013083129944}
+  - {fileID: 114000011319983044}
   _installerPrefabs: []
   _scriptableObjectInstallers: []
 --- !u!114 &11421320
@@ -148,6 +150,17 @@ Transform:
   m_Children: []
   m_Father: {fileID: 422616}
   m_RootOrder: 1
+--- !u!114 &114000011319983044
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 112274}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c8176124a6044abfa860aa69addf300, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114000013083129944
 MonoBehaviour:
   m_ObjectHideFlags: 1

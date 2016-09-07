@@ -4,7 +4,7 @@ using EcsRx;
 using System.Linq;
 using System.Collections.Generic;
 
-public class SceneInstaller : MonoInstaller
+public class ProjectInstaller : MonoInstaller
 {
 //	public List<string> SystemNamespaces = new List<string>();
 
