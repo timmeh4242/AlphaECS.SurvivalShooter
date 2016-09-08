@@ -3,6 +3,7 @@ using Zenject;
 using EcsRx;
 using System.Linq;
 using System.Collections.Generic;
+using EcsRx.SurvivalShooter;
 
 public class SceneInstaller : MonoInstaller
 {

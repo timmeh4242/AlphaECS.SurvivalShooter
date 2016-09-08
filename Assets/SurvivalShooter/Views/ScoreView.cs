@@ -7,15 +7,15 @@ using UniRx;
 
 public class ScoreView : MonoBehaviour
 {
-//	private ScoringSystem ScoringSystem { get; set; }
+//	[Inject] private ScoringSystem ScoringSystem { get; set; }
 //
 //	Text ScoreText;
 //
 //	[Inject]
-//	public void Initialize(ScoringSystem scoringSystem)
+//	public void Initialize()
 //	{
 //		ScoreText = GetComponent<Text> ();
-//		ScoringSystem = scoringSystem;
+////		ScoringSystem = scoringSystem;
 //		ScoringSystem.Score.DistinctUntilChanged ().Subscribe (value =>
 //		{
 //			ScoreText.text = "Score: " + value.ToString();			
