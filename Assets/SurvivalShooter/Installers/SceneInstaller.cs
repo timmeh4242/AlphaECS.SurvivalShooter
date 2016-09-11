@@ -4,14 +4,16 @@ using EcsRx;
 using System.Linq;
 using System.Collections.Generic;
 using EcsRx.SurvivalShooter;
+using EcsRx.Unity;
 
 public class SceneInstaller : MonoInstaller
 {
-//	public List<string> SystemNamespaces = new List<string>();
-
     public override void InstallBindings()
     {
-		var systemTypes = GetComponentsInChildren<ISystem> ().Select (x => x.GetType ());
-		Container.Bind (systemTypes).AsSingle ();
+		var systems = GetComponentsInChildren<SystemBehaviour> ();
+		foreach (var system in systems)
+		{
+			Container.Bind(system.GetType()).To (system.GetType()).FromInstance (system).AsSingle ();
+		}
     }
 }

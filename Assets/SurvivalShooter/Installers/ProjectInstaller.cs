@@ -3,14 +3,16 @@ using Zenject;
 using EcsRx;
 using System.Linq;
 using System.Collections.Generic;
+using EcsRx.Unity;
 
 public class ProjectInstaller : MonoInstaller
 {
-//	public List<string> SystemNamespaces = new List<string>();
-
     public override void InstallBindings()
     {
-		var systemTypes = GetComponentsInChildren<ISystem> ().Select (x => x.GetType ());
-		Container.Bind (systemTypes).AsSingle ();
+		var systemTypes = GetComponentsInChildren<SystemBehaviour> ();
+		foreach (var system in systemTypes)
+		{
+			Container.Bind(system.GetType()).To (system.GetType()).FromInstance (system).AsSingle ();
+		}
     }
 }
