@@ -40,7 +40,7 @@ namespace EcsRx.SurvivalShooter
 					if (value >= previousValue)
 						return;
 
-					if(value > 0)
+					if(value >= 0)
 					{
 						DamageImage.color = FlashColor;
 						DOTween.To (() => DamageImage.color, x => DamageImage.color = x, Color.clear, FlashSpeed);
