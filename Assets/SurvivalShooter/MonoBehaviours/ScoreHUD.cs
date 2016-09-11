@@ -2,20 +2,21 @@
 using System.Collections;
 using Zenject;
 using EcsRx.SurvivalShooter;
+using EcsRx.Unity;
 using UnityEngine.UI;
 using UniRx;
 
-public class ScoreView : MonoBehaviour
+public class ScoreHUD : ComponentBehaviour
 {
 	[Inject] private ScoringSystem ScoringSystem { get; set; }
 
 	Text ScoreText;
 
-	[Inject]
-	public void Initialize()
+	public override void Setup ()
 	{
+		base.Setup ();
+
 		ScoreText = GetComponent<Text> ();
-//		ScoringSystem = scoringSystem;
 		ScoringSystem.Score.DistinctUntilChanged ().Subscribe (value =>
 		{
 			ScoreText.text = "Score: " + value.ToString();			

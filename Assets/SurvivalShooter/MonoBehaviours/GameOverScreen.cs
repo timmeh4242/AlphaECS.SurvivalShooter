@@ -5,17 +5,16 @@ using EcsRx.SurvivalShooter;
 using UnityEngine.UI;
 using UniRx;
 using EcsRx;
+using EcsRx.Unity;
 using UniRx.Triggers;
 
-public class UIView : MonoBehaviour {
-
-	public IEventSystem EventSystem { get; private set; }
+public class GameOverScreen : ComponentBehaviour
+{
 	public Animator animator;
 
-	[Inject]
-	public void Initialize(IEventSystem eventSystem)
+	public override void Setup ()
 	{
-		EventSystem = eventSystem;
+		base.Setup ();
 
 		EventSystem.OnEvent<DeathEvent> ().Where (_ => _.Target.HasComponent<InputComponent> ()).Subscribe (_ =>
 		{
