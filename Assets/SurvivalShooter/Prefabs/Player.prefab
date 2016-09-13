@@ -366,7 +366,7 @@ AudioSource:
       tangentMode: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
-    m_RotationOrder: 4
+    m_RotationOrder: 0
   reverbZoneMixCustomCurve:
     serializedVersion: 2
     m_Curve:
@@ -516,14 +516,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PoolName: 
   CachedComponents:
-  - EcsRx.SurvivalShooter.InputComponent
   - EcsRx.SurvivalShooter.HealthComponent
   - EcsRx.SurvivalShooter.ShooterComponent
+  - EcsRx.SurvivalShooter.InputComponent
   CachedProperties:
-  - "{\n\t\"Horizontal\":0\t, \n\t\"Vertical\":0}\n"
   - "{\n\t\"StartingHealth\":100\t, \n\t\"CurrentHealth\":100\t, \n\t\"IsDamaged\":false\t,
     \n\t\"IsDead\":false}\n"
   - "{\n\t\"Damage\":10\t, \n\t\"ShotsPerSecond\":10\t, \n\t\"Range\":100\t, \n\t\"IsShooting\":false}\n"
+  - "{\n\t\"Horizontal\":0\t, \n\t\"Vertical\":0}\n"
 --- !u!120 &12023252
 LineRenderer:
   m_ObjectHideFlags: 1
@@ -2441,7 +2441,7 @@ ParticleSystemRenderer:
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
-  m_SelectedWireframeHidden: 0
+  m_SelectedWireframeHidden: 1
   m_MinimumChartSize: 4
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89

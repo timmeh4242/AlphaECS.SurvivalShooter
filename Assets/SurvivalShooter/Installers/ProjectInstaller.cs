@@ -12,7 +12,7 @@ public class ProjectInstaller : MonoInstaller
 		var systemTypes = GetComponentsInChildren<SystemBehaviour> ();
 		foreach (var system in systemTypes)
 		{
-			Container.Bind(system.GetType()).To (system.GetType()).FromInstance (system).AsSingle ();
+			Container.Bind(system.GetType()).FromInstance (system).AsSingle ();
 		}
     }
 }

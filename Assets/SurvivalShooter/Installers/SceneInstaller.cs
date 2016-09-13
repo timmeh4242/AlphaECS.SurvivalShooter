@@ -13,7 +13,7 @@ public class SceneInstaller : MonoInstaller
 		var systems = GetComponentsInChildren<SystemBehaviour> ();
 		foreach (var system in systems)
 		{
-			Container.Bind(system.GetType()).To (system.GetType()).FromInstance (system).AsSingle ();
+			Container.Bind(system.GetType()).FromInstance (system).AsSingle ();
 		}
     }
 }
