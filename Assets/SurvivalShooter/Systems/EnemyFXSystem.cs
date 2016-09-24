@@ -17,7 +17,7 @@ namespace EcsRx.SurvivalShooter
 		{
 			base.Setup ();
 
-			EventSystem.OnEvent<DamageEvent> ().Subscribe (_ =>
+			EventSystem.OnEvent<DamageEvent> ().Where(_ => _.Target.HasComponent<InputComponent>() == false).Subscribe (_ =>
 			{
 				if(_.Target.GetComponent<HealthComponent>().IsDead.Value == true)
 					return;
