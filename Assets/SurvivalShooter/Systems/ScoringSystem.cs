@@ -17,7 +17,7 @@ namespace EcsRx.SurvivalShooter
 			Score = new IntReactiveProperty ();
 
 //			var group = GroupFactory.Create (new Type[]{ typeof(ViewComponent), typeof(MeleeComponent), typeof(NavMeshAgent) });
-			EventSystem.OnEvent<DeathEvent> ().Subscribe (_ =>
+			EventSystem.OnEvent<DeathEvent> ().Where (_ => !_.Target.HasComponent<InputComponent> ()).Subscribe (_ =>
 			{
 				Score.Value++;
 			}).AddTo (this);

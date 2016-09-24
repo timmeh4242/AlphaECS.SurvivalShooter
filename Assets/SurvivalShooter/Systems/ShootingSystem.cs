@@ -75,15 +75,15 @@ namespace EcsRx.SurvivalShooter
 							Observable.Timer(shotDuration).Subscribe(_2 => {
 								shotLine.enabled = false;
 								shotLight.enabled = false;	
-							}).AddTo(view.View);
-						});
+							}).AddTo(this).AddTo(view.View);
+						}).AddTo(this).AddTo(shooter);
 					}
 					else
 					{
 						if(shooter.Shoot != null)
 							shooter.Shoot.Dispose();
 					}
-				}).AddTo(view.View);	
+				}).AddTo(this).AddTo(shooter);	
 			}).AddTo (this);
 
 			Observable.EveryUpdate().Subscribe(_ =>

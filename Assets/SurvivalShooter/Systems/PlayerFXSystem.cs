@@ -37,23 +37,32 @@ namespace EcsRx.SurvivalShooter
 
 				health.CurrentHealth.DistinctUntilChanged ().Subscribe (value =>
 				{
-					if (value >= previousValue)
-						return;
-
-					if(value >= 0)
+					// if you got hurt and are still alive...
+					if(value < previousValue && value >= 0)
 					{
-						DamageImage.color = FlashColor;
-						DOTween.To (() => DamageImage.color, x => DamageImage.color = x, Color.clear, FlashSpeed);
+						if(DamageImage != null)
+						{
+							DamageImage.color = FlashColor;
+							DOTween.To (() => DamageImage.color, x => DamageImage.color = x, Color.clear, FlashSpeed);
+						}
 	
-						HealthSlider.value = value;
 						hurtSound.Play();				
 					}
-					else
+					// if you gained health...
+					else if(value >= previousValue && value >= 0)
+					{
+
+					}
+					// if you're dead...
+					else if(value < 0)
 					{
 						animator.SetTrigger ("Die");
-						deathSound.Play();	
+						deathSound.Play();
 					}
-				}).AddTo (this).AddTo (gameObject);
+
+					HealthSlider.value = value;
+					previousValue = value;
+				}).AddTo(this).AddTo(health);
 			}).AddTo(this).AddTo(group);
 		}
 	}

@@ -8,40 +8,23 @@ using System.Collections;
 
 namespace EcsRx.SurvivalShooter
 {
-	public class LevelSystem
+	public class LevelSystem : SystemBehaviour
 	{
-//		public IEventSystem EventSystem { get; private set; }
-//		private CompositeDisposable Subscriptions = new CompositeDisposable();
-//
-//		public LevelSystem(IEventSystem eventSystem)
-//		{
-//			EventSystem = eventSystem;
-//		}
-//
-//		public IGroup TargetGroup 
-//		{
-//			get 
-//			{
-//				return new GroupBuilder ()
-//					.WithComponent<ViewComponent> ()
-//					.Build ();
-//			}
-//		}
-//
-//		public void StartSystem (GroupAccessor group)
-//		{
-//			EventSystem.OnEvent<DeathEvent> ().Subscribe (_ =>
-//			{
-////				this.OnMouseDownAsObservable().Subscribe(x => 
-////				{
-////					Debug.Log("restarting level");
-////				});
-//			}).AddTo(Subscriptions);
-//		}
-//
-//		public void StopSystem (GroupAccessor group)
-//		{
-//			Subscriptions.Dispose ();
-//		}
+		public override void Setup ()
+		{
+			base.Setup ();
+
+			EventSystem.OnEvent<DeathEvent> ().Where (_ => _.Target.HasComponent<InputComponent> ()).Subscribe (_ =>
+			{
+				Observable.EveryUpdate().Subscribe(__ =>
+				{
+					if(Input.GetMouseButton(0))
+					{
+						EventSystem.Publish(new LoadSceneEvent(){ SceneName = "Level_01" });
+						Disposer.Clear();
+					}
+				}).AddTo(Disposer).AddTo(this);
+			}).AddTo(this);
+		}
 	}
 }

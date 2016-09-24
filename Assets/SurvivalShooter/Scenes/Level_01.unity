@@ -469,6 +469,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PoolName: 
+  RemoveEntityOnDestroy: 1
   CachedComponents: []
   CachedProperties: []
 --- !u!1 &327611185
@@ -1684,6 +1685,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PoolName: 
+  RemoveEntityOnDestroy: 1
   CachedComponents: []
   CachedProperties: []
 --- !u!1 &642980721
@@ -3384,6 +3386,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PoolName: 
+  RemoveEntityOnDestroy: 1
   CachedComponents: []
   CachedProperties: []
 --- !u!1 &1502630058
@@ -3597,7 +3600,7 @@ Camera:
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 4294967263
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -3646,6 +3649,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PoolName: 
+  RemoveEntityOnDestroy: 1
   CachedComponents: []
   CachedProperties: []
 --- !u!1 &1661207208
@@ -4642,6 +4646,7 @@ GameObject:
   - 114: {fileID: 2030727176}
   - 114: {fileID: 2030727177}
   - 114: {fileID: 2030727178}
+  - 114: {fileID: 2030727179}
   m_Layer: 0
   m_Name: Systems
   m_TagString: Untagged
@@ -4785,6 +4790,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2c3acc14d7f184750a34a0cad6bbba66, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2030727179
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 2030727166}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99c1698a787464869993f01c5b5eb997, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &2059739189
