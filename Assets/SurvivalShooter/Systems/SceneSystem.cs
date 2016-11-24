@@ -5,7 +5,7 @@ using UniRx;
 using System;
 using UnityEngine.SceneManagement;
 
-public class SceneManagementSystem : SystemBehaviour
+public class SceneSystem : SystemBehaviour
 {
 	public override void Setup ()
 	{
@@ -13,8 +13,7 @@ public class SceneManagementSystem : SystemBehaviour
 
 		EventSystem.OnEvent<LoadSceneEvent> ().Subscribe (e =>
 		{
-			Observable.Timer(TimeSpan.FromSeconds(0f))
-				.SelectMany(x => UnloadSceneAsync("Level_01"))
+			UnloadSceneAsync("Level_01").ToObservable()
 				.SelectMany(x => LoadSceneAsync(e.SceneName))
 				.Subscribe(x => 
 				{
