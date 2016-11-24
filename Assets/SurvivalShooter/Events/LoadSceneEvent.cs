@@ -1,4 +1,7 @@
-﻿public class LoadSceneEvent
+﻿namespace AlphaECS.SurvivalShooter
 {
-	public string SceneName { get; set; }
+	public class LoadSceneEvent
+	{
+		public string SceneName { get; set; }
+	}
 }

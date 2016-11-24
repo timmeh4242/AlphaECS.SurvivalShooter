@@ -1,11 +1,11 @@
 ﻿using UniRx;
 using UnityEngine;
-using EcsRx.Unity;
-using EcsRx;
+using AlphaECS.Unity;
+using AlphaECS;
 using System;
 using Zenject;
 
-namespace EcsRx.SurvivalShooter
+namespace AlphaECS.SurvivalShooter
 {
 	public class ShootingSystem : SystemBehaviour
 	{

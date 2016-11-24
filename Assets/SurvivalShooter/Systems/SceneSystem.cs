@@ -1,11 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
-using EcsRx.Unity;
+using AlphaECS.Unity;
 using UniRx;
 using System;
 using UnityEngine.SceneManagement;
 
-public class SceneSystem : SystemBehaviour
+namespace AlphaECS.SurvivalShooter
+{
+	public class SceneSystem : SystemBehaviour
 {
 	public override void Setup ()
 	{
@@ -46,4 +48,5 @@ public class SceneSystem : SystemBehaviour
 		}
 		yield return null;
 	}
+}
 }

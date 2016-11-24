@@ -1,13 +1,12 @@
 ﻿using UniRx;
 using UnityEngine;
-using EcsRx.Unity;
+using AlphaECS.Unity;
 using Zenject;
 using System;
 using System.Collections;
-using EcsRx;
 using System.Linq;
 
-namespace EcsRx.SurvivalShooter
+namespace AlphaECS.SurvivalShooter
 {
 	public class EnemyFXSystem : SystemBehaviour
 	{

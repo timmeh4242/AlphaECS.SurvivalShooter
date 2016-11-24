@@ -1,10 +1,10 @@
 ﻿using UniRx;
 using UnityEngine;
-using EcsRx.Unity;
-using EcsRx;
+using AlphaECS.Unity;
+using AlphaECS;
 using System;
 
-namespace EcsRx.SurvivalShooter
+namespace AlphaECS.SurvivalShooter
 {
 	public class ScoringSystem : SystemBehaviour
 	{

@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 using Zenject;
-using EcsRx.SurvivalShooter;
-using EcsRx.Unity;
+using AlphaECS.SurvivalShooter;
+using AlphaECS.Unity;
 using UnityEngine.UI;
 using UniRx;
 

@@ -1,37 +1,40 @@
 ﻿using UnityEngine;
 using System.Collections;
 using Zenject;
-using EcsRx.SurvivalShooter;
+using AlphaECS.SurvivalShooter;
 using UnityEngine.UI;
 using UniRx;
-using EcsRx;
-using EcsRx.Unity;
+using AlphaECS;
+using AlphaECS.Unity;
 using DG.Tweening;
 using System.Linq;
 using System;
 
-public class PlayerAnimationSystem : SystemBehaviour
+namespace AlphaECS.SurvivalShooter
 {
-	public override void Setup ()
+	public class PlayerAnimationSystem : SystemBehaviour
 	{
-		base.Setup ();
-
-		var group = GroupFactory.Create (new Type[] { typeof(InputComponent), typeof(ViewComponent) });
-
-		group.Entities.ObserveAdd ().Select(x => x.Value).StartWith(group.Entities).Subscribe (entity =>
+		public override void Setup ()
 		{
-			var input = entity.GetComponent<InputComponent> ();
-			var horizontal = input.Horizontal.DistinctUntilChanged ();
-			var vertical = input.Vertical.DistinctUntilChanged ();
-			var animator = entity.GetComponent<ViewComponent>().View.GetComponent<Animator>();
+			base.Setup ();
 
-			Observable.CombineLatest (horizontal, vertical, (h, v) =>
+			var group = GroupFactory.Create (new Type[] { typeof(InputComponent), typeof(ViewComponent) });
+
+			group.Entities.ObserveAdd ().Select(x => x.Value).StartWith(group.Entities).Subscribe (entity =>
 			{
-				return h != 0f || v != 0f;
-			}).ToReadOnlyReactiveProperty().DistinctUntilChanged().Subscribe(value =>
-			{
-				animator.SetBool("IsWalking", value);
-			}).AddTo(input);
-		}).AddTo (Disposer);
+				var input = entity.GetComponent<InputComponent> ();
+				var horizontal = input.Horizontal.DistinctUntilChanged ();
+				var vertical = input.Vertical.DistinctUntilChanged ();
+				var animator = entity.GetComponent<ViewComponent>().View.GetComponent<Animator>();
+
+				Observable.CombineLatest (horizontal, vertical, (h, v) =>
+				{
+					return h != 0f || v != 0f;
+				}).ToReadOnlyReactiveProperty().DistinctUntilChanged().Subscribe(value =>
+				{
+					animator.SetBool("IsWalking", value);
+				}).AddTo(input);
+			}).AddTo (Disposer);
+		}
 	}
 }

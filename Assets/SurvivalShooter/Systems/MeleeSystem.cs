@@ -1,11 +1,11 @@
 ﻿using UniRx;
 using UnityEngine;
-using EcsRx;
-using EcsRx.Unity;
+using AlphaECS;
+using AlphaECS.Unity;
 using UniRx.Triggers;
 using System;
 
-namespace EcsRx.SurvivalShooter
+namespace AlphaECS.SurvivalShooter
 {
 	public class MeleeSystem : SystemBehaviour
 	{

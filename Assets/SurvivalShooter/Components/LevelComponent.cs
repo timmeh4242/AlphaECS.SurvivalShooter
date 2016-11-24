@@ -1,6 +1,6 @@
-﻿using EcsRx;
+﻿using AlphaECS;
 
-namespace EcsRx.SurvivalShooter
+namespace AlphaECS.SurvivalShooter
 {
 	public class LevelComponent : IComponent {}
 }

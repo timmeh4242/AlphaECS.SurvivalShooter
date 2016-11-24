@@ -1,12 +1,12 @@
 ﻿using UniRx;
 using UnityEngine;
-using EcsRx;
-using EcsRx.Unity;
+using AlphaECS;
+using AlphaECS.Unity;
 using System;
 using UniRx.Triggers;
 using System.Collections;
 
-namespace EcsRx.SurvivalShooter
+namespace AlphaECS.SurvivalShooter
 {
 	public class LevelSystem : SystemBehaviour
 	{

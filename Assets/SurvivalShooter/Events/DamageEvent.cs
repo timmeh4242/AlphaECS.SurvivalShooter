@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
-using EcsRx;
+using AlphaECS;
 
-namespace EcsRx.SurvivalShooter
+namespace AlphaECS.SurvivalShooter
 {
     public class DamageEvent
     {

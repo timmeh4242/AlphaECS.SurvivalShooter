@@ -1,9 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
-using EcsRx.Unity;
+using AlphaECS.Unity;
 
-public class SpawnerComponent : ComponentBehaviour
+namespace AlphaECS.SurvivalShooter
 {
-	public GameObject Prefab;
-	public float SpawnTime;
+	public class SpawnerComponent : ComponentBehaviour
+	{
+		public GameObject Prefab;
+		public float SpawnTime;
+	}
 }

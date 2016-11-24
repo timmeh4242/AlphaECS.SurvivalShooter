@@ -1,12 +1,12 @@
 ﻿using UniRx;
 using UnityEngine;
-using EcsRx.Unity;
+using AlphaECS.Unity;
 using Zenject;
 using System;
 using System.Collections;
-using EcsRx;
+using AlphaECS;
 
-namespace EcsRx.SurvivalShooter
+namespace AlphaECS.SurvivalShooter
 {
 	public class SpawnSystem : SystemBehaviour 
 	{

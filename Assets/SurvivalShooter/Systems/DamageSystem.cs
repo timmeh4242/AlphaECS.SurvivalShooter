@@ -1,12 +1,11 @@
 ﻿using UniRx;
 using UnityEngine;
-using EcsRx.Unity;
+using AlphaECS.Unity;
 using Zenject;
 using System;
 using System.Collections;
-using EcsRx;
 
-namespace EcsRx.SurvivalShooter
+namespace AlphaECS.SurvivalShooter
 {
 	public class DamageSystem : SystemBehaviour 
 	{

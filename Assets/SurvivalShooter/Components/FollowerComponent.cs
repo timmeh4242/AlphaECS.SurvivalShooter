@@ -1,10 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
-using EcsRx.Unity;
+using AlphaECS.Unity;
 
-public class FollowerComponent : ComponentBehaviour
+namespace AlphaECS.SurvivalShooter
 {
-    public Transform Target;
-    public float Smoothing = 5f;
-    public Vector3 Offset;
+	public class FollowerComponent : ComponentBehaviour
+	{
+	    public Transform Target;
+	    public float Smoothing = 5f;
+	    public Vector3 Offset;
+	}
 }

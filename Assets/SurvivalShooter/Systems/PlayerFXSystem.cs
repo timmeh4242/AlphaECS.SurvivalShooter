@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using EcsRx.Unity;
+using AlphaECS.Unity;
 using UniRx;
 using Zenject;
 using UnityEngine.UI;
@@ -8,7 +8,7 @@ using System;
 using System.Linq;
 using System.Collections;
 
-namespace EcsRx.SurvivalShooter
+namespace AlphaECS.SurvivalShooter
 {
 	public class PlayerFXSystem : SystemBehaviour
 	{

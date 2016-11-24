@@ -1,11 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections;
 using Zenject;
-using EcsRx.SurvivalShooter;
+using AlphaECS.SurvivalShooter;
 using UnityEngine.UI;
 using UniRx;
-using EcsRx;
-using EcsRx.Unity;
+using AlphaECS;
+using AlphaECS.Unity;
 using UniRx.Triggers;
 
 public class GameOverScreen : ComponentBehaviour

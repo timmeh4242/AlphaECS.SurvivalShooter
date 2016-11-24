@@ -1,9 +1,9 @@
-﻿using EcsRx;
-using EcsRx.Unity;
+﻿using AlphaECS;
+using AlphaECS.Unity;
 using UniRx;
 using System;
 
-namespace EcsRx.SurvivalShooter
+namespace AlphaECS.SurvivalShooter
 {
 	public class HealthComponent : IComponent, IDisposableContainer, IDisposable
 	{

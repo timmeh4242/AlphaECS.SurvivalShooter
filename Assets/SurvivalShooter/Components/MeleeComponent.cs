@@ -1,8 +1,8 @@
-﻿using EcsRx;
+﻿using AlphaECS;
 using UniRx;
 using System;
 
-namespace EcsRx.SurvivalShooter
+namespace AlphaECS.SurvivalShooter
 {
 	public class MeleeComponent : IComponent
 	{
