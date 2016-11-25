@@ -518,13 +518,13 @@ MonoBehaviour:
   RemoveEntityOnDestroy: 1
   CachedComponents:
   - AlphaECS.SurvivalShooter.HealthComponent
-  - AlphaECS.SurvivalShooter.ShooterComponent
   - AlphaECS.SurvivalShooter.InputComponent
+  - AlphaECS.SurvivalShooter.ShooterComponent
   CachedProperties:
-  - "{\n\t\"StartingHealth\":100\t, \n\t\"CurrentHealth\":100\t, \n\t\"IsDamaged\":false\t,
+  - "{\n\t\"StartingHealth\":100\t, \n\t\"CurrentHealth\":0\t, \n\t\"IsDamaged\":false\t,
     \n\t\"IsDead\":false}\n"
-  - "{\n\t\"Damage\":10\t, \n\t\"ShotsPerSecond\":10\t, \n\t\"Range\":100\t, \n\t\"IsShooting\":false}\n"
   - "{\n\t\"Horizontal\":0\t, \n\t\"Vertical\":0}\n"
+  - "{\n\t\"Damage\":10\t, \n\t\"ShotsPerSecond\":10\t, \n\t\"Range\":100\t, \n\t\"IsShooting\":false}\n"
 --- !u!120 &12023252
 LineRenderer:
   m_ObjectHideFlags: 1
