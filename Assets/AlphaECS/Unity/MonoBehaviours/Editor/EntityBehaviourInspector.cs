@@ -29,6 +29,8 @@ namespace AlphaECS
 
 		public override void OnInspectorGUI()
 		{
+			base.OnInspectorGUI ();
+
 			_view = (EntityBehaviour)target;
 
 			if (Application.isPlaying && _view.Entity == null)

@@ -468,6 +468,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 444437bd5ca7c402fa0635ccb55fb1ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Proxy: {fileID: 0}
   PoolName: 
   RemoveEntityOnDestroy: 1
   CachedComponents: []
@@ -1692,6 +1693,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 444437bd5ca7c402fa0635ccb55fb1ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Proxy: {fileID: 0}
   PoolName: 
   RemoveEntityOnDestroy: 1
   CachedComponents: []
@@ -3393,6 +3395,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 444437bd5ca7c402fa0635ccb55fb1ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Proxy: {fileID: 0}
   PoolName: 
   RemoveEntityOnDestroy: 1
   CachedComponents: []
@@ -3656,6 +3659,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 444437bd5ca7c402fa0635ccb55fb1ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Proxy: {fileID: 0}
   PoolName: 
   RemoveEntityOnDestroy: 1
   CachedComponents: []

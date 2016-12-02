@@ -9,8 +9,25 @@ namespace AlphaECS.Unity
 {
 	public abstract class ComponentBehaviour : MonoBehaviour, IDisposable
 	{
-		[Inject] public IEventSystem EventSystem { get; set; }
-		[Inject] public IPoolManager PoolManager { get; set; }
+		public IEventSystem EventSystem
+		{
+			get
+			{
+				return eventSystem == null ? ProjectContext.Instance.Container.Resolve<IEventSystem> () : eventSystem;
+			}
+			set { eventSystem = value; }
+		}
+		private IEventSystem eventSystem;
+
+		public IPoolManager PoolManager
+		{
+			get
+			{
+				return poolManager == null ? ProjectContext.Instance.Container.Resolve<IPoolManager> () : poolManager;
+			}
+			set { poolManager = value; }
+		}
+		private IPoolManager poolManager;
 
 		private CompositeDisposable _disposer = new CompositeDisposable();
 		public CompositeDisposable Disposer
@@ -25,7 +42,7 @@ namespace AlphaECS.Unity
 //			EventSystem.Publish (new ComponentCreated (){ Component = this });
 //		}
 
-		void OnDestroy()
+		public virtual void OnDestroy()
 		{
 			Dispose ();
 			if(EventSystem == null)
