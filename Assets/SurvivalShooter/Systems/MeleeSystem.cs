@@ -13,13 +13,13 @@ namespace AlphaECS.SurvivalShooter
 		{
 			base.Setup ();
 
-			var group = GroupFactory.Create (new Type[]{ typeof(ViewComponent), typeof(MeleeComponent) });
+			var group = GroupFactory.Create (new Type[]{ typeof(EntityBehaviour), typeof(MeleeComponent) });
 			group.Entities.ObserveAdd ().Select (x => x.Value).StartWith (group.Entities).Subscribe (entity =>
 			{
-				var view = entity.GetComponent<ViewComponent> ();
+				var entityBehaviour = entity.GetComponent<EntityBehaviour> ();
 				var attacker = entity.GetComponent<MeleeComponent> ();
 				attacker.TargetInRange = new BoolReactiveProperty ();
-				var collider = view.View.GetComponent<Collider> ();
+				var collider = entityBehaviour.GetComponent<Collider> ();
 
 				collider.OnTriggerEnterAsObservable ().Subscribe (_ =>
 				{
@@ -62,16 +62,16 @@ namespace AlphaECS.SurvivalShooter
 						var interval = TimeSpan.FromSeconds(1f / attacker.AttacksPerSecond);
 						attacker.Attack = Observable.Timer(delay, interval).Subscribe(_ =>
 						{
-							var attackPosition = attacker.Target.GetComponent<ViewComponent>().View.transform.position;
+							var attackPosition = attacker.Target.GetComponent<EntityBehaviour>().transform.position;
 							EventSystem.Publish (new DamageEvent (entity, attacker.Target, attacker.Damage, attackPosition));
-						}).AddTo(attacker.Target.GetComponent<ViewComponent>().View);
+						}).AddTo(attacker.Target.GetComponent<EntityBehaviour>().Disposer);
 					}
 					else
 					{
 						if(attacker.Attack != null)
 							attacker.Attack.Dispose();
 					}
-				}).AddTo (view.View);
+				}).AddTo (entityBehaviour.Disposer);
 			}).AddTo (this);
 		}
 			

@@ -70,6 +70,8 @@ namespace AlphaECS
         }
 
 		public T GetComponent<T>() where T : class
-        { return _components[typeof(T)] as T; }
+        {
+			return _components[typeof(T)] as T;
+		}
     }
 }

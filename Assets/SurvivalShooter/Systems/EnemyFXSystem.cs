@@ -5,6 +5,7 @@ using Zenject;
 using System;
 using System.Collections;
 using System.Linq;
+using UnityEngine.AI;
 
 namespace AlphaECS.SurvivalShooter
 {
@@ -21,47 +22,49 @@ namespace AlphaECS.SurvivalShooter
 				if(_.Target.GetComponent<HealthComponent>().IsDead.Value == true)
 					return;
 
-				var view = _.Target.GetComponent<ViewComponent>().View;
-				var soundFX = view.GetComponentsInChildren<AudioSource>();
+				var entityBehaviour = _.Target.GetComponent<EntityBehaviour>();
+				var soundFX = entityBehaviour.GetComponentsInChildren<AudioSource>();
 				var hurtFX = soundFX.Where(_2 => _2.clip.name.Contains("Hurt")).FirstOrDefault();
 				hurtFX.Play();
 
-				var particles = view.GetComponentInChildren <ParticleSystem> ();
+				var particles = entityBehaviour.GetComponentInChildren <ParticleSystem> ();
 				particles.transform.position = _.HitPoint;
 				particles.Play();
 			}).AddTo (this);
 
-			var group = GroupFactory.Create (new Type[]{ typeof(ViewComponent), typeof(HealthComponent), typeof(NavMeshAgent) });
+			var group = GroupFactory.Create (new Type[]{ typeof(EntityBehaviour), typeof(HealthComponent), typeof(NavMeshAgent), typeof(CapsuleCollider), typeof(Animator), typeof(Rigidbody) });
 			group.Entities.ObserveAdd ().Select (x => x.Value).StartWith (group.Entities).Subscribe (entity =>
 			{
-				var viewComponent = entity.GetComponent<ViewComponent> ();
-				var health = entity.GetComponent<HealthComponent> ();
-				var view = viewComponent.View;
+				var entityBehaviour = entity.GetComponent<EntityBehaviour> ();
+				var healthComponent = entity.GetComponent<HealthComponent> ();
+				var capsuleCollider = entity.GetComponent<CapsuleCollider>();
+				var animator = entity.GetComponent<Animator>();
+				var rb = entity.GetComponent<Rigidbody>();
 
-				health.IsDead.DistinctUntilChanged ().Where (value => value == true).Subscribe (_ =>
+				healthComponent.IsDead.DistinctUntilChanged ().Where (value => value == true).Subscribe (_ =>
 				{
-					view.GetComponent<CapsuleCollider> ().isTrigger = true;
-					view.GetComponent<Animator> ().SetTrigger ("Die");
-					var soundFX = view.GetComponentsInChildren<AudioSource> ();
+					capsuleCollider.isTrigger = true;
+					animator.SetTrigger ("Die");
+					var soundFX = entityBehaviour.GetComponentsInChildren<AudioSource> ();
 					var deathFX = soundFX.Where(_2 => _2.clip.name.Contains("Death")).FirstOrDefault();
 					deathFX.Play();
 
-					view.GetComponent<Rigidbody> ().isKinematic = true;
+					rb.isKinematic = true;
 //					ScoreManager.score += scoreValue;
 
 					Observable.Timer (TimeSpan.FromSeconds (1)).Subscribe (_2 =>
 					{
 						var sink = Observable.EveryUpdate ().Subscribe (_3 =>
 						{
-							view.transform.Translate (-Vector3.up * DeathSinkSpeed * Time.deltaTime);
-						}).AddTo(view);
+							entityBehaviour.transform.Translate (-Vector3.up * DeathSinkSpeed * Time.deltaTime);
+						}).AddTo(entityBehaviour.Disposer);
 
 						Observable.Timer (TimeSpan.FromSeconds (2)).Subscribe (_3 =>
 						{
 							sink.Dispose ();
 						});
 					});
-				}).AddTo (view);
+				}).AddTo (entityBehaviour.Disposer);
 			}).AddTo (this);
 		}
 	}

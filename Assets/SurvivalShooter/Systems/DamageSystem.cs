@@ -11,10 +11,10 @@ namespace AlphaECS.SurvivalShooter
 	{
 		public override void Setup ()
 		{
-			var group = GroupFactory.Create(new Type[] { typeof(HealthComponent) });
+			var group = GroupFactory.Create(new Type[] { typeof(EntityBehaviour), typeof(HealthComponent) });
 			group.Entities.ObserveAdd ().Select(x => x.Value).StartWith(group.Entities).Subscribe (entity =>
 			{
-				var view = entity.GetComponent<ViewComponent> ();
+				var entityBehaviour = entity.GetComponent<EntityBehaviour> ();
 				var health = entity.GetComponent<HealthComponent> ();
 				health.CurrentHealth = new IntReactiveProperty ();
 				health.CurrentHealth.Value = health.StartingHealth;
@@ -35,7 +35,7 @@ namespace AlphaECS.SurvivalShooter
 					Observable.Timer (TimeSpan.FromSeconds (2)).Subscribe (_2 =>
 					{
 						PoolManager.GetPool ().RemoveEntity (entity);
-						GameObject.Destroy (view.View);
+						GameObject.Destroy (entityBehaviour.gameObject);
 					});
 				}).AddTo (health);
 			}).AddTo (group);

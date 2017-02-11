@@ -5,6 +5,7 @@ using Zenject;
 using System;
 using System.Collections;
 using AlphaECS;
+using UnityEngine.AI;
 
 namespace AlphaECS.SurvivalShooter
 {
@@ -17,10 +18,11 @@ namespace AlphaECS.SurvivalShooter
 		{
 			base.Setup ();
 
-			var group = GroupFactory.Create (new Type[] { typeof(HealthComponent), typeof(ViewComponent), typeof(NavMeshAgent) });
+			var group = GroupFactory.Create (new Type[] { typeof(HealthComponent), typeof(EntityBehaviour), typeof(UnityEngine.AI.NavMeshAgent) });
 			group.Entities.ObserveAdd ().Select (x => x.Value).StartWith (group.Entities).Subscribe (entity =>
 			{
-				var navMeshAgent = entity.GetComponent<ViewComponent> ().View.GetComponent<NavMeshAgent> ();
+				var entityBehaviour = entity.GetComponent<EntityBehaviour>();
+				var navMeshAgent = entity.GetComponent<NavMeshAgent> ();
 				var health = entity.GetComponent<HealthComponent> ();
 
 				Observable.EveryUpdate ().Subscribe (_ =>

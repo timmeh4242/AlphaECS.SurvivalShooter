@@ -17,19 +17,19 @@ namespace AlphaECS.SurvivalShooter
 		{
 			ShootableMask = LayerMask.GetMask("Shootable");
 
-			var group = GroupFactory.Create(new Type[] { typeof(ViewComponent), typeof(ShooterComponent) });
+			var group = GroupFactory.Create(new Type[] { typeof(EntityBehaviour), typeof(ShooterComponent) });
 
 			group.Entities.ObserveAdd ().Select(x => x.Value).StartWith(group.Entities).Subscribe (entity =>
 			{
-				var view = entity.GetComponent<ViewComponent> ();
+				var entityBehaviour = entity.GetComponent<EntityBehaviour> ();
 				var shooter = entity.GetComponent<ShooterComponent> ();
 				shooter.IsShooting = new BoolReactiveProperty ();
 
-				var transform = view.View.transform.FindChild("GunBarrelEnd");
-				var shotParticles = transform.GetComponent<ParticleSystem> ();
-				var shotLine = transform.GetComponent <LineRenderer> ();
-				var shotAudio = transform.GetComponent<AudioSource> ();
-				var shotLight = transform.GetComponent<Light> ();
+				var gunBarrel = entityBehaviour.transform.FindChild("GunBarrelEnd");
+				var shotParticles = gunBarrel.GetComponent<ParticleSystem> ();
+				var shotLine = gunBarrel.GetComponent <LineRenderer> ();
+				var shotAudio = gunBarrel.GetComponent<AudioSource> ();
+				var shotLight = gunBarrel.GetComponent<Light> ();
 
 				shooter.IsShooting.DistinctUntilChanged ().Subscribe (value =>
 				{
@@ -40,8 +40,8 @@ namespace AlphaECS.SurvivalShooter
 						var interval = TimeSpan.FromSeconds(1f / shooter.ShotsPerSecond);
 						shooter.Shoot = Observable.Timer(delay, interval).Subscribe(_ =>
 						{
-							ShotRay.origin = transform.position;
-							ShotRay.direction = transform.forward;
+							ShotRay.origin = gunBarrel.position;
+							ShotRay.direction = gunBarrel.forward;
 
 							if (Physics.Raycast (ShotRay, out ShotRaycastHit, shooter.Range, ShootableMask))
 							{
@@ -68,23 +68,24 @@ namespace AlphaECS.SurvivalShooter
 							shotParticles.Stop ();
 							shotParticles.Play ();
 							shotLine.enabled = true;
-							shotLine.SetPosition (0, transform.position);
+							shotLine.SetPosition (0, gunBarrel.position);
 
 							// disable the shot and/or fx after some arbitrary duration
 							var shotDuration = TimeSpan.FromSeconds((1f / shooter.ShotsPerSecond) / 2f);
-							Observable.Timer(shotDuration).Subscribe(_2 => {
+							Observable.Timer(shotDuration).Subscribe(_2 =>
+							{
 								shotLine.enabled = false;
 								shotLight.enabled = false;	
-							}).AddTo(this).AddTo(view.View);
-						}).AddTo(this).AddTo(shooter);
+							}).AddTo(this.Disposer).AddTo(entityBehaviour.Disposer);
+						}).AddTo(this.Disposer).AddTo(shooter.Disposer);
 					}
 					else
 					{
 						if(shooter.Shoot != null)
 							shooter.Shoot.Dispose();
 					}
-				}).AddTo(this).AddTo(shooter);	
-			}).AddTo (this);
+				}).AddTo(this.Disposer).AddTo(shooter.Disposer);	
+			}).AddTo (this.Disposer);
 
 			Observable.EveryUpdate().Subscribe(_ =>
 			{
@@ -100,7 +101,7 @@ namespace AlphaECS.SurvivalShooter
 						shooter.IsShooting.Value = false;
 					}
 				}
-			}).AddTo(this);
+			}).AddTo(this.Disposer);
 		}
 	}
 }

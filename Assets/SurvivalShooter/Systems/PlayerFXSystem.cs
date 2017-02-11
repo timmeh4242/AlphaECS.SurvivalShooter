@@ -21,19 +21,20 @@ namespace AlphaECS.SurvivalShooter
 		{
 			base.Setup ();
 
-			var group = GroupFactory.Create(new Type[] { typeof(ViewComponent), typeof(HealthComponent), typeof(InputComponent) });
+			var group = GroupFactory.Create(new Type[] { typeof(EntityBehaviour), typeof(HealthComponent), typeof(InputComponent), typeof(Animator) });
 
 			group.Entities.ObserveAdd ().Select(x => x.Value).StartWith(group.Entities).Subscribe (entity =>
 			{
+				var entityBehaviour = entity.GetComponent<EntityBehaviour>();
 				var health = entity.GetComponent<HealthComponent> ();
 				var previousValue = health.CurrentHealth.Value;
 
-				var audioSources = entity.GetComponent<ViewComponent> ().View.GetComponentsInChildren<AudioSource>();
+				var audioSources = entityBehaviour.GetComponentsInChildren<AudioSource>();
 
 				var hurtSound = audioSources.Where(audioSource => audioSource.clip.name.Contains("Hurt")).FirstOrDefault();
 				var deathSound = audioSources.Where(audioSource => audioSource.clip.name.Contains("Death")).FirstOrDefault();
 
-				var animator = entity.GetComponent<ViewComponent> ().View.GetComponent<Animator>();
+				var animator = entity.GetComponent<Animator>();
 
 				health.CurrentHealth.DistinctUntilChanged ().Subscribe (value =>
 				{
@@ -62,8 +63,8 @@ namespace AlphaECS.SurvivalShooter
 
 					HealthSlider.value = value;
 					previousValue = value;
-				}).AddTo(this).AddTo(health);
-			}).AddTo(this).AddTo(group);
+				}).AddTo(this.Disposer).AddTo(health.Disposer);
+			}).AddTo(this.Disposer);
 		}
 	}
 }

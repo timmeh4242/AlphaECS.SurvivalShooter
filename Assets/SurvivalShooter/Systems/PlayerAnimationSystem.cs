@@ -18,14 +18,14 @@ namespace AlphaECS.SurvivalShooter
 		{
 			base.Setup ();
 
-			var group = GroupFactory.Create (new Type[] { typeof(InputComponent), typeof(ViewComponent) });
+			var group = GroupFactory.Create (new Type[] { typeof(InputComponent), typeof(EntityBehaviour), typeof(Animator) });
 
 			group.Entities.ObserveAdd ().Select(x => x.Value).StartWith(group.Entities).Subscribe (entity =>
 			{
 				var input = entity.GetComponent<InputComponent> ();
 				var horizontal = input.Horizontal.DistinctUntilChanged ();
 				var vertical = input.Vertical.DistinctUntilChanged ();
-				var animator = entity.GetComponent<ViewComponent>().View.GetComponent<Animator>();
+				var animator = entity.GetComponent<Animator>();
 
 				Observable.CombineLatest (horizontal, vertical, (h, v) =>
 				{
@@ -33,7 +33,7 @@ namespace AlphaECS.SurvivalShooter
 				}).ToReadOnlyReactiveProperty().DistinctUntilChanged().Subscribe(value =>
 				{
 					animator.SetBool("IsWalking", value);
-				}).AddTo(input);
+				}).AddTo(input.Disposer);
 			}).AddTo (Disposer);
 		}
 	}

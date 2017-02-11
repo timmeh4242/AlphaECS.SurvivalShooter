@@ -19,7 +19,7 @@ namespace AlphaECS.SurvivalShooter
 
 			FloorMask = LayerMask.GetMask("Floor");
 
-			var group = GroupFactory.Create(new Type[] { typeof(ViewComponent), typeof(InputComponent), typeof(Rigidbody) });
+			var group = GroupFactory.Create(new Type[] { typeof(EntityBehaviour), typeof(InputComponent), typeof(Rigidbody) });
 
 			Observable.EveryFixedUpdate ().Subscribe (_ =>
 			{
@@ -33,7 +33,7 @@ namespace AlphaECS.SurvivalShooter
 					movement.Set(input.Horizontal.Value, 0f, input.Vertical.Value);
 					var speed = 6f;
 					movement = movement.normalized * speed * Time.deltaTime;
-					var rb = entity.GetComponent<ViewComponent> ().View.transform.GetComponent<Rigidbody>();
+					var rb = entity.GetComponent<Rigidbody>();
 					rb.MovePosition(rb.transform.position + movement);
 
 					// execute turning
