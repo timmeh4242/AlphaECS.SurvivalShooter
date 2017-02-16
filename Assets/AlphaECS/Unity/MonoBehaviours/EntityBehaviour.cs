@@ -93,17 +93,24 @@ namespace AlphaECS.Unity
             var monoBehaviours = GetComponents<Component>();
             foreach (var mb in monoBehaviours)
             {
-				if (mb.GetType() != typeof(Transform))
-				{
-					if (mb.GetType() == typeof(EntityBehaviour))
-					{
-						if(!Entity.HasComponent<EntityBehaviour> ()) Entity.AddComponent (mb);
-					}
-					else
-					{
-						Entity.AddComponent (mb);
-					}
-				}
+                if (mb == null)
+                {
+                    Debug.LogWarning("Component on " + this.gameObject.name + " is null!");
+                }
+                else
+                {
+                    if (mb.GetType() != typeof(Transform))
+                    {
+                        if (mb.GetType() == typeof(EntityBehaviour))
+                        {
+                            if (!Entity.HasComponent<EntityBehaviour>()) Entity.AddComponent(mb);
+                        }
+                        else
+                        {
+                            Entity.AddComponent(mb);
+                        }
+                    }
+                }
             }
         }
 
