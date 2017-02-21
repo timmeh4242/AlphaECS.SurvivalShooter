@@ -2,26 +2,20 @@
 
 using ModestTree;
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using ModestTree.Util;
+using Zenject.Internal;
 
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
 using UnityEngine;
-using Zenject.Internal;
 
 namespace Zenject
 {
     public class ProjectContext : Context
     {
-#if UNITY_EDITOR
-        public const string IsValidatingEditorPrefsKey = "Zenject.IsValidating";
-#endif
-
         public const string ProjectContextResourcePath = "ProjectContext";
         public const string ProjectContextResourcePathOld = "ProjectCompositionRoot";
 
@@ -33,10 +27,12 @@ namespace Zenject
 
         public override DiContainer Container
         {
-            get
-            {
-                return _container;
-            }
+            get { return _container; }
+        }
+
+        public static bool HasInstance
+        {
+            get { return _instance != null; }
         }
 
         public static ProjectContext Instance
@@ -52,38 +48,22 @@ namespace Zenject
                     _instance.Initialize();
                 }
 
-#if UNITY_EDITOR
-                if (_instance.Container.IsValidating)
-                {
-                    // ProjectContext.Instance is called as the first thing in every
-                    // Zenject scene (including decorator scenes)
-                    // During validation, we want to ensure that no Awake() gets called except
-                    // for SceneContext.Awake
-                    // Need to call DisableEverything() again here for any new scenes that may
-                    // have been loaded
-                    ValidationSceneDisabler.Instance.DisableEverything();
-                }
-#endif
-
                 return _instance;
             }
         }
 
 #if UNITY_EDITOR
-        public static bool PersistentIsValidating
+        public static bool ValidateOnNextRun
         {
-            get
-            {
-                return EditorPrefs.GetInt(
-                    IsValidatingEditorPrefsKey, 0) != 0;
-            }
-            set
-            {
-                EditorPrefs.SetInt(
-                    IsValidatingEditorPrefsKey, value ? 1 : 0);
-            }
+            get;
+            set;
         }
 #endif
+
+        public override IEnumerable<GameObject> GetRootGameObjects()
+        {
+            return new[] { this.gameObject };
+        }
 
         public static GameObject TryGetPrefab()
         {
@@ -133,63 +113,75 @@ namespace Zenject
 
             Assert.IsNull(_container);
 
-            DontDestroyOnLoad(gameObject);
+            if (Application.isPlaying)
+            // DontDestroyOnLoad can only be called when in play mode and otherwise produces errors
+            // ProjectContext is created during design time (in an empty scene) when running validation
+            // and also when running unit tests
+            // In these cases we don't need DontDestroyOnLoad so just skip it
+            {
+                DontDestroyOnLoad(gameObject);
+            }
 
             bool isValidating = false;
 
 #if UNITY_EDITOR
-            isValidating = PersistentIsValidating;
+            isValidating = ValidateOnNextRun;
 
-            if (isValidating)
-            {
-                ValidationSceneDisabler.Instance.DisableEverything();
-            }
-
-            // Always default to false to avoid validating next time play is hit
-            PersistentIsValidating = false;
+            // Reset immediately to ensure it doesn't get used in another run
+            ValidateOnNextRun = false;
 #endif
 
             _container = new DiContainer(
                 StaticContext.Container, isValidating);
 
-            var componentInjecter = new InitialComponentsInjecter(
-                _container, GetInjectableComponents().ToList());
+            foreach (var instance in GetInjectableMonoBehaviours().Cast<object>())
+            {
+                _container.QueueForInject(instance);
+            }
 
             _container.IsInstalling = true;
 
             try
             {
-                InstallBindings(componentInjecter);
+                InstallBindings();
             }
             finally
             {
                 _container.IsInstalling = false;
             }
 
-            componentInjecter.LazyInjectComponents();
+            _container.FlushInjectQueue();
 
             Assert.That(_dependencyRoots.IsEmpty());
 
             _dependencyRoots.AddRange(_container.ResolveDependencyRoots());
         }
 
-        protected override IEnumerable<Component> GetInjectableComponents()
+        protected override IEnumerable<MonoBehaviour> GetInjectableMonoBehaviours()
         {
-            return GetInjectableComponents(this.gameObject);
+            return ZenUtilInternal.GetInjectableMonoBehaviours(this.gameObject);
         }
 
-        void InstallBindings(InitialComponentsInjecter componentInjecter)
+        void InstallBindings()
         {
             _container.DefaultParent = this.transform;
 
-            _container.Bind(typeof(TickableManager), typeof(InitializableManager), typeof(DisposableManager))
-                .ToSelf().AsSingle().InheritInSubContainers();
+            // Note that adding GuiRenderableManager here doesn't instantiate it by default
+            // You still have to add GuiRenderer manually
+            // We could add the contents of GuiRenderer into MonoKernel, but this adds
+            // undesirable per-frame allocations.  See comment in IGuiRenderable.cs for usage
+            //
+            // Short answer is if you want to use IGuiRenderable then
+            // you need to include the following in project context installer:
+            // `Container.Bind<GuiRenderer>().FromNewComponentOnNewGameObject().AsSingle().CopyIntoAllSubContainers().NonLazy();`
+            _container.Bind(typeof(TickableManager), typeof(InitializableManager), typeof(DisposableManager), typeof(GuiRenderableManager))
+                .ToSelf().AsSingle().CopyIntoAllSubContainers();
 
             _container.Bind<Context>().FromInstance(this);
 
-            _container.Bind<ProjectKernel>().FromComponent(this.gameObject).AsSingle().NonLazy();
+            _container.Bind<ProjectKernel>().FromNewComponentOn(this.gameObject).AsSingle().NonLazy();
 
-            InstallSceneBindings(componentInjecter);
+            InstallSceneBindings();
 
             InstallInstallers();
         }

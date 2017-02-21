@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using ModestTree;
 
 namespace Zenject
@@ -10,18 +8,12 @@ namespace Zenject
 
         public IBindingFinalizer SubFinalizer
         {
-            set
-            {
-                _subFinalizer = value;
-            }
+            set { _subFinalizer = value; }
         }
 
-        public bool InheritInSubContainers
+        public bool CopyIntoAllSubContainers
         {
-            get
-            {
-                return _subFinalizer.InheritInSubContainers;
-            }
+            get { return _subFinalizer.CopyIntoAllSubContainers; }
         }
 
         public void FinalizeBinding(DiContainer container)

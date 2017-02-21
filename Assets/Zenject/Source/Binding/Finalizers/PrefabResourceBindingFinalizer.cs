@@ -9,12 +9,12 @@ namespace Zenject
 {
     public class PrefabResourceBindingFinalizer : ProviderBindingFinalizer
     {
-        readonly GameObjectBindInfo _gameObjectBindInfo;
+        readonly GameObjectCreationParameters _gameObjectBindInfo;
         readonly string _resourcePath;
 
         public PrefabResourceBindingFinalizer(
             BindInfo bindInfo,
-            GameObjectBindInfo gameObjectBindInfo,
+            GameObjectCreationParameters gameObjectBindInfo,
             string resourcePath)
             : base(bindInfo)
         {
@@ -38,11 +38,6 @@ namespace Zenject
         IProvider CreateProviderForType(
             Type contractType, IPrefabInstantiator instantiator)
         {
-            if (contractType == typeof(GameObject))
-            {
-                return new PrefabGameObjectProvider(instantiator);
-            }
-
             Assert.That(contractType.IsInterface() || contractType.DerivesFrom<Component>());
 
             return new GetFromPrefabComponentProvider(
@@ -51,7 +46,7 @@ namespace Zenject
 
         void FinalizeBindingConcrete(DiContainer container, List<Type> concreteTypes)
         {
-            switch (BindInfo.Scope)
+            switch (GetScope())
             {
                 case ScopeTypes.Singleton:
                 {
@@ -61,8 +56,7 @@ namespace Zenject
                         (_, concreteType) => container.SingletonProviderCreator.CreateProviderForPrefabResource(
                             _resourcePath,
                             concreteType,
-                            _gameObjectBindInfo.Name,
-                            _gameObjectBindInfo.GroupName,
+                            _gameObjectBindInfo,
                             BindInfo.Arguments,
                             BindInfo.ConcreteIdentifier));
                     break;
@@ -77,19 +71,27 @@ namespace Zenject
                                 concreteType,
                                 new PrefabInstantiator(
                                     container,
-                                    _gameObjectBindInfo.Name,
-                                    _gameObjectBindInfo.GroupName,
+                                    _gameObjectBindInfo,
+                                    concreteType,
                                     BindInfo.Arguments,
                                     new PrefabProviderResource(_resourcePath))));
                     break;
                 }
                 case ScopeTypes.Cached:
                 {
+                    var argumentTarget = concreteTypes.OnlyOrDefault();
+
+                    if (argumentTarget == null)
+                    {
+                        Assert.That(BindInfo.Arguments.IsEmpty(),
+                            "Cannot provide arguments to prefab instantiator when using more than one concrete type");
+                    }
+
                     var prefabCreator = new PrefabInstantiatorCached(
                         new PrefabInstantiator(
                             container,
-                            _gameObjectBindInfo.Name,
-                            _gameObjectBindInfo.GroupName,
+                            _gameObjectBindInfo,
+                            argumentTarget,
                             BindInfo.Arguments,
                             new PrefabProviderResource(_resourcePath)));
 
@@ -109,17 +111,16 @@ namespace Zenject
 
         void FinalizeBindingSelf(DiContainer container)
         {
-            switch (BindInfo.Scope)
+            switch (GetScope())
             {
                 case ScopeTypes.Singleton:
                 {
                     RegisterProviderPerContract(
-                        container, 
+                        container,
                         (_, contractType) => container.SingletonProviderCreator.CreateProviderForPrefabResource(
                             _resourcePath,
                             contractType,
-                            _gameObjectBindInfo.Name,
-                            _gameObjectBindInfo.GroupName,
+                            _gameObjectBindInfo,
                             BindInfo.Arguments,
                             BindInfo.ConcreteIdentifier));
                     break;
@@ -127,30 +128,38 @@ namespace Zenject
                 case ScopeTypes.Transient:
                 {
                     RegisterProviderPerContract(
-                        container, 
+                        container,
                         (_, contractType) =>
                             CreateProviderForType(
                                 contractType,
                                 new PrefabInstantiator(
                                     container,
-                                    _gameObjectBindInfo.Name,
-                                    _gameObjectBindInfo.GroupName,
+                                    _gameObjectBindInfo,
+                                    contractType,
                                     BindInfo.Arguments,
                                     new PrefabProviderResource(_resourcePath))));
                     break;
                 }
                 case ScopeTypes.Cached:
                 {
+                    var argumentTarget = BindInfo.ContractTypes.OnlyOrDefault();
+
+                    if (argumentTarget == null)
+                    {
+                        Assert.That(BindInfo.Arguments.IsEmpty(),
+                            "Cannot provide arguments to prefab instantiator when using more than one concrete type");
+                    }
+
                     var prefabCreator = new PrefabInstantiatorCached(
                         new PrefabInstantiator(
                             container,
-                            _gameObjectBindInfo.Name,
-                            _gameObjectBindInfo.GroupName,
+                            _gameObjectBindInfo,
+                            argumentTarget,
                             BindInfo.Arguments,
                             new PrefabProviderResource(_resourcePath)));
 
                     RegisterProviderPerContract(
-                        container, 
+                        container,
                         (_, contractType) =>
                             new CachedProvider(
                                 CreateProviderForType(contractType, prefabCreator)));

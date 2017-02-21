@@ -1,8 +1,7 @@
-using System;
 using System.Collections.Generic;
-using ModestTree.Util;
 using System.Linq;
 using ModestTree;
+using ModestTree.Util;
 
 namespace Zenject
 {
@@ -15,18 +14,12 @@ namespace Zenject
 
         IEnumerable<TaskInfo> AllTasks
         {
-            get
-            {
-                return ActiveTasks.Concat(_queuedTasks);
-            }
+            get { return ActiveTasks.Concat(_queuedTasks); }
         }
 
         IEnumerable<TaskInfo> ActiveTasks
         {
-            get
-            {
-                return _tasks;
-            }
+            get { return _tasks; }
         }
 
         public void AddTask(TTask task, int priority)
@@ -153,8 +146,8 @@ namespace Zenject
     {
         protected override void UpdateItem(ITickable task)
         {
-#if PROFILING_ENABLED
-            using (ProfileBlock.Start("{0}.Tick()".Fmt(task.GetType().Name())))
+#if UNITY_EDITOR
+            using (ProfileBlock.Start("{0}.Tick()", task.GetType()))
 #endif
             {
                 task.Tick();
@@ -166,8 +159,8 @@ namespace Zenject
     {
         protected override void UpdateItem(ILateTickable task)
         {
-#if PROFILING_ENABLED
-            using (ProfileBlock.Start("{0}.LateTick()".Fmt(task.GetType().Name())))
+#if UNITY_EDITOR
+            using (ProfileBlock.Start("{0}.LateTick()", task.GetType()))
 #endif
             {
                 task.LateTick();
@@ -179,8 +172,8 @@ namespace Zenject
     {
         protected override void UpdateItem(IFixedTickable task)
         {
-#if PROFILING_ENABLED
-            using (ProfileBlock.Start("{0}.FixedTick()".Fmt(task.GetType().Name())))
+#if UNITY_EDITOR
+            using (ProfileBlock.Start("{0}.FixedTick()", task.GetType()))
 #endif
             {
                 task.FixedTick();

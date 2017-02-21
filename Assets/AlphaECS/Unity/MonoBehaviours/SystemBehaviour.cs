@@ -9,14 +9,16 @@ namespace AlphaECS.Unity
     public abstract class SystemBehaviour : MonoBehaviour, ISystem, IDisposableContainer, IDisposable
     {
         [Inject]
-		public IEventSystem EventSystem { get; set; }
-        [Inject]
-		public IPoolManager PoolManager { get; set; }
+        public IEventSystem EventSystem { get; set; }
 
-        // TODO remove this kludge. only using it for groups, should be created with a factory
-        //		[Inject] protected DiContainer Container = null;
         [Inject]
-		protected GroupFactory GroupFactory { get; set; }
+        public IPoolManager PoolManager { get; set; }
+
+        [Inject]
+        protected PrefabFactory PrefabFactory { get; set; }
+
+        [Inject]
+        protected GroupFactory GroupFactory { get; set; }
 
         private CompositeDisposable _disposer = new CompositeDisposable();
         public CompositeDisposable Disposer

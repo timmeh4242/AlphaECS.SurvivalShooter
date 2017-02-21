@@ -3,10 +3,6 @@ using System.Collections.Generic;
 using ModestTree;
 using System.Linq;
 
-#if !NOT_UNITY3D
-using UnityEngine;
-#endif
-
 namespace Zenject
 {
     public class ConcreteBinderNonGeneric : FromBinderNonGeneric
@@ -24,10 +20,11 @@ namespace Zenject
         {
             Assert.IsEqual(BindInfo.ToChoice, ToChoices.Self);
 
+            BindInfo.RequireExplicitScope = true;
             SubFinalizer = new ScopableBindingFinalizer(
-                BindInfo, SingletonTypes.To, null,
+                BindInfo, SingletonTypes.FromNew, null,
                 (container, type) => new TransientProvider(
-                    type, container, BindInfo.Arguments, BindInfo.ConcreteIdentifier));
+                    type, container, BindInfo.Arguments, BindInfo.ConcreteIdentifier, BindInfo.ContextInfo));
 
             return this;
         }
@@ -44,7 +41,7 @@ namespace Zenject
 
         public FromBinderNonGeneric To(IEnumerable<Type> concreteTypes)
         {
-            BindingUtil.AssertIsDerivedFromTypes(concreteTypes, BindInfo.ContractTypes);
+            BindingUtil.AssertIsDerivedFromTypes(concreteTypes, BindInfo.ContractTypes, BindInfo.InvalidBindResponse);
 
             BindInfo.ToChoice = ToChoices.Concrete;
             BindInfo.ToTypes = concreteTypes.ToList();
@@ -58,12 +55,16 @@ namespace Zenject
         {
             var bindInfo = new ConventionBindInfo();
 
-            // Automatically filter by the given contract types
-            bindInfo.AddTypeFilter(
-                concreteType => BindInfo.ContractTypes.All(contractType => concreteType.DerivesFromOrEqual(contractType)));
+            // This is nice because it allows us to do things like Bind(all interfaces).To(specific types)
+            // instead of having to do Bind(all interfaces).To(specific types that inherit from one of these interfaces)
+            BindInfo.InvalidBindResponse = InvalidBindResponses.Skip;
 
             generator(new ConventionSelectTypesBinder(bindInfo));
-            return To(bindInfo.ResolveTypes());
+
+            BindInfo.ToChoice = ToChoices.Concrete;
+            BindInfo.ToTypes = bindInfo.ResolveTypes();
+
+            return this;
         }
 #endif
     }

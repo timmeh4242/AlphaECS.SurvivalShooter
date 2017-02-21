@@ -13,8 +13,9 @@ namespace AlphaECS
             Container.Bind<IEventSystem>().To<EventSystem>().AsSingle();
             Container.Bind<IIdentityGenerator>().To<SequentialIdentityGenerator>().AsSingle();
             Container.Bind<IPoolManager>().To<PoolManager>().AsSingle();
-			Container.Bind<IGroup> ().To<Group> ();
+			Container.Bind<IGroup> ().To<Group> ().AsTransient();
 			Container.Bind<GroupFactory> ().To<GroupFactory> ().AsSingle ();
+            Container.Bind<PrefabFactory>().To<PrefabFactory>().AsSingle();
 //			Container.BindFactory<Type[], Group, GroupFactory> ();
         }
     }

@@ -1,24 +1,20 @@
 #if !NOT_UNITY3D
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using ModestTree;
-using UnityEngine;
 
 namespace Zenject
 {
     public class PrefabProvider : IPrefabProvider
     {
-        readonly GameObject _prefab;
+        readonly UnityEngine.Object _prefab;
 
-        public PrefabProvider(GameObject prefab)
+        public PrefabProvider(UnityEngine.Object prefab)
         {
             Assert.IsNotNull(prefab);
             _prefab = prefab;
         }
 
-        public GameObject GetPrefab()
+        public UnityEngine.Object GetPrefab()
         {
             return _prefab;
         }

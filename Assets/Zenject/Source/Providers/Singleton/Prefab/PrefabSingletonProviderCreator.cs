@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using ModestTree;
 using UnityEngine;
 using Zenject.Internal;
@@ -25,15 +24,15 @@ namespace Zenject
         }
 
         public IProvider CreateProvider(
-            GameObject prefab, Type resultType, string gameObjectName, string gameObjectGroupName,
-            List<TypeValuePair> extraArguments, string concreteIdentifier)
+            UnityEngine.Object prefab, Type resultType, GameObjectCreationParameters gameObjectBindInfo,
+            List<TypeValuePair> extraArguments, object concreteIdentifier)
         {
             IPrefabInstantiator creator;
 
             var prefabId = new PrefabId(concreteIdentifier, prefab);
 
             _markRegistry.MarkSingleton(
-                resultType, concreteIdentifier, SingletonTypes.ToPrefab);
+                resultType, concreteIdentifier, SingletonTypes.FromPrefab);
 
             if (_prefabCreators.TryGetValue(prefabId, out creator))
             {
@@ -41,17 +40,14 @@ namespace Zenject
                 Assert.That(creator.ExtraArguments.IsEmpty() && extraArguments.IsEmpty(),
                     "Ambiguous creation parameters (arguments) when using ToPrefab with AsSingle");
 
-                Assert.IsEqual(creator.GameObjectName, gameObjectName,
-                    "Ambiguous creation parameters (gameObjectName) when using ToPrefab with AsSingle");
-
-                Assert.IsEqual(creator.GameObjectGroupName, gameObjectGroupName,
-                    "Ambiguous creation parameters (gameObjectGroupName) when using ToPrefab with AsSingle");
+                Assert.IsEqual(creator.GameObjectCreationParameters, gameObjectBindInfo,
+                    "Ambiguous creation parameters (game object naming/parent info) when using ToPrefab with AsSingle");
             }
             else
             {
                 creator = new PrefabInstantiatorCached(
                     new PrefabInstantiator(
-                        _container, gameObjectName, gameObjectGroupName, extraArguments, new PrefabProvider(prefab)));
+                        _container, gameObjectBindInfo, resultType, extraArguments, new PrefabProvider(prefab)));
 
                 _prefabCreators.Add(prefabId, creator);
             }
@@ -66,10 +62,10 @@ namespace Zenject
 
         class PrefabId : IEquatable<PrefabId>
         {
-            public readonly string ConcreteIdentifier;
-            public readonly GameObject Prefab;
+            public readonly object ConcreteIdentifier;
+            public readonly UnityEngine.Object Prefab;
 
-            public PrefabId(string concreteIdentifier, GameObject prefab)
+            public PrefabId(object concreteIdentifier, UnityEngine.Object prefab)
             {
                 Assert.IsNotNull(prefab);
 

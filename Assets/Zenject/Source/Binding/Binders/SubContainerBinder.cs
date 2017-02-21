@@ -1,13 +1,5 @@
 using System;
-using System.Collections.Generic;
 using ModestTree;
-using System.Linq;
-
-#if !NOT_UNITY3D
-using UnityEngine;
-#endif
-
-using Zenject.Internal;
 
 namespace Zenject
 {
@@ -32,60 +24,58 @@ namespace Zenject
 
         protected IBindingFinalizer SubFinalizer
         {
-            set
-            {
-                _finalizerWrapper.SubFinalizer = value;
-            }
+            set { _finalizerWrapper.SubFinalizer = value; }
         }
 
-        public ScopeBinder ByInstaller<TInstaller>()
-            where TInstaller : Installer
+        public ScopeConditionCopyNonLazyBinder ByInstaller<TInstaller>()
+            where TInstaller : InstallerBase
         {
             return ByInstaller(typeof(TInstaller));
         }
 
-        public ScopeBinder ByInstaller(Type installerType)
+        public ScopeConditionCopyNonLazyBinder ByInstaller(Type installerType)
         {
-            BindingUtil.AssertIsInstallerType(installerType);
+            Assert.That(installerType.DerivesFrom<InstallerBase>(),
+                "Invalid installer type given during bind command.  Expected type '{0}' to derive from 'Installer<>'", installerType);
 
             SubFinalizer = new SubContainerInstallerBindingFinalizer(
                 _bindInfo, installerType, _subIdentifier);
 
-            return new ScopeBinder(_bindInfo);
+            return new ScopeConditionCopyNonLazyBinder(_bindInfo);
         }
 
-        public ScopeBinder ByMethod(Action<DiContainer> installerMethod)
+        public ScopeConditionCopyNonLazyBinder ByMethod(Action<DiContainer> installerMethod)
         {
             SubFinalizer = new SubContainerMethodBindingFinalizer(
                 _bindInfo, installerMethod, _subIdentifier);
 
-            return new ScopeBinder(_bindInfo);
+            return new ScopeConditionCopyNonLazyBinder(_bindInfo);
         }
 
 #if !NOT_UNITY3D
 
-        public GameObjectNameGroupNameScopeBinder ByPrefab(GameObject prefab)
+        public NameTransformScopeConditionCopyNonLazyBinder ByNewPrefab(UnityEngine.Object prefab)
         {
             BindingUtil.AssertIsValidPrefab(prefab);
 
-            var gameObjectInfo = new GameObjectBindInfo();
+            var gameObjectInfo = new GameObjectCreationParameters();
 
             SubFinalizer = new SubContainerPrefabBindingFinalizer(
                 _bindInfo, gameObjectInfo, prefab, _subIdentifier);
 
-            return new GameObjectNameGroupNameScopeBinder(_bindInfo, gameObjectInfo);
+            return new NameTransformScopeConditionCopyNonLazyBinder(_bindInfo, gameObjectInfo);
         }
 
-        public GameObjectNameGroupNameScopeBinder ByPrefabResource(string resourcePath)
+        public NameTransformScopeConditionCopyNonLazyBinder ByNewPrefabResource(string resourcePath)
         {
             BindingUtil.AssertIsValidResourcePath(resourcePath);
 
-            var gameObjectInfo = new GameObjectBindInfo();
+            var gameObjectInfo = new GameObjectCreationParameters();
 
             SubFinalizer = new SubContainerPrefabResourceBindingFinalizer(
                 _bindInfo, gameObjectInfo, resourcePath, _subIdentifier);
 
-            return new GameObjectNameGroupNameScopeBinder(_bindInfo, gameObjectInfo);
+            return new NameTransformScopeConditionCopyNonLazyBinder(_bindInfo, gameObjectInfo);
         }
 #endif
     }

@@ -1,11 +1,6 @@
 #if !NOT_UNITY3D
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using UnityEngine;
-using ModestTree;
 using UnityEngine.Serialization;
 
 namespace Zenject
@@ -25,40 +20,28 @@ namespace Zenject
         [FormerlySerializedAs("_compositionRoot")]
         Context _context = null;
 
-        [Tooltip("This value is used to determine how to bind this component.  When set to 'Self' is equivalent to calling Container.FromInstance inside an installer. When set to 'AllInterfaces' this is equivalent to calling 'Container.BindAllInterfaces<MyMonoBehaviour>().ToInstance', and similarly for AllInterfacesAndSelf")]
+        [Tooltip("This value is used to determine how to bind this component.  When set to 'Self' is equivalent to calling Container.FromInstance inside an installer. When set to 'AllInterfaces' this is equivalent to calling 'Container.BindInterfaces<MyMonoBehaviour>().ToInstance', and similarly for InterfacesAndSelf")]
         [SerializeField]
         BindTypes _bindType = BindTypes.Self;
 
         public Context Context
         {
-            get
-            {
-                return _context;
-            }
+            get { return _context; }
         }
 
         public Component[] Components
         {
-            get
-            {
-                return _components;
-            }
+            get { return _components; }
         }
 
         public string Identifier
         {
-            get
-            {
-                return _identifier;
-            }
+            get { return _identifier; }
         }
 
         public BindTypes BindType
         {
-            get
-            {
-                return _bindType;
-            }
+            get { return _bindType; }
         }
 
         public void Start()
@@ -71,6 +54,7 @@ namespace Zenject
             Self,
             AllInterfaces,
             AllInterfacesAndSelf,
+            BaseType,
         }
     }
 }

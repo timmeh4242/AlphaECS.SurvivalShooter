@@ -2,19 +2,13 @@ using System;
 using System.Collections.Generic;
 using ModestTree;
 
-#if !NOT_UNITY3D
-using UnityEngine;
-#endif
-
-
 namespace Zenject
 {
     public class FactoryToChoiceBinder<TContract> : FactoryFromBinder<TContract>
     {
         public FactoryToChoiceBinder(
-            BindInfo bindInfo, Type factoryType, 
-            BindFinalizerWrapper finalizerWrapper)
-            : base(bindInfo, factoryType, finalizerWrapper)
+            BindInfo bindInfo, FactoryBindInfo factoryBindInfo)
+            : base(bindInfo, factoryBindInfo)
         {
         }
 
@@ -34,24 +28,7 @@ namespace Zenject
                 typeof(TConcrete)
             };
 
-            return new FactoryFromBinder<TConcrete>(
-                BindInfo, FactoryType, FinalizerWrapper);
-        }
-    }
-
-    public class FactoryToChoiceIdBinder<TContract> : FactoryToChoiceBinder<TContract>
-    {
-        public FactoryToChoiceIdBinder(
-            BindInfo bindInfo, Type factoryType, 
-            BindFinalizerWrapper finalizerWrapper)
-            : base(bindInfo, factoryType, finalizerWrapper)
-        {
-        }
-
-        public FactoryToChoiceBinder<TContract> WithId(object identifier)
-        {
-            BindInfo.Identifier = identifier;
-            return this;
+            return new FactoryFromBinder<TConcrete>(BindInfo, FactoryBindInfo);
         }
     }
 }

@@ -1,12 +1,5 @@
 using System;
-using System.IO;
-using ModestTree;
-using UnityEditorInternal;
-using UnityEngine;
 using UnityEditor;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Zenject
 {
@@ -33,10 +26,7 @@ namespace Zenject
 
         protected DiContainer Container
         {
-            get
-            {
-                return _container;
-            }
+            get { return _container; }
         }
 
         public virtual void OnEnable()

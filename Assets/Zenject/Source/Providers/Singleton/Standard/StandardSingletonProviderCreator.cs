@@ -2,10 +2,6 @@ using System;
 using System.Collections.Generic;
 using ModestTree;
 
-#if !NOT_UNITY3D
-using UnityEngine;
-#endif
-
 namespace Zenject
 {
     public class StandardSingletonProviderCreator
@@ -29,10 +25,10 @@ namespace Zenject
             //Assert.IsNotEqual(dec.Type, SingletonTypes.ToPrefab);
             //Assert.IsNotEqual(dec.Type, SingletonTypes.ToPrefabResource);
 
-            Assert.IsNotEqual(dec.Type, SingletonTypes.ToSubContainerInstaller);
-            Assert.IsNotEqual(dec.Type, SingletonTypes.ToSubContainerMethod);
-            Assert.IsNotEqual(dec.Type, SingletonTypes.ToSubContainerPrefab);
-            Assert.IsNotEqual(dec.Type, SingletonTypes.ToSubContainerPrefabResource);
+            Assert.IsNotEqual(dec.Type, SingletonTypes.FromSubContainerInstaller);
+            Assert.IsNotEqual(dec.Type, SingletonTypes.FromSubContainerMethod);
+            Assert.IsNotEqual(dec.Type, SingletonTypes.FromSubContainerPrefab);
+            Assert.IsNotEqual(dec.Type, SingletonTypes.FromSubContainerPrefabResource);
 
             _markRegistry.MarkSingleton(dec.Id, dec.Type);
 

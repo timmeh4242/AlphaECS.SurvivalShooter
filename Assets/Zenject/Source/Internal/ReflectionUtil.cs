@@ -1,10 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 #if !NOT_UNITY3D
 using UnityEngine;
@@ -41,7 +39,7 @@ namespace ModestTree.Util
             {
                 if (obj != null)
                 {
-                    Assert.That(elementType.IsAssignableFrom(obj.GetType()),
+                    Assert.That(obj.GetType().DerivesFromOrEqual(elementType),
                         "Wrong type when creating generic list, expected something assignable from '"+ elementType +"', but found '" + obj.GetType() + "'");
                 }
 
@@ -96,6 +94,110 @@ namespace ModestTree.Util
             {
                 yield return new FieldMemberInfo(fieldInfo);
             }
+        }
+
+        public static string ToDebugString(this MethodInfo method)
+        {
+            return "{0}.{1}".Fmt(method.DeclaringType.Name(), method.Name);
+        }
+
+        public static string ToDebugString(this Action action)
+        {
+#if UNITY_WSA && ENABLE_DOTNET && !UNITY_EDITOR
+            return action.ToString();
+#else
+            return action.Method.ToDebugString();
+#endif
+        }
+
+        public static string ToDebugString<TParam1>(this Action<TParam1> action)
+        {
+#if UNITY_WSA && ENABLE_DOTNET && !UNITY_EDITOR
+            return action.ToString();
+#else
+            return action.Method.ToDebugString();
+#endif
+        }
+
+        public static string ToDebugString<TParam1, TParam2>(this Action<TParam1, TParam2> action)
+        {
+#if UNITY_WSA && ENABLE_DOTNET && !UNITY_EDITOR
+            return action.ToString();
+#else
+            return action.Method.ToDebugString();
+#endif
+        }
+
+        public static string ToDebugString<TParam1, TParam2, TParam3>(this Action<TParam1, TParam2, TParam3> action)
+        {
+#if UNITY_WSA && ENABLE_DOTNET && !UNITY_EDITOR
+            return action.ToString();
+#else
+            return action.Method.ToDebugString();
+#endif
+        }
+
+        public static string ToDebugString<TParam1, TParam2, TParam3, TParam4>(this Action<TParam1, TParam2, TParam3, TParam4> action)
+        {
+#if UNITY_WSA && ENABLE_DOTNET && !UNITY_EDITOR
+            return action.ToString();
+#else
+            return action.Method.ToDebugString();
+#endif
+        }
+
+        public static string ToDebugString<TParam1, TParam2, TParam3, TParam4, TParam5>(this ModestTree.Util.Action<TParam1, TParam2, TParam3, TParam4, TParam5> action)
+        {
+#if UNITY_WSA && ENABLE_DOTNET && !UNITY_EDITOR
+            return action.ToString();
+#else
+            return action.Method.ToDebugString();
+#endif
+        }
+
+        public static string ToDebugString<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6>(this ModestTree.Util.Action<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6> action)
+        {
+#if UNITY_WSA && ENABLE_DOTNET && !UNITY_EDITOR
+            return action.ToString();
+#else
+            return action.Method.ToDebugString();
+#endif
+        }
+
+        public static string ToDebugString<TParam1>(this Func<TParam1> func)
+        {
+#if UNITY_WSA && ENABLE_DOTNET && !UNITY_EDITOR
+            return func.ToString();
+#else
+            return func.Method.ToDebugString();
+#endif
+        }
+
+        public static string ToDebugString<TParam1, TParam2>(this Func<TParam1, TParam2> func)
+        {
+#if UNITY_WSA && ENABLE_DOTNET && !UNITY_EDITOR
+            return func.ToString();
+#else
+            return func.Method.ToDebugString();
+#endif
+        }
+
+        public static string ToDebugString<TParam1, TParam2, TParam3>(this Func<TParam1, TParam2, TParam3> func)
+        {
+#if UNITY_WSA && ENABLE_DOTNET && !UNITY_EDITOR
+            return func.ToString();
+#else
+            return func.Method.ToDebugString();
+#endif
+        }
+
+        public static string ToDebugString<TParam1, TParam2, TParam3, TParam4>(this Func<TParam1, TParam2, TParam3, TParam4> func)
+        {
+#if UNITY_WSA && ENABLE_DOTNET && !UNITY_EDITOR
+            return func.ToString();
+#else
+            return func.Method.ToDebugString();
+#endif
         }
 
         public interface IMemberInfo

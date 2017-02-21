@@ -12,12 +12,9 @@ namespace Zenject
             BindInfo = bindInfo;
         }
 
-        public bool InheritInSubContainers
+        public bool CopyIntoAllSubContainers
         {
-            get
-            {
-                return BindInfo.InheritInSubContainers;
-            }
+            get { return BindInfo.CopyIntoAllSubContainers; }
         }
 
         protected BindInfo BindInfo
@@ -26,12 +23,27 @@ namespace Zenject
             private set;
         }
 
+        protected ScopeTypes GetScope()
+        {
+            if (BindInfo.Scope == ScopeTypes.Unset)
+            {
+                // If condition is set then it's probably fine to allow the default of transient
+                Assert.That(!BindInfo.RequireExplicitScope || BindInfo.Condition != null,
+                    "Scope must be set for the previous binding!  Please either specify AsTransient, AsCached, or AsSingle. Last binding: Contract: {0}, Identifier: {1} {2}",
+                    BindInfo.ContractTypes.Select(x => x.ToString()).Join(", "), BindInfo.Identifier,
+                    BindInfo.ContextInfo != null ? "Context: '{0}'".Fmt(BindInfo.ContextInfo) : "");
+                return ScopeTypes.Transient;
+            }
+
+            return BindInfo.Scope;
+        }
+
         public void FinalizeBinding(DiContainer container)
         {
             if (BindInfo.ContractTypes.IsEmpty())
             {
                 // We could assert her instead but it is nice when used with things like
-                // BindAllInterfaces() (and there aren't any interfaces) to allow
+                // BindInterfaces() (and there aren't any interfaces) to allow
                 // interfaces to be added later
                 return;
             }
@@ -40,8 +52,21 @@ namespace Zenject
 
             if (BindInfo.NonLazy)
             {
-                container.BindRootResolve(
-                    BindInfo.Identifier, BindInfo.ContractTypes.ToArray());
+                // Note that we can't simply use container.BindRootResolve here because
+                // binding finalizers must only use RegisterProvider to allow cloning / bind
+                // inheritance to work properly
+                var bindingId = new BindingId(
+                    typeof(object), DiContainer.DependencyRootIdentifier);
+
+                foreach (var contractType in BindInfo.ContractTypes)
+                {
+                    container.RegisterProvider(
+                        bindingId, null, new ResolveProvider(
+                            contractType, container, BindInfo.Identifier, false,
+                            // We always want to only use local here so that we can use
+                            // NonLazy() inside subcontainers
+                            InjectSources.Local));
+                }
             }
         }
 
@@ -104,12 +129,31 @@ namespace Zenject
             {
                 foreach (var concreteType in concreteTypes)
                 {
-                    Assert.DerivesFromOrEqual(concreteType, contractType);
-
-                    RegisterProvider(
-                        container, contractType, providerFunc(contractType, concreteType));
+                    if (ValidateBindTypes(concreteType, contractType))
+                    {
+                        RegisterProvider(
+                            container, contractType, providerFunc(contractType, concreteType));
+                    }
                 }
             }
+        }
+
+        // Returns true if the bind should continue, false to skip
+        bool ValidateBindTypes(Type concreteType, Type contractType)
+        {
+            if (concreteType.DerivesFromOrEqual(contractType))
+            {
+                return true;
+            }
+
+            if (BindInfo.InvalidBindResponse == InvalidBindResponses.Assert)
+            {
+                throw Assert.CreateException(
+                    "Expected type '{0}' to derive from or be equal to '{1}'", concreteType, contractType);
+            }
+
+            Assert.IsEqual(BindInfo.InvalidBindResponse, InvalidBindResponses.Skip);
+            return false;
         }
 
         // Note that if multiple contract types are provided per concrete type,
@@ -129,9 +173,10 @@ namespace Zenject
             {
                 foreach (var concreteType in concreteTypes)
                 {
-                    Assert.DerivesFromOrEqual(concreteType, contractType);
-
-                    RegisterProvider(container, contractType, providerMap[concreteType]);
+                    if (ValidateBindTypes(concreteType, contractType))
+                    {
+                        RegisterProvider(container, contractType, providerMap[concreteType]);
+                    }
                 }
             }
         }

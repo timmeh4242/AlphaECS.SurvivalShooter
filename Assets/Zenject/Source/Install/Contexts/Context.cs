@@ -26,14 +26,11 @@ namespace Zenject
         [SerializeField]
         List<ScriptableObjectInstaller> _scriptableObjectInstallers = new List<ScriptableObjectInstaller>();
 
-        List<Installer> _normalInstallers = new List<Installer>();
+        List<InstallerBase> _normalInstallers = new List<InstallerBase>();
 
         public IEnumerable<MonoInstaller> Installers
         {
-            get
-            {
-                return _installers;
-            }
+            get { return _installers; }
             set
             {
                 _installers.Clear();
@@ -43,10 +40,7 @@ namespace Zenject
 
         public IEnumerable<MonoInstaller> InstallerPrefabs
         {
-            get
-            {
-                return _installerPrefabs;
-            }
+            get { return _installerPrefabs; }
             set
             {
                 _installerPrefabs.Clear();
@@ -56,10 +50,7 @@ namespace Zenject
 
         public IEnumerable<ScriptableObjectInstaller> ScriptableObjectInstallers
         {
-            get
-            {
-                return _scriptableObjectInstallers;
-            }
+            get { return _scriptableObjectInstallers; }
             set
             {
                 _scriptableObjectInstallers.Clear();
@@ -68,12 +59,9 @@ namespace Zenject
         }
 
         // Unlike other installer types this has to be set through code
-        public IEnumerable<Installer> NormalInstallers
+        public IEnumerable<InstallerBase> NormalInstallers
         {
-            get
-            {
-                return _normalInstallers;
-            }
+            get { return _normalInstallers; }
             set
             {
                 _normalInstallers.Clear();
@@ -85,6 +73,13 @@ namespace Zenject
         {
             get;
         }
+
+        public void AddNormalInstaller(InstallerBase installer)
+        {
+            _normalInstallers.Add(installer);
+        }
+
+        public abstract IEnumerable<GameObject> GetRootGameObjects();
 
         void CheckInstallerPrefabTypes()
         {
@@ -114,25 +109,34 @@ namespace Zenject
 
         protected void InstallInstallers()
         {
-            InstallInstallers(new Dictionary<Type, List<TypeValuePair>>());
-        }
-
-        protected void InstallInstallers(Dictionary<Type, List<TypeValuePair>> extraArgsMap)
-        {
             CheckInstallerPrefabTypes();
 
-            var newGameObjects = new List<GameObject>();
+            // Ideally we would just have one flat list of all the installers
+            // since that way the user has complete control over the order, but
+            // that's not possible since Unity does not allow serializing lists of interfaces
+            // (and it has to be an inteface since the scriptable object installers only share
+            // the interface)
+            //
+            // So the best we can do is have a hard-coded order in terms of the installer type
+            //
+            // The order is:
+            //      - Normal installers given directly via code
+            //      - ScriptableObject installers
+            //      - MonoInstallers in the scene
+            //      - Prefab Installers
+            //
+            // We put ScriptableObject installers before the MonoInstallers because
+            // ScriptableObjectInstallers are often used for settings (including settings
+            // that are injected into other installers like MonoInstallers)
+
             var allInstallers = _normalInstallers.Cast<IInstaller>()
-                .Concat(_installers.Cast<IInstaller>()).Concat(_scriptableObjectInstallers.Cast<IInstaller>()).ToList();
+                .Concat(_scriptableObjectInstallers.Cast<IInstaller>()).Concat(_installers.Cast<IInstaller>()).ToList();
 
             foreach (var installerPrefab in _installerPrefabs)
             {
-                Assert.IsNotNull(installerPrefab, "Found null installer prefab in '{0}'", this.GetType().Name());
+                Assert.IsNotNull(installerPrefab, "Found null installer prefab in '{0}'", this.GetType());
 
                 var installerGameObject = GameObject.Instantiate(installerPrefab.gameObject);
-
-                newGameObjects.Add(installerGameObject);
-
                 installerGameObject.transform.SetParent(this.transform, false);
                 var installer = installerGameObject.GetComponent<MonoInstaller>();
 
@@ -143,26 +147,17 @@ namespace Zenject
 
             foreach (var installer in allInstallers)
             {
-                List<TypeValuePair> extraArgs;
-
                 Assert.IsNotNull(installer,
-                    "Found null installer in '{0}'", this.GetType().Name());
+                    "Found null installer in '{0}'", this.GetType());
 
-                if (extraArgsMap.TryGetValue(installer.GetType(), out extraArgs))
-                {
-                    extraArgsMap.Remove(installer.GetType());
-                    Container.InstallExplicit(installer, extraArgs);
-                }
-                else
-                {
-                    Container.Install(installer);
-                }
+                Container.Inject(installer);
+                installer.InstallBindings();
             }
         }
 
-        protected void InstallSceneBindings(InitialComponentsInjecter componentInjecter)
+        protected void InstallSceneBindings()
         {
-            foreach (var binding in GetInjectableComponents().OfType<ZenjectBinding>())
+            foreach (var binding in GetInjectableMonoBehaviours().OfType<ZenjectBinding>())
             {
                 if (binding == null)
                 {
@@ -171,7 +166,7 @@ namespace Zenject
 
                 if (binding.Context == null)
                 {
-                    componentInjecter.InstallBinding(binding);
+                    InstallZenjectBinding(binding);
                 }
             }
 
@@ -186,37 +181,74 @@ namespace Zenject
 
                 if (binding.Context == this)
                 {
-                    componentInjecter.InstallBinding(binding);
+                    InstallZenjectBinding(binding);
                 }
             }
         }
 
-        protected abstract IEnumerable<Component> GetInjectableComponents();
-
-        protected static IEnumerable<Component> GetInjectableComponents(GameObject gameObject)
+        void InstallZenjectBinding(ZenjectBinding binding)
         {
-            foreach (var component in ZenUtilInternal.GetInjectableComponentsBottomUp(gameObject, true))
+            if (!binding.enabled)
             {
+                return;
+            }
+
+            if (binding.Components == null || binding.Components.IsEmpty())
+            {
+                Log.Warn("Found empty list of components on ZenjectBinding on object '{0}'", binding.name);
+                return;
+            }
+
+            string identifier = null;
+
+            if (binding.Identifier.Trim().Length > 0)
+            {
+                identifier = binding.Identifier;
+            }
+
+            foreach (var component in binding.Components)
+            {
+                var bindType = binding.BindType;
+
                 if (component == null)
                 {
-                    // This warning about fiBackupSceneStorage appears in normal cases so just ignore
-                    // Not sure what it is
-                    if (gameObject.name != "fiBackupSceneStorage")
-                    {
-                        Log.Warn("Zenject: Found null component on game object '{0}'.  Possible missing script.", gameObject.name);
-                    }
+                    Log.Warn("Found null component in ZenjectBinding on object '{0}'", binding.name);
                     continue;
                 }
 
-                if (component.GetType().DerivesFrom<MonoInstaller>())
+                var componentType = component.GetType();
+
+                switch (bindType)
                 {
-                    // Do not inject on installers since these are always injected before they are installed
-                    continue;
+                    case ZenjectBinding.BindTypes.Self:
+                    {
+                        Container.Bind(componentType).WithId(identifier).FromInstance(component, true);
+                        break;
+                    }
+                    case ZenjectBinding.BindTypes.BaseType:
+                    {
+                        Container.Bind(componentType.BaseType()).WithId(identifier).FromInstance(component, true);
+                        break;
+                    }
+                    case ZenjectBinding.BindTypes.AllInterfaces:
+                    {
+                        Container.Bind(componentType.Interfaces().ToArray()).WithId(identifier).FromInstance(component, true);
+                        break;
+                    }
+                    case ZenjectBinding.BindTypes.AllInterfacesAndSelf:
+                    {
+                        Container.Bind(componentType.Interfaces().Append(componentType).ToArray()).WithId(identifier).FromInstance(component, true);
+                        break;
+                    }
+                    default:
+                    {
+                        throw Assert.CreateException();
+                    }
                 }
-
-                yield return component;
             }
         }
+
+        protected abstract IEnumerable<MonoBehaviour> GetInjectableMonoBehaviours();
     }
 }
 

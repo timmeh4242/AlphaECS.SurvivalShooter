@@ -3,20 +3,19 @@
 using System;
 using System.Collections.Generic;
 using ModestTree;
-using UnityEngine;
 
 namespace Zenject
 {
     public class SubContainerPrefabBindingFinalizer : ProviderBindingFinalizer
     {
-        readonly GameObject _prefab;
+        readonly UnityEngine.Object _prefab;
         readonly object _subIdentifier;
-        readonly GameObjectBindInfo _gameObjectBindInfo;
+        readonly GameObjectCreationParameters _gameObjectBindInfo;
 
         public SubContainerPrefabBindingFinalizer(
             BindInfo bindInfo,
-            GameObjectBindInfo gameObjectBindInfo,
-            GameObject prefab,
+            GameObjectCreationParameters gameObjectBindInfo,
+            UnityEngine.Object prefab,
             object subIdentifier)
             : base(bindInfo)
         {
@@ -40,7 +39,7 @@ namespace Zenject
 
         void FinalizeBindingConcrete(DiContainer container, List<Type> concreteTypes)
         {
-            switch (BindInfo.Scope)
+            switch (GetScope())
             {
                 case ScopeTypes.Singleton:
                 {
@@ -50,8 +49,7 @@ namespace Zenject
                         (_, concreteType) => container.SingletonProviderCreator.CreateProviderForSubContainerPrefab(
                             concreteType,
                             BindInfo.ConcreteIdentifier,
-                            _gameObjectBindInfo.Name,
-                            _gameObjectBindInfo.GroupName,
+                            _gameObjectBindInfo,
                             _prefab,
                             _subIdentifier));
                     break;
@@ -63,15 +61,15 @@ namespace Zenject
                         concreteTypes,
                         (_, concreteType) => new SubContainerDependencyProvider(
                             concreteType, _subIdentifier,
-                            new SubContainerCreatorByPrefab(
-                                container, new PrefabProvider(_prefab), _gameObjectBindInfo.Name, _gameObjectBindInfo.GroupName)));
+                            new SubContainerCreatorByNewPrefab(
+                                container, new PrefabProvider(_prefab), _gameObjectBindInfo)));
                     break;
                 }
                 case ScopeTypes.Cached:
                 {
                     var containerCreator = new SubContainerCreatorCached(
-                        new SubContainerCreatorByPrefab(
-                            container, new PrefabProvider(_prefab), _gameObjectBindInfo.Name, _gameObjectBindInfo.GroupName));
+                        new SubContainerCreatorByNewPrefab(
+                            container, new PrefabProvider(_prefab), _gameObjectBindInfo));
 
                     RegisterProvidersForAllContractsPerConcreteType(
                         container,
@@ -90,7 +88,7 @@ namespace Zenject
 
         void FinalizeBindingSelf(DiContainer container)
         {
-            switch (BindInfo.Scope)
+            switch (GetScope())
             {
                 case ScopeTypes.Singleton:
                 {
@@ -99,8 +97,7 @@ namespace Zenject
                         (_, contractType) => container.SingletonProviderCreator.CreateProviderForSubContainerPrefab(
                             contractType,
                             BindInfo.ConcreteIdentifier,
-                            _gameObjectBindInfo.Name,
-                            _gameObjectBindInfo.GroupName,
+                            _gameObjectBindInfo,
                             _prefab,
                             _subIdentifier));
                     break;
@@ -111,15 +108,15 @@ namespace Zenject
                         container,
                         (_, contractType) => new SubContainerDependencyProvider(
                             contractType, _subIdentifier,
-                            new SubContainerCreatorByPrefab(
-                                container, new PrefabProvider(_prefab), _gameObjectBindInfo.Name, _gameObjectBindInfo.GroupName)));
+                            new SubContainerCreatorByNewPrefab(
+                                container, new PrefabProvider(_prefab), _gameObjectBindInfo)));
                     break;
                 }
                 case ScopeTypes.Cached:
                 {
                     var containerCreator = new SubContainerCreatorCached(
-                        new SubContainerCreatorByPrefab(
-                            container, new PrefabProvider(_prefab), _gameObjectBindInfo.Name, _gameObjectBindInfo.GroupName));
+                        new SubContainerCreatorByNewPrefab(
+                            container, new PrefabProvider(_prefab), _gameObjectBindInfo));
 
                     RegisterProviderPerContract(
                         container,

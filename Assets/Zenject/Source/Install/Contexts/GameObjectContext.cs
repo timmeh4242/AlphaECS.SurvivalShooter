@@ -26,10 +26,12 @@ namespace Zenject
 
         public override DiContainer Container
         {
-            get
-            {
-                return _container;
-            }
+            get { return _container; }
+        }
+
+        public override IEnumerable<GameObject> GetRootGameObjects()
+        {
+            return new[] { this.gameObject };
         }
 
         [Inject]
@@ -42,23 +44,22 @@ namespace Zenject
 
             _container = parentContainer.CreateSubContainer();
 
-            var componentInjecter = new InitialComponentsInjecter(
-                _container, GetInjectableComponents().ToList());
-
-            foreach (var component in componentInjecter.Components)
+            foreach (var instance in GetInjectableMonoBehaviours().Cast<object>())
             {
-                if (component is MonoKernel)
+                if (instance is MonoKernel)
                 {
-                    Assert.That(component == _kernel,
+                    Assert.That(ReferenceEquals(instance, _kernel),
                         "Found MonoKernel derived class that is not hooked up to GameObjectContext.  If you use MonoKernel, you must indicate this to GameObjectContext by dragging and dropping it to the Kernel field in the inspector");
                 }
+
+                _container.QueueForInject(instance);
             }
 
             _container.IsInstalling = true;
 
             try
             {
-                InstallBindings(installerExtraArgs, componentInjecter);
+                InstallBindings(installerExtraArgs);
             }
             finally
             {
@@ -67,66 +68,73 @@ namespace Zenject
 
             Log.Debug("GameObjectContext: Injecting into child components...");
 
-            componentInjecter.LazyInjectComponents();
+            _container.FlushInjectQueue();
 
             Assert.That(_dependencyRoots.IsEmpty());
             _dependencyRoots.AddRange(_container.ResolveDependencyRoots());
 
+            if (_container.IsValidating)
+            {
+                // The root-level Container has its ValidateValidatables method
+                // called explicitly - however, this is not so for sub-containers
+                // so call it here instead
+                _container.ValidateValidatables();
+            }
+
             Log.Debug("GameObjectContext: Initialized successfully");
         }
 
-        protected override IEnumerable<Component> GetInjectableComponents()
+        protected override IEnumerable<MonoBehaviour> GetInjectableMonoBehaviours()
         {
             // We inject on all components on the root except ourself
-            foreach (var component in GetComponents<Component>())
+            foreach (var monoBehaviour in GetComponents<MonoBehaviour>())
             {
-                if (component == null)
+                if (monoBehaviour == null)
                 {
-                    Log.Warn("Zenject: Found null component on game object '{0}'.  Possible missing script.", gameObject.name);
+                    // Missing script
                     continue;
                 }
 
-                if (component.GetType().DerivesFrom<MonoInstaller>())
+                if (monoBehaviour.GetType().DerivesFrom<MonoInstaller>())
                 {
                     // Do not inject on installers since these are always injected before they are installed
                     continue;
                 }
 
-                if (component == this)
+                if (monoBehaviour == this)
                 {
                     continue;
                 }
 
-                yield return component;
+                yield return monoBehaviour;
             }
 
-            foreach (var gameObject in UnityUtil.GetDirectChildren(this.gameObject))
+            foreach (var monoBehaviour in UnityUtil.GetDirectChildren(this.gameObject)
+                .SelectMany<GameObject, MonoBehaviour>(ZenUtilInternal.GetInjectableMonoBehaviours))
             {
-                foreach (var component in GetInjectableComponents(gameObject))
-                {
-                    yield return component;
-                }
+                yield return monoBehaviour;
             }
         }
 
         void InstallBindings(
-            InstallerExtraArgs installerExtraArgs, InitialComponentsInjecter componentInjecter)
+            InstallerExtraArgs installerExtraArgs)
         {
             _container.DefaultParent = this.transform;
 
             _container.Bind<Context>().FromInstance(this);
+            _container.Bind<GameObjectContext>().FromInstance(this);
 
             if (_kernel == null)
             {
                 _container.Bind<MonoKernel>()
-                    .To<DefaultGameObjectKernel>().FromComponent(this.gameObject).AsSingle().NonLazy();
+                    .To<DefaultGameObjectKernel>().FromNewComponentOn(this.gameObject).AsSingle().NonLazy();
             }
             else
             {
                 _container.Bind<MonoKernel>().FromInstance(_kernel).AsSingle().NonLazy();
             }
 
-            InstallSceneBindings(componentInjecter);
+            InstallSceneBindings();
 
             var extraArgsMap = new Dictionary<Type, List<TypeValuePair>>();
 
@@ -136,7 +144,7 @@ namespace Zenject
                     installerExtraArgs.InstallerType, installerExtraArgs.ExtraArgs);
             }
 
-            InstallInstallers(extraArgsMap);
+            InstallInstallers();
         }
 
         public class InstallerExtraArgs

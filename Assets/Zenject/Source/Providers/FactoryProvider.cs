@@ -1,17 +1,18 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using ModestTree;
-using Zenject;
 
 namespace Zenject
 {
     public abstract class FactoryProviderBase<TValue, TFactory> : IProvider
         where TFactory : IFactory
     {
-        public FactoryProviderBase(DiContainer container)
+        readonly List<TypeValuePair> _factoryArgs;
+
+        public FactoryProviderBase(DiContainer container, List<TypeValuePair> factoryArgs)
         {
             Container = container;
+            _factoryArgs = factoryArgs;
         }
 
         protected DiContainer Container
@@ -27,6 +28,11 @@ namespace Zenject
 
         public abstract IEnumerator<List<object>> GetAllInstancesWithInjectSplit(
             InjectContext context, List<TypeValuePair> args);
+
+        protected object CreateFactory()
+        {
+            return Container.InstantiateExplicit(typeof(TFactory), _factoryArgs);
+        }
     }
 
     // Zero parameters
@@ -34,8 +40,8 @@ namespace Zenject
     public class FactoryProvider<TValue, TFactory> : FactoryProviderBase<TValue, TFactory>
         where TFactory : IFactory<TValue>
     {
-        public FactoryProvider(DiContainer container)
-            : base(container)
+        public FactoryProvider(DiContainer container, List<TypeValuePair> factoryArgs)
+            : base(container, factoryArgs)
         {
         }
 
@@ -48,7 +54,7 @@ namespace Zenject
             Assert.That(typeof(TValue).DerivesFromOrEqual(context.MemberType));
 
             // Do this even when validating in case it has its own dependencies
-            var factory = Container.Instantiate(typeof(TFactory));
+            var factory = CreateFactory();
 
             if (Container.IsValidating)
             {
@@ -74,8 +80,8 @@ namespace Zenject
     public class FactoryProvider<TParam1, TValue, TFactory> : FactoryProviderBase<TValue, TFactory>
         where TFactory : IFactory<TParam1, TValue>
     {
-        public FactoryProvider(DiContainer container)
-            : base(container)
+        public FactoryProvider(DiContainer container, List<TypeValuePair> factoryArgs)
+            : base(container, factoryArgs)
         {
         }
 
@@ -86,10 +92,19 @@ namespace Zenject
             Assert.IsNotNull(context);
 
             Assert.That(typeof(TValue).DerivesFromOrEqual(context.MemberType));
-            Assert.IsEqual(args[0].Type, typeof(TParam1));
+            Assert.That(args[0].Type.DerivesFromOrEqual<TParam1>());
+
+            // Do this even when validating in case it has its own dependencies
+            var factory = CreateFactory();
 
             if (Container.IsValidating)
             {
+                // In case users define a custom IFactory that needs to be validated
+                if (factory is IValidatable)
+                {
+                    ((IValidatable)factory).Validate();
+                }
+
                 // We assume here that we are creating a user-defined factory so there's
                 // nothing else we can validate here
                 yield return new List<object>() { new ValidationMarker(typeof(TValue)) };
@@ -98,7 +113,7 @@ namespace Zenject
             {
                 yield return new List<object>()
                 {
-                    Container.Instantiate<TFactory>().Create((TParam1)args[0].Value)
+                    ((TFactory)factory).Create((TParam1)args[0].Value)
                 };
             }
         }
@@ -109,8 +124,8 @@ namespace Zenject
     public class FactoryProvider<TParam1, TParam2, TValue, TFactory> : FactoryProviderBase<TValue, TFactory>
         where TFactory : IFactory<TParam1, TParam2, TValue>
     {
-        public FactoryProvider(DiContainer container)
-            : base(container)
+        public FactoryProvider(DiContainer container, List<TypeValuePair> factoryArgs)
+            : base(container, factoryArgs)
         {
         }
 
@@ -121,11 +136,20 @@ namespace Zenject
             Assert.IsNotNull(context);
 
             Assert.That(typeof(TValue).DerivesFromOrEqual(context.MemberType));
-            Assert.IsEqual(args[0].Type, typeof(TParam1));
-            Assert.IsEqual(args[1].Type, typeof(TParam2));
+            Assert.That(args[0].Type.DerivesFromOrEqual<TParam1>());
+            Assert.That(args[1].Type.DerivesFromOrEqual<TParam2>());
+
+            // Do this even when validating in case it has its own dependencies
+            var factory = CreateFactory();
 
             if (Container.IsValidating)
             {
+                // In case users define a custom IFactory that needs to be validated
+                if (factory is IValidatable)
+                {
+                    ((IValidatable)factory).Validate();
+                }
+
                 // We assume here that we are creating a user-defined factory so there's
                 // nothing else we can validate here
                 yield return new List<object>() { new ValidationMarker(typeof(TValue)) };
@@ -134,7 +158,7 @@ namespace Zenject
             {
                 yield return new List<object>()
                 {
-                    Container.Instantiate<TFactory>().Create(
+                    ((TFactory)factory).Create(
                         (TParam1)args[0].Value,
                         (TParam2)args[1].Value)
                 };
@@ -147,8 +171,8 @@ namespace Zenject
     public class FactoryProvider<TParam1, TParam2, TParam3, TValue, TFactory> : FactoryProviderBase<TValue, TFactory>
         where TFactory : IFactory<TParam1, TParam2, TParam3, TValue>
     {
-        public FactoryProvider(DiContainer container)
-            : base(container)
+        public FactoryProvider(DiContainer container, List<TypeValuePair> factoryArgs)
+            : base(container, factoryArgs)
         {
         }
 
@@ -159,12 +183,21 @@ namespace Zenject
             Assert.IsNotNull(context);
 
             Assert.That(typeof(TValue).DerivesFromOrEqual(context.MemberType));
-            Assert.IsEqual(args[0].Type, typeof(TParam1));
-            Assert.IsEqual(args[1].Type, typeof(TParam2));
-            Assert.IsEqual(args[2].Type, typeof(TParam3));
+            Assert.That(args[0].Type.DerivesFromOrEqual<TParam1>());
+            Assert.That(args[1].Type.DerivesFromOrEqual<TParam2>());
+            Assert.That(args[2].Type.DerivesFromOrEqual<TParam3>());
+
+            // Do this even when validating in case it has its own dependencies
+            var factory = CreateFactory();
 
             if (Container.IsValidating)
             {
+                // In case users define a custom IFactory that needs to be validated
+                if (factory is IValidatable)
+                {
+                    ((IValidatable)factory).Validate();
+                }
+
                 // We assume here that we are creating a user-defined factory so there's
                 // nothing else we can validate here
                 yield return new List<object>() { new ValidationMarker(typeof(TValue)) };
@@ -173,7 +206,7 @@ namespace Zenject
             {
                 yield return new List<object>()
                 {
-                    Container.Instantiate<TFactory>().Create(
+                    ((TFactory)factory).Create(
                         (TParam1)args[0].Value,
                         (TParam2)args[1].Value,
                         (TParam3)args[2].Value)
@@ -187,8 +220,8 @@ namespace Zenject
     public class FactoryProvider<TParam1, TParam2, TParam3, TParam4, TValue, TFactory> : FactoryProviderBase<TValue, TFactory>
         where TFactory : IFactory<TParam1, TParam2, TParam3, TParam4, TValue>
     {
-        public FactoryProvider(DiContainer container)
-            : base(container)
+        public FactoryProvider(DiContainer container, List<TypeValuePair> factoryArgs)
+            : base(container, factoryArgs)
         {
         }
 
@@ -199,13 +232,22 @@ namespace Zenject
             Assert.IsNotNull(context);
 
             Assert.That(typeof(TValue).DerivesFromOrEqual(context.MemberType));
-            Assert.IsEqual(args[0].Type, typeof(TParam1));
-            Assert.IsEqual(args[1].Type, typeof(TParam2));
-            Assert.IsEqual(args[2].Type, typeof(TParam3));
-            Assert.IsEqual(args[3].Type, typeof(TParam4));
+            Assert.That(args[0].Type.DerivesFromOrEqual<TParam1>());
+            Assert.That(args[1].Type.DerivesFromOrEqual<TParam2>());
+            Assert.That(args[2].Type.DerivesFromOrEqual<TParam3>());
+            Assert.That(args[3].Type.DerivesFromOrEqual<TParam4>());
+
+            // Do this even when validating in case it has its own dependencies
+            var factory = CreateFactory();
 
             if (Container.IsValidating)
             {
+                // In case users define a custom IFactory that needs to be validated
+                if (factory is IValidatable)
+                {
+                    ((IValidatable)factory).Validate();
+                }
+
                 // We assume here that we are creating a user-defined factory so there's
                 // nothing else we can validate here
                 yield return new List<object>() { new ValidationMarker(typeof(TValue)) };
@@ -214,7 +256,7 @@ namespace Zenject
             {
                 yield return new List<object>()
                 {
-                    Container.Instantiate<TFactory>().Create(
+                    ((TFactory)factory).Create(
                         (TParam1)args[0].Value,
                         (TParam2)args[1].Value,
                         (TParam3)args[2].Value,
@@ -229,8 +271,8 @@ namespace Zenject
     public class FactoryProvider<TParam1, TParam2, TParam3, TParam4, TParam5, TValue, TFactory> : FactoryProviderBase<TValue, TFactory>
         where TFactory : IFactory<TParam1, TParam2, TParam3, TParam4, TParam5, TValue>
     {
-        public FactoryProvider(DiContainer container)
-            : base(container)
+        public FactoryProvider(DiContainer container, List<TypeValuePair> factoryArgs)
+            : base(container, factoryArgs)
         {
         }
 
@@ -241,14 +283,23 @@ namespace Zenject
             Assert.IsNotNull(context);
 
             Assert.That(typeof(TValue).DerivesFromOrEqual(context.MemberType));
-            Assert.IsEqual(args[0].Type, typeof(TParam1));
-            Assert.IsEqual(args[1].Type, typeof(TParam2));
-            Assert.IsEqual(args[2].Type, typeof(TParam3));
-            Assert.IsEqual(args[3].Type, typeof(TParam4));
-            Assert.IsEqual(args[4].Type, typeof(TParam5));
+            Assert.That(args[0].Type.DerivesFromOrEqual<TParam1>());
+            Assert.That(args[1].Type.DerivesFromOrEqual<TParam2>());
+            Assert.That(args[2].Type.DerivesFromOrEqual<TParam3>());
+            Assert.That(args[3].Type.DerivesFromOrEqual<TParam4>());
+            Assert.That(args[4].Type.DerivesFromOrEqual<TParam5>());
+
+            // Do this even when validating in case it has its own dependencies
+            var factory = CreateFactory();
 
             if (Container.IsValidating)
             {
+                // In case users define a custom IFactory that needs to be validated
+                if (factory is IValidatable)
+                {
+                    ((IValidatable)factory).Validate();
+                }
+
                 // We assume here that we are creating a user-defined factory so there's
                 // nothing else we can validate here
                 yield return new List<object>() { new ValidationMarker(typeof(TValue)) };
@@ -257,7 +308,7 @@ namespace Zenject
             {
                 yield return new List<object>()
                 {
-                    Container.Instantiate<TFactory>().Create(
+                    ((TFactory)factory).Create(
                         (TParam1)args[0].Value,
                         (TParam2)args[1].Value,
                         (TParam3)args[2].Value,

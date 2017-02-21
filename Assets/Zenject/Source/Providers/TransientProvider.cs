@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ModestTree;
-using Zenject;
 
 namespace Zenject
 {
@@ -10,13 +9,17 @@ namespace Zenject
     {
         readonly DiContainer _container;
         readonly Type _concreteType;
-        readonly string _concreteIdentifier;
+        readonly object _concreteIdentifier;
         readonly List<TypeValuePair> _extraArguments;
 
         public TransientProvider(
             Type concreteType, DiContainer container,
-            List<TypeValuePair> extraArguments, string concreteIdentifier)
+            List<TypeValuePair> extraArguments, object concreteIdentifier, string bindingContext)
         {
+            Assert.That(!concreteType.IsAbstract(),
+                "Expected non-abstract type for given binding but instead found type '{0}'{1}",
+                concreteType, bindingContext == null ? "" : " when binding '{0}'".Fmt(bindingContext) );
+
             _container = container;
             _concreteType = concreteType;
             _concreteIdentifier = concreteIdentifier;
@@ -26,7 +29,7 @@ namespace Zenject
         public TransientProvider(
             Type concreteType, DiContainer container,
             List<TypeValuePair> extraArguments)
-            : this(concreteType, container, extraArguments, null)
+            : this(concreteType, container, extraArguments, null, null)
         {
         }
 
@@ -47,24 +50,22 @@ namespace Zenject
 
             bool autoInject = false;
 
+            var instanceType = GetTypeToCreate(context.MemberType);
+
             var injectArgs = new InjectArgs()
             {
-                TypeInfo = TypeAnalyzer.GetInfo(GetTypeToCreate(context.MemberType)),
                 ExtraArgs = _extraArguments.Concat(args).ToList(),
                 Context = context,
                 ConcreteIdentifier = _concreteIdentifier,
-                UseAllArgs = false,
             };
 
             var instance = _container.InstantiateExplicit(
-                autoInject, injectArgs);
+                instanceType, autoInject, injectArgs);
 
             // Return before property/field/method injection to allow circular dependencies
             yield return new List<object>() { instance };
 
-            injectArgs.UseAllArgs = true;
-
-            _container.InjectExplicit(instance, injectArgs);
+            _container.InjectExplicit(instance, instanceType, injectArgs);
         }
 
         Type GetTypeToCreate(Type contractType)

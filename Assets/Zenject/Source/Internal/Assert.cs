@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Zenject;
 
@@ -232,6 +231,30 @@ namespace ModestTree
             if (!condition)
             {
                 Throw("Assert hit! " + FormatString(message, parameters));
+            }
+        }
+
+        public static void Warn(bool condition)
+        {
+            if (!condition)
+            {
+                Log.Warn("Warning!  See call stack");
+            }
+        }
+
+        public static void Warn(bool condition, string message, params object[] parameters)
+        {
+            if (!condition)
+            {
+                Log.Warn("Warning Assert hit! " + FormatString(message, parameters));
+            }
+        }
+
+        public static void Warn(bool condition, Func<string> messageGenerator)
+        {
+            if (!condition)
+            {
+                Log.Warn("Warning Assert hit! " + messageGenerator());
             }
         }
 

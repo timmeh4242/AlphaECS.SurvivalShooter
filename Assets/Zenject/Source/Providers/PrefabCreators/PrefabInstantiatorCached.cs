@@ -20,29 +20,20 @@ namespace Zenject
 
         public List<TypeValuePair> ExtraArguments
         {
-            get
-            {
-                return _subInstantiator.ExtraArguments;
-            }
+            get { return _subInstantiator.ExtraArguments; }
         }
 
-        public string GameObjectGroupName
+        public Type ArgumentTarget
         {
-            get
-            {
-                return _subInstantiator.GameObjectGroupName;
-            }
+            get { return _subInstantiator.ArgumentTarget; }
         }
 
-        public string GameObjectName
+        public GameObjectCreationParameters GameObjectCreationParameters
         {
-            get
-            {
-                return _subInstantiator.GameObjectName;
-            }
+            get { return _subInstantiator.GameObjectCreationParameters; }
         }
 
-        public GameObject GetPrefab()
+        public UnityEngine.Object GetPrefab()
         {
             return _subInstantiator.GetPrefab();
         }

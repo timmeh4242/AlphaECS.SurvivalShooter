@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using ModestTree;
-using Zenject;
 
 namespace Zenject
 {
@@ -54,7 +52,7 @@ namespace Zenject
             else
             {
                 yield return new List<object>() { _method(
-                    _container.Resolve<TObj>(GetSubContext(context))) };
+                    (TObj)_container.Resolve(GetSubContext(context))) };
             }
         }
     }

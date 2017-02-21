@@ -1,10 +1,6 @@
 using System;
 using System.Collections.Generic;
 
-#if !NOT_UNITY3D
-using UnityEngine;
-#endif
-
 namespace Zenject
 {
     public class SingletonProviderCreator
@@ -14,8 +10,8 @@ namespace Zenject
         readonly SubContainerSingletonProviderCreatorByInstaller _subContainerInstallerProviderCreator;
 
 #if !NOT_UNITY3D
-        readonly SubContainerSingletonProviderCreatorByPrefab _subContainerPrefabProviderCreator;
-        readonly SubContainerSingletonProviderCreatorByPrefabResource _subContainerPrefabResourceProviderCreator;
+        readonly SubContainerSingletonProviderCreatorByNewPrefab _subContainerPrefabProviderCreator;
+        readonly SubContainerSingletonProviderCreatorByNewPrefabResource _subContainerPrefabResourceProviderCreator;
 
         readonly PrefabSingletonProviderCreator _prefabProviderCreator;
         readonly PrefabResourceSingletonProviderCreator _prefabResourceProviderCreator;
@@ -29,8 +25,8 @@ namespace Zenject
             _subContainerInstallerProviderCreator = new SubContainerSingletonProviderCreatorByInstaller(container, markRegistry);
 
 #if !NOT_UNITY3D
-            _subContainerPrefabProviderCreator = new SubContainerSingletonProviderCreatorByPrefab(container, markRegistry);
-            _subContainerPrefabResourceProviderCreator = new SubContainerSingletonProviderCreatorByPrefabResource(container, markRegistry);
+            _subContainerPrefabProviderCreator = new SubContainerSingletonProviderCreatorByNewPrefab(container, markRegistry);
+            _subContainerPrefabResourceProviderCreator = new SubContainerSingletonProviderCreatorByNewPrefabResource(container, markRegistry);
 
             _prefabProviderCreator = new PrefabSingletonProviderCreator(container, markRegistry);
             _prefabResourceProviderCreator = new PrefabResourceSingletonProviderCreator(container, markRegistry);
@@ -44,7 +40,7 @@ namespace Zenject
         }
 
         public IProvider CreateProviderForSubContainerMethod(
-            Type resultType, string concreteIdentifier,
+            Type resultType, object concreteIdentifier,
             Action<DiContainer> installMethod, object identifier)
         {
             return _subContainerMethodProviderCreator.CreateProvider(
@@ -52,7 +48,7 @@ namespace Zenject
         }
 
         public IProvider CreateProviderForSubContainerInstaller(
-            Type resultType, string concreteIdentifier,
+            Type resultType, object concreteIdentifier,
             Type installerType, object identifier)
         {
             return _subContainerInstallerProviderCreator.CreateProvider(
@@ -61,37 +57,36 @@ namespace Zenject
 
 #if !NOT_UNITY3D
         public IProvider CreateProviderForPrefab(
-            GameObject prefab, Type resultType, string gameObjectName, string gameObjectGroupName,
-            List<TypeValuePair> extraArguments, string concreteIdentifier)
+            UnityEngine.Object prefab, Type resultType, GameObjectCreationParameters gameObjectBindInfo,
+            List<TypeValuePair> extraArguments, object concreteIdentifier)
         {
             return _prefabProviderCreator.CreateProvider(
-                prefab, resultType, gameObjectName, gameObjectGroupName,
+                prefab, resultType, gameObjectBindInfo,
                 extraArguments, concreteIdentifier);
         }
 
         public IProvider CreateProviderForPrefabResource(
-            string resourcePath, Type resultType, string gameObjectName, string gameObjectGroupName,
-            List<TypeValuePair> extraArguments, string concreteIdentifier)
+            string resourcePath, Type resultType, GameObjectCreationParameters gameObjectBindInfo,
+            List<TypeValuePair> extraArguments, object concreteIdentifier)
         {
             return _prefabResourceProviderCreator.CreateProvider(
-                resourcePath, resultType, gameObjectName, gameObjectGroupName,
-                extraArguments, concreteIdentifier);
+                resourcePath, resultType, gameObjectBindInfo, extraArguments, concreteIdentifier);
         }
 
         public IProvider CreateProviderForSubContainerPrefab(
-            Type resultType, string concreteIdentifier, string gameObjectName, string gameObjectGroupName,
-            GameObject prefab, object identifier)
+            Type resultType, object concreteIdentifier, GameObjectCreationParameters gameObjectBindInfo,
+            UnityEngine.Object prefab, object identifier)
         {
             return _subContainerPrefabProviderCreator.CreateProvider(
-                resultType, concreteIdentifier, prefab, identifier, gameObjectName, gameObjectGroupName);
+                resultType, concreteIdentifier, prefab, identifier, gameObjectBindInfo);
         }
 
         public IProvider CreateProviderForSubContainerPrefabResource(
-            Type resultType, string concreteIdentifier, string gameObjectName, string gameObjectGroupName,
+            Type resultType, object concreteIdentifier, GameObjectCreationParameters gameObjectBindInfo,
             string resourcePath, object identifier)
         {
             return _subContainerPrefabResourceProviderCreator.CreateProvider(
-                resultType, concreteIdentifier, resourcePath, identifier, gameObjectName, gameObjectGroupName);
+                resultType, concreteIdentifier, resourcePath, identifier, gameObjectBindInfo);
         }
 #endif
     }

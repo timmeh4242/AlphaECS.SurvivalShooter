@@ -3,10 +3,6 @@ using System.Collections.Generic;
 using ModestTree;
 using System.Linq;
 
-#if !NOT_UNITY3D
-using UnityEngine;
-#endif
-
 namespace Zenject
 {
     public class ConcreteBinderGeneric<TContract> : FromBinderGeneric<TContract>
@@ -24,10 +20,11 @@ namespace Zenject
         {
             Assert.IsEqual(BindInfo.ToChoice, ToChoices.Self);
 
+            BindInfo.RequireExplicitScope = true;
             SubFinalizer = new ScopableBindingFinalizer(
-                BindInfo, SingletonTypes.To, null,
+                BindInfo, SingletonTypes.FromNew, null,
                 (container, type) => new TransientProvider(
-                    type, container, BindInfo.Arguments, BindInfo.ConcreteIdentifier));
+                    type, container, BindInfo.Arguments, BindInfo.ConcreteIdentifier, BindInfo.ContextInfo));
 
             return this;
         }
@@ -52,7 +49,8 @@ namespace Zenject
 
         public FromBinderNonGeneric To(IEnumerable<Type> concreteTypes)
         {
-            BindingUtil.AssertIsDerivedFromTypes(concreteTypes, BindInfo.ContractTypes);
+            BindingUtil.AssertIsDerivedFromTypes(
+                concreteTypes, BindInfo.ContractTypes, BindInfo.InvalidBindResponse);
 
             BindInfo.ToChoice = ToChoices.Concrete;
             BindInfo.ToTypes = concreteTypes.ToList();

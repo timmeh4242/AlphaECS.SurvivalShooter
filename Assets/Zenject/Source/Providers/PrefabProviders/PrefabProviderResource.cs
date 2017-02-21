@@ -1,8 +1,5 @@
 #if !NOT_UNITY3D
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using ModestTree;
 using UnityEngine;
 
@@ -17,7 +14,7 @@ namespace Zenject
             _resourcePath = resourcePath;
         }
 
-        public GameObject GetPrefab()
+        public UnityEngine.Object GetPrefab()
         {
             var prefab = (GameObject)Resources.Load(_resourcePath);
 

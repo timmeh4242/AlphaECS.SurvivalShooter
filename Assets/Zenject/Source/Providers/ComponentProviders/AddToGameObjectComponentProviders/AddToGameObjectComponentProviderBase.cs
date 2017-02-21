@@ -5,20 +5,19 @@ using System.Collections.Generic;
 using System.Linq;
 using ModestTree;
 using UnityEngine;
-using Zenject;
 
 namespace Zenject
 {
     public abstract class AddToGameObjectComponentProviderBase : IProvider
     {
-        readonly string _concreteIdentifier;
+        readonly object _concreteIdentifier;
         readonly Type _componentType;
         readonly DiContainer _container;
         readonly List<TypeValuePair> _extraArguments;
 
         public AddToGameObjectComponentProviderBase(
             DiContainer container, Type componentType,
-            string concreteIdentifier, List<TypeValuePair> extraArguments)
+            object concreteIdentifier, List<TypeValuePair> extraArguments)
         {
             Assert.That(componentType.DerivesFrom<Component>());
 
@@ -30,26 +29,17 @@ namespace Zenject
 
         protected DiContainer Container
         {
-            get
-            {
-                return _container;
-            }
+            get { return _container; }
         }
 
         protected Type ComponentType
         {
-            get
-            {
-                return _componentType;
-            }
+            get { return _componentType; }
         }
 
-        protected string ConcreteIdentifier
+        protected object ConcreteIdentifier
         {
-            get
-            {
-                return _concreteIdentifier;
-            }
+            get { return _concreteIdentifier; }
         }
 
         public Type GetInstanceType(InjectContext context)
@@ -82,13 +72,11 @@ namespace Zenject
             var injectArgs = new InjectArgs()
             {
                 ExtraArgs = _extraArguments.Concat(args).ToList(),
-                UseAllArgs = true,
-                TypeInfo = TypeAnalyzer.GetInfo(_componentType),
                 Context = context,
                 ConcreteIdentifier = _concreteIdentifier,
             };
 
-            _container.InjectExplicit(instance, injectArgs);
+            _container.InjectExplicit(instance, _componentType, injectArgs);
 
             Assert.That(injectArgs.ExtraArgs.IsEmpty());
         }

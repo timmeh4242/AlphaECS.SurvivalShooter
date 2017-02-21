@@ -32,7 +32,7 @@ namespace AlphaECS.SurvivalShooter
 				
 //					Instantiate (enemy, spawnPoints[spawnPointIndex].position, spawnPoints[spawnPointIndex].rotation);
 		
-					var instance = Container.InstantiatePrefab (spawner.Prefab);
+					var instance = PrefabFactory.Instantiate (spawner.Prefab);
 					instance.transform.SetParent(spawner.transform);
 					instance.transform.position = spawner.transform.position;
 					instance.transform.rotation = spawner.transform.rotation;

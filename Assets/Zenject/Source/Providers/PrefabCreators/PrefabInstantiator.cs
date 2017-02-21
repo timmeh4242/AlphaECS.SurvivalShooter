@@ -12,68 +12,76 @@ namespace Zenject
     {
         readonly IPrefabProvider _prefabProvider;
         readonly DiContainer _container;
-        readonly string _gameObjectName;
-        readonly string _gameObjectGroupName;
         readonly List<TypeValuePair> _extraArguments;
+        readonly GameObjectCreationParameters _gameObjectBindInfo;
+        readonly Type _argumentTarget;
 
         public PrefabInstantiator(
             DiContainer container,
-            string gameObjectName,
-            string gameObjectGroupName,
+            GameObjectCreationParameters gameObjectBindInfo,
+            Type argumentTarget,
             List<TypeValuePair> extraArguments,
             IPrefabProvider prefabProvider)
         {
             _prefabProvider = prefabProvider;
             _extraArguments = extraArguments;
             _container = container;
-            _gameObjectName = gameObjectName;
-            _gameObjectGroupName = gameObjectGroupName;
+            _gameObjectBindInfo = gameObjectBindInfo;
+            _argumentTarget = argumentTarget;
         }
 
-        public string GameObjectGroupName
+        public GameObjectCreationParameters GameObjectCreationParameters
         {
-            get
-            {
-                return _gameObjectGroupName;
-            }
+            get { return _gameObjectBindInfo; }
         }
 
-        public string GameObjectName
+        public Type ArgumentTarget
         {
-            get
-            {
-                return _gameObjectName;
-            }
+            get { return _argumentTarget; }
         }
 
         public List<TypeValuePair> ExtraArguments
         {
-            get
-            {
-                return _extraArguments;
-            }
+            get { return _extraArguments; }
         }
 
-        public GameObject GetPrefab()
+        public UnityEngine.Object GetPrefab()
         {
             return _prefabProvider.GetPrefab();
         }
 
         public IEnumerator<GameObject> Instantiate(List<TypeValuePair> args)
         {
-            var gameObject = _container.CreateAndParentPrefab(GetPrefab(), _gameObjectGroupName);
+            var gameObject = _container.CreateAndParentPrefab(GetPrefab(), _gameObjectBindInfo);
             Assert.IsNotNull(gameObject);
-
-            if (_gameObjectName != null)
-            {
-                gameObject.name = _gameObjectName;
-            }
 
             // Return it before inject so we can do circular dependencies
             yield return gameObject;
 
-            _container.InjectGameObjectExplicit(
-                gameObject, true, _extraArguments.Concat(args).ToList());
+            var allArgs = _extraArguments.Concat(args).ToList();
+
+            if (_argumentTarget == null)
+            {
+                Assert.That(allArgs.IsEmpty(),
+                    "Unexpected arguments provided to prefab instantiator.  Arguments are not allowed if binding multiple components in the same binding");
+            }
+
+            if (_argumentTarget == null || allArgs.IsEmpty())
+            {
+                _container.InjectGameObject(gameObject);
+            }
+            else
+            {
+                var injectArgs = new InjectArgs()
+                {
+                    ExtraArgs = allArgs,
+                    Context = new InjectContext(_container, _argumentTarget, null),
+                    ConcreteIdentifier = null,
+                };
+
+                _container.InjectGameObjectForComponentExplicit(
+                    gameObject, _argumentTarget, injectArgs);
+            }
         }
     }
 }

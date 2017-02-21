@@ -8,24 +8,24 @@ namespace Zenject
 {
     public interface IPrefabInstantiator
     {
+        Type ArgumentTarget
+        {
+            get;
+        }
+
         List<TypeValuePair> ExtraArguments
         {
             get;
         }
 
-        string GameObjectName
-        {
-            get;
-        }
-
-        string GameObjectGroupName
+        GameObjectCreationParameters GameObjectCreationParameters
         {
             get;
         }
 
         IEnumerator<GameObject> Instantiate(List<TypeValuePair> args);
 
-        GameObject GetPrefab();
+        UnityEngine.Object GetPrefab();
     }
 }
 

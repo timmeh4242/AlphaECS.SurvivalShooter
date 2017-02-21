@@ -1,12 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using ModestTree;
 
 namespace Zenject
 {
     public enum ScopeTypes
     {
+        Unset,
         Transient,
         Singleton,
         Cached,
@@ -18,18 +17,31 @@ namespace Zenject
         Concrete,
     }
 
+    public enum InvalidBindResponses
+    {
+        Assert,
+        Skip,
+    }
+
     public class BindInfo
     {
-        public BindInfo(List<Type> contractTypes)
+        public BindInfo(List<Type> contractTypes, string contextInfo)
         {
+            ContextInfo = contextInfo;
             Identifier = null;
             ContractTypes = contractTypes;
             ToTypes = new List<Type>();
             Arguments = new List<TypeValuePair>();
             ToChoice = ToChoices.Self;
-            InheritInSubContainers = false;
+            CopyIntoAllSubContainers = false;
             NonLazy = false;
-            Scope = ScopeTypes.Transient;
+            Scope = ScopeTypes.Unset;
+            InvalidBindResponse = InvalidBindResponses.Assert;
+        }
+
+        public BindInfo(List<Type> contractTypes)
+            : this(contractTypes, null)
+        {
         }
 
         public BindInfo(Type contractType)
@@ -40,6 +52,18 @@ namespace Zenject
         public BindInfo()
             : this(new List<Type>())
         {
+        }
+
+        public string ContextInfo
+        {
+            get;
+            private set;
+        }
+
+        public bool RequireExplicitScope
+        {
+            get;
+            set;
         }
 
         public object Identifier
@@ -54,7 +78,13 @@ namespace Zenject
             set;
         }
 
-        public bool InheritInSubContainers
+        public bool CopyIntoAllSubContainers
+        {
+            get;
+            set;
+        }
+
+        public InvalidBindResponses InvalidBindResponse
         {
             get;
             set;
@@ -92,7 +122,7 @@ namespace Zenject
         }
 
         // Note: This only makes sense for ScopeTypes.Singleton
-        public string ConcreteIdentifier
+        public object ConcreteIdentifier
         {
             get;
             set;
