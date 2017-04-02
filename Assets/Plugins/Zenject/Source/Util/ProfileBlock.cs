@@ -6,7 +6,7 @@ using System.Xml.Serialization;
 using ModestTree;
 
 #if !NOT_UNITY3D
-using UnityEngine;
+
 #if UNITY_5_5
 using UnityEngine.Profiling;
 #endif
@@ -23,7 +23,7 @@ namespace Zenject
 
         ProfileBlock(string sampleName, bool rootBlock)
         {
-            Profiler.BeginSample(sampleName);
+            UnityEngine.Profiling.Profiler.BeginSample(sampleName);
             _rootBlock = rootBlock;
 
             if (rootBlock)
@@ -46,7 +46,7 @@ namespace Zenject
 
         public static ProfileBlock Start(string sampleNameFormat, object obj1, object obj2)
         {
-            if (!Profiler.enabled)
+            if (!UnityEngine.Profiling.Profiler.enabled)
             {
                 return null;
             }
@@ -55,7 +55,7 @@ namespace Zenject
 
         public static ProfileBlock Start(string sampleNameFormat, object obj)
         {
-            if (!Profiler.enabled)
+            if (!UnityEngine.Profiling.Profiler.enabled)
             {
                 return null;
             }
@@ -64,7 +64,7 @@ namespace Zenject
 
         public static ProfileBlock Start(string sampleName)
         {
-            if (!Profiler.enabled)
+            if (!UnityEngine.Profiling.Profiler.enabled)
             {
                 return null;
             }
@@ -85,7 +85,7 @@ namespace Zenject
 
         public void Dispose()
         {
-            Profiler.EndSample();
+            UnityEngine.Profiling.Profiler.EndSample();
 
             if (_rootBlock)
             {

@@ -49,6 +49,11 @@ namespace AlphaECS.Unity
             }
             set
             {
+				// TODO add some logic for killing rogue entities
+				if (entity != null)
+				{
+
+				}
                 entity = value;
             }
         }
@@ -116,10 +121,9 @@ namespace AlphaECS.Unity
 
         public override void OnDestroy()
         {
-            if (IsQuitting)
-                return;
-
-            if (!RemoveEntityOnDestroy) return;
+			if (IsQuitting) return;
+			if (!RemoveEntityOnDestroy)return;
+			if (Proxy != null) return;
 
             IPool poolToUse;
 
