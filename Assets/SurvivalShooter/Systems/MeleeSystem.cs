@@ -14,7 +14,7 @@ namespace AlphaECS.SurvivalShooter
 			base.Setup ();
 
 			var group = GroupFactory.Create (new Type[]{ typeof(EntityBehaviour), typeof(MeleeComponent) });
-			group.Entities.ObserveAdd ().Select (x => x.Value).StartWith (group.Entities).Subscribe (entity =>
+			group.OnAdd().Subscribe (entity =>
 			{
 				var entityBehaviour = entity.GetComponent<EntityBehaviour> ();
 				var attacker = entity.GetComponent<MeleeComponent> ();

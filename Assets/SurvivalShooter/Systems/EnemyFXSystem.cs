@@ -33,7 +33,7 @@ namespace AlphaECS.SurvivalShooter
 			}).AddTo (this);
 
 			var group = GroupFactory.Create (new Type[]{ typeof(EntityBehaviour), typeof(HealthComponent), typeof(NavMeshAgent), typeof(CapsuleCollider), typeof(Animator), typeof(Rigidbody) });
-			group.Entities.ObserveAdd ().Select (x => x.Value).StartWith (group.Entities).Subscribe (entity =>
+			group.OnAdd().Subscribe (entity =>
 			{
 				var entityBehaviour = entity.GetComponent<EntityBehaviour> ();
 				var healthComponent = entity.GetComponent<HealthComponent> ();

@@ -13,7 +13,7 @@ namespace AlphaECS.SurvivalShooter
 			base.Setup ();
 
 			var group = GroupFactory.Create (new Type[]{ typeof(Camera), typeof(FollowerComponent) });
-			group.Entities.ObserveAdd ().Select (x => x.Value).StartWith (group.Entities).Subscribe (entity =>
+			group.OnAdd().Subscribe (entity =>
 			{
 				var follower = entity.GetComponent<FollowerComponent>();
 				follower.Offset	= follower.transform.position - follower.Target.position;

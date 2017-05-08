@@ -20,7 +20,7 @@ namespace AlphaECS.SurvivalShooter
 
 			var group = GroupFactory.Create (new Type[] { typeof(InputComponent), typeof(EntityBehaviour), typeof(Animator) });
 
-			group.Entities.ObserveAdd ().Select(x => x.Value).StartWith(group.Entities).Subscribe (entity =>
+			group.OnAdd().Subscribe (entity =>
 			{
 				var input = entity.GetComponent<InputComponent> ();
 				var horizontal = input.Horizontal.DistinctUntilChanged ();

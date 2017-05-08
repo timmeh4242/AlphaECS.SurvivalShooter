@@ -19,7 +19,7 @@ namespace AlphaECS.SurvivalShooter
 			base.Setup ();
 
 			var group = GroupFactory.Create (new Type[] { typeof(HealthComponent), typeof(EntityBehaviour), typeof(UnityEngine.AI.NavMeshAgent) });
-			group.Entities.ObserveAdd ().Select (x => x.Value).StartWith (group.Entities).Subscribe (entity =>
+			group.OnAdd().Subscribe (entity =>
 			{
 				var entityBehaviour = entity.GetComponent<EntityBehaviour>();
 				var navMeshAgent = entity.GetComponent<NavMeshAgent> ();

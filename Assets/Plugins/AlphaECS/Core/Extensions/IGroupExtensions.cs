@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using UniRx;
 
 namespace AlphaECS
 {
@@ -11,5 +12,11 @@ namespace AlphaECS
 //            componentTypes.Add(typeof(T));
 //            return new Group(componentTypes.ToArray());
 //        }
+
+		public static IObservable<IEntity> OnAdd(this IGroup group)
+		{ return group.Entities.ObserveAdd ().Select (x => x.Value).StartWith (group.Entities); }
+
+		public static IObservable<IEntity> OnRemove(this IGroup group)
+		{ return group.Entities.ObserveRemove ().Select (x => x.Value).StartWith (group.Entities); }
     }
 }

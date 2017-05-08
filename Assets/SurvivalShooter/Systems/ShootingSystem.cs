@@ -19,7 +19,7 @@ namespace AlphaECS.SurvivalShooter
 
 			var group = GroupFactory.Create(new Type[] { typeof(EntityBehaviour), typeof(ShooterComponent) });
 
-			group.Entities.ObserveAdd ().Select(x => x.Value).StartWith(group.Entities).Subscribe (entity =>
+			group.OnAdd().Subscribe (entity =>
 			{
 				var entityBehaviour = entity.GetComponent<EntityBehaviour> ();
 				var shooter = entity.GetComponent<ShooterComponent> ();

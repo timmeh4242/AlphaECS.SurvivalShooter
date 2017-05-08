@@ -18,7 +18,7 @@ namespace AlphaECS.SurvivalShooter
 			base.Setup ();
 
 			var group = GroupFactory.Create (new Type[]{ typeof(SpawnerComponent) });
-			group.Entities.ObserveAdd ().Select (x => x.Value).StartWith (group.Entities).Subscribe (entity =>
+			group.OnAdd().Subscribe (entity =>
 			{
 				var spawner = entity.GetComponent<SpawnerComponent>();
 				var delay = TimeSpan.FromSeconds(0f);
