@@ -3,12 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using AlphaECS;
-using AlphaECS.Extensions;
 using UniRx;
 
 namespace AlphaECS
 {
-    public class Entity : IEntity
+	public class Entity : IEntity
     {
 		private readonly Dictionary<Type, object> _components;
 
@@ -24,14 +23,15 @@ namespace AlphaECS
 			_components = new Dictionary<Type, object>();
         }
 
-		public void AddComponent(object component)
+		public object AddComponent(object component)
         {
             _components.Add(component.GetType(), component);
             EventSystem.Publish(new ComponentAddedEvent(this, component));
+			return component;
         }
 
-		public void AddComponent<T>() where T : class, new()
-        { AddComponent(new T()); }
+		public T AddComponent<T>() where T : class, new()
+		{ return (T)AddComponent(new T()); }
 
 		public void RemoveComponent(object component)
         {
@@ -54,8 +54,8 @@ namespace AlphaECS
 
         public void RemoveAllComponents()
         {
-//            var components = Components.ToArray();
-//            components.ForEachRun(RemoveComponent);
+            var components = Components.ToArray();
+            components.ForEachRun(RemoveComponent);
         }
 
 		public bool HasComponent<T>() where T : class
@@ -70,8 +70,9 @@ namespace AlphaECS
         }
 
 		public T GetComponent<T>() where T : class
-        {
-			return _components[typeof(T)] as T;
-		}
+        { return _components[typeof(T)] as T; }
+
+		public void Dispose()
+		{ RemoveAllComponents(); }
     }
 }

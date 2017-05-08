@@ -38,15 +38,9 @@ namespace AlphaECS
 
         public void RemoveEntity(IEntity entity)
         {
-            _entities.Remove(entity);
-
-            foreach (var component in entity.Components)
-            {
-                if(component is IDisposable)
-                { (component as IDisposable).Dispose(); }
-            }
-
-            EventSystem.Publish(new EntityRemovedEvent(entity, this));
+			_entities.Remove(entity);
+			entity.Dispose();
+			EventSystem.Publish(new EntityRemovedEvent(entity, this));
         }
     }
 }

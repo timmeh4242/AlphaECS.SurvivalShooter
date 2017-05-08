@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Linq;
-using AlphaECS;
 
-namespace AlphaECS.Extensions
+namespace AlphaECS
 {
     public static class ISystemExtensions
     {

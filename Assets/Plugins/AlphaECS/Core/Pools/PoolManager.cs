@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using UniRx;
+using System;
 
 namespace AlphaECS
 {
-    public class PoolManager : IPoolManager
+	public class PoolManager : IPoolManager, IDisposable
     {
         public const string DefaultPoolName = "default";
         
@@ -46,6 +47,17 @@ namespace AlphaECS
 
             EventSystem.Publish(new PoolRemovedEvent(pool));
         }
+
+        public void Dispose()
+        {
+//            _groupAccessors.Values.ForEachRun(x =>
+//            {
+//                if (x is IDisposable)
+//                {
+//                    (x as IDisposable).Dispose();
+//                }
+//            });
+		}
         
 //        public IEnumerable<IEntity> GetEntitiesFor(IGroup group, string poolName = null)
 //        {
