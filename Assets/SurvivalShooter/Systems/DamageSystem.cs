@@ -11,14 +11,21 @@ namespace AlphaECS.SurvivalShooter
 	{
 		public override void Setup ()
 		{
-			var group = GroupFactory.Create(new Type[] { typeof(EntityBehaviour), typeof(HealthComponent) });
-			group.Entities.ObserveAdd ().Select(x => x.Value).StartWith(group.Entities).Subscribe (entity =>
+			var group = GroupFactory
+				.AddTypes (new Type[] { typeof(EntityBehaviour), typeof(HealthComponent), typeof(InputComponent) })
+				.WithPredicate((e) =>
+				{
+					var isHealthy = e.GetComponent<HealthComponent>().CurrentHealth.DistinctUntilChanged().Select(health => health >= 50).ToReactiveProperty();
+					isHealthy.DistinctUntilChanged().StartWith(isHealthy.Value).Subscribe(x => Debug.Log("e " + e.Id + " is healthy " + x));
+					return isHealthy;
+				})
+				.Create ();
+
+			group.OnAdd().Subscribe (entity =>
 			{
 				var entityBehaviour = entity.GetComponent<EntityBehaviour> ();
 				var health = entity.GetComponent<HealthComponent> ();
-				health.CurrentHealth = new IntReactiveProperty ();
 				health.CurrentHealth.Value = health.StartingHealth;
-				health.IsDead = new BoolReactiveProperty ();
 
 				health.CurrentHealth.DistinctUntilChanged ().Where (value => value <= 0).Subscribe (_ =>
 				{
@@ -36,7 +43,7 @@ namespace AlphaECS.SurvivalShooter
 					{
 						PoolManager.GetPool ().RemoveEntity (entity);
 						GameObject.Destroy (entityBehaviour.gameObject);
-					});
+					}).AddTo(entityBehaviour);
 				}).AddTo (health);
 			}).AddTo (group);
 				

@@ -15,6 +15,8 @@ namespace AlphaECS
 
 		public string Name { get; set; }
 
+		public ReactiveCollection<IEntity> cachedEntities = new ReactiveCollection<IEntity>();
+
 		ReactiveCollection<IEntity> _entities = new ReactiveCollection<IEntity>();
 		public ReactiveCollection<IEntity> Entities
 		{
@@ -25,6 +27,8 @@ namespace AlphaECS
 		public IEnumerable<Type> Components { get; set; }
 		public Predicate<IEntity> Predicate { get; set; }
 
+		private List<Func<IEntity, ReactiveProperty<bool>>> Predicates = new List<Func<IEntity, ReactiveProperty<bool>>> ();
+
 		protected CompositeDisposable _disposer = new CompositeDisposable();
 		public CompositeDisposable Disposer
 		{
@@ -32,10 +36,14 @@ namespace AlphaECS
 			set { _disposer = value; }
 		}
 
-		public Group(params Type[] components)
+		public Group(Type[] components, List<Func<IEntity, ReactiveProperty<bool>>> predicates)
         {
 			Components = components;
-			Predicate = null;
+
+			foreach (var predicate in predicates)
+			{
+				Predicates.Add (predicate);
+			}
         }
 
 //		public Group(Predicate<IEntity> predicate, params Type[] components)
@@ -60,21 +68,25 @@ namespace AlphaECS
 
 			EventSystem.OnEvent<EntityAddedEvent> ().Where (_ => _.Entity.HasComponents (Components.ToArray())).Subscribe (_ =>
 			{
+				PreAdd(_.Entity);
 				AddEntity(_.Entity);
 			}).AddTo(this);
 
 			EventSystem.OnEvent<EntityRemovedEvent> ().Where (_ => Entities.Contains(_.Entity)).Subscribe (_ =>
 			{
+				PreRemove(_.Entity);
 				RemoveEntity(_.Entity);
 			}).AddTo(this);
 
 			EventSystem.OnEvent<ComponentAddedEvent> ().Where (_ => _.Entity.HasComponents (Components.ToArray()) && Entities.Contains(_.Entity) == false).Subscribe (_ =>
 			{
+				PreAdd(_.Entity);
 				AddEntity(_.Entity);
 			}).AddTo(this);
 
 			EventSystem.OnEvent<ComponentRemovedEvent> ().Where (_ => Components.Contains(_.Component.GetType()) && Entities.Contains(_.Entity)).Subscribe (_ =>
 			{
+				PreRemove(_.Entity);
 				RemoveEntity(_.Entity);
 			}).AddTo(this);
 		}
@@ -93,5 +105,14 @@ namespace AlphaECS
 		{
 			Disposer.Dispose ();
 		}
+
+		protected virtual void PreAdd(IEntity entity)
+		{
+			foreach (var predicate in Predicates)
+			{
+				predicate.Invoke(entity);
+			}
+		}
+		protected virtual void PreRemove(IEntity entity){}
     }
 }

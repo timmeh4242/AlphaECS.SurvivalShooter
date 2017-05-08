@@ -23,5 +23,11 @@ namespace AlphaECS.SurvivalShooter
 		{
 			Disposer.Dispose ();
 		}
+
+		public HealthComponent()
+		{
+			CurrentHealth = new IntReactiveProperty ();
+			IsDead = new BoolReactiveProperty ();
+		}
 	}
 }
