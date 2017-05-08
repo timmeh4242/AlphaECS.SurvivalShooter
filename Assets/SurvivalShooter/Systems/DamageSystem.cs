@@ -22,6 +22,10 @@ namespace AlphaECS.SurvivalShooter
 //				.Create ();
 //
 //			deadPlayers.OnAdd ().Subscribe (_ => Debug.Log ("player died"));
+
+			var blah = GroupFactory
+				.AddTypes (new Type[] { typeof(EntityBehaviour), typeof(HealthComponent) })
+				.Create ();
 			
 			var group = GroupFactory
 				.AddTypes (new Type[] { typeof(EntityBehaviour), typeof(HealthComponent) })
