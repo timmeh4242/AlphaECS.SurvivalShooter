@@ -46,48 +46,74 @@ namespace AlphaECS
 			}
         }
 
-//		public Group(Predicate<IEntity> predicate, params Type[] components)
-//        {
-//			Components = components;
-//			Predicate = predicate;
-//        }
-
 		[Inject]
 		public void Setup(IEventSystem eventSystem, IPoolManager poolManager)
 		{
 			EventSystem = eventSystem;
 			EntityPool = poolManager.GetPool ();
 
+			cachedEntities.ObserveAdd ().Select (x => x.Value).Subscribe (entity =>
+			{
+				if(Predicates.Count == 0)
+				{
+					PreAdd(entity);
+					AddEntity(entity);
+					return;
+				}
+				
+				var bools = new List<ReactiveProperty<bool>>();
+				foreach (var predicate in Predicates)
+				{
+					bools.Add(predicate.Invoke(entity));
+				}
+				var onLatest = Observable.CombineLatest(bools.ToArray());
+				onLatest.DistinctUntilChanged().Subscribe(values =>
+				{
+					if(values.All(value => value == true))
+					{
+						PreAdd(entity);
+						AddEntity(entity);
+					}
+					else
+					{
+						PreRemove(entity);
+						RemoveEntity(entity);
+					}
+				});
+			}).AddTo (this.Disposer);
+
+			cachedEntities.ObserveRemove ().Select (x => x.Value).Subscribe (entity =>
+			{
+				PreRemove(entity);
+				RemoveEntity(entity);
+			}).AddTo (this.Disposer);
+
 			foreach (IEntity entity in EntityPool.Entities)
 			{
 				if (entity.HasComponents (Components.ToArray ()))
 				{
-					AddEntity (entity);
+					cachedEntities.Add(entity);
 				}
 			}
 
 			EventSystem.OnEvent<EntityAddedEvent> ().Where (_ => _.Entity.HasComponents (Components.ToArray())).Subscribe (_ =>
 			{
-				PreAdd(_.Entity);
-				AddEntity(_.Entity);
+				cachedEntities.Add(_.Entity);
 			}).AddTo(this);
 
 			EventSystem.OnEvent<EntityRemovedEvent> ().Where (_ => Entities.Contains(_.Entity)).Subscribe (_ =>
 			{
-				PreRemove(_.Entity);
-				RemoveEntity(_.Entity);
+				cachedEntities.Remove(_.Entity);
 			}).AddTo(this);
 
 			EventSystem.OnEvent<ComponentAddedEvent> ().Where (_ => _.Entity.HasComponents (Components.ToArray()) && Entities.Contains(_.Entity) == false).Subscribe (_ =>
 			{
-				PreAdd(_.Entity);
-				AddEntity(_.Entity);
+				cachedEntities.Add(_.Entity);
 			}).AddTo(this);
 
 			EventSystem.OnEvent<ComponentRemovedEvent> ().Where (_ => Components.Contains(_.Component.GetType()) && Entities.Contains(_.Entity)).Subscribe (_ =>
 			{
-				PreRemove(_.Entity);
-				RemoveEntity(_.Entity);
+				cachedEntities.Remove(_.Entity);
 			}).AddTo(this);
 		}
 
@@ -106,13 +132,7 @@ namespace AlphaECS
 			Disposer.Dispose ();
 		}
 
-		protected virtual void PreAdd(IEntity entity)
-		{
-			foreach (var predicate in Predicates)
-			{
-				predicate.Invoke(entity);
-			}
-		}
-		protected virtual void PreRemove(IEntity entity){}
+		protected virtual void PreAdd(IEntity entity) {}
+		protected virtual void PreRemove(IEntity entity) {}
     }
 }

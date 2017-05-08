@@ -18,10 +18,5 @@ namespace AlphaECS
 
 		public static IObservable<IEntity> OnRemove(this IGroup group)
 		{ return group.Entities.ObserveRemove ().Select (x => x.Value).StartWith (group.Entities); }
-
-//		public static IObservable<T> Where(this IObservable<T> source, Func<T, bool> predicate)
-//		{
-//			return group.Entities.ObserveRemove ().Select (x => x.Value).StartWith (group.Entities);
-//		}
     }
 }
