@@ -76,8 +76,7 @@ namespace AlphaECS
 					}
 					else
 					{
-						PreRemove(entity);
-						RemoveEntity(entity);
+						cachedEntities.Remove(entity);
 					}
 				});
 			}).AddTo (this.Disposer);
