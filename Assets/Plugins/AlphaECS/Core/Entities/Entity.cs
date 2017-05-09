@@ -24,11 +24,19 @@ namespace AlphaECS
         }
 
 		public object AddComponent(object component)
-        {
-            _components.Add(component.GetType(), component);
-            EventSystem.Publish(new ComponentAddedEvent(this, component));
+		{
+			//TODO not sure this should be silently returning this way... 
+			//... ideally we should be returning the component and able to check for null elsewhere
+			if(_components.ContainsKey(component.GetType()))
+			{
+//				throw new Exception(string.Format("Entity already contains a component of type {0}. Returning pre-existing component.", component.GetType().Name));
+				return _components [component.GetType ()];
+			}
+
+			_components.Add(component.GetType(), component);
+			EventSystem.Publish(new ComponentAddedEvent(this, component));
 			return component;
-        }
+		}
 
 		public T AddComponent<T>() where T : class, new()
 		{ return (T)AddComponent(new T()); }
