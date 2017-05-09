@@ -13,22 +13,41 @@ namespace AlphaECS.SurvivalShooter
 		{
 //			var deadPlayers = GroupFactory
 //				.AddTypes (new Type[] { typeof(EntityBehaviour), typeof(HealthComponent), typeof(InputComponent) })
+//				.WithPredicate ((e) => {
+//				var healthComponent = e.GetComponent<HealthComponent> ();
+//				var isHealthy = healthComponent.CurrentHealth.DistinctUntilChanged ().Select (health => health <= 0).ToReactiveProperty ();
+//				return isHealthy;
+//			})
+//				.Create ();
+//
+//			deadPlayers.AddTo(this.Disposer);
+//			deadPlayers.OnAdd ().Subscribe (_ => Debug.Log ("player died")).AddTo (this.Disposer);
+//
+//			var hurtPlayersStandingStill = GroupFactory
+//				.AddTypes (new Type[] { typeof(EntityBehaviour), typeof(HealthComponent), typeof(InputComponent) })
 //				.WithPredicate((e) =>
 //				{
 //					var healthComponent = e.GetComponent<HealthComponent>();
-//					var isHealthy = healthComponent.CurrentHealth.DistinctUntilChanged().Select(health => health <= 0).ToReactiveProperty();
+//					var isHealthy = healthComponent.CurrentHealth.DistinctUntilChanged().Select(health => health <= 50).ToReactiveProperty();
 //					return isHealthy;
+//				})
+//				.WithPredicate((e) =>
+//				{
+//					var inputComponent = e.GetComponent<InputComponent>();
+//					var isStandingStill = new ReactiveProperty<bool>();
+//					Observable.EveryFixedUpdate ().Subscribe (_ =>
+//					{
+//						isStandingStill.Value = inputComponent.Horizontal.Value == 0 && inputComponent.Vertical.Value == 0;
+//					}).AddTo(this.Disposer).AddTo(inputComponent.Disposer);
+//					return isStandingStill;
 //				})
 //				.Create ();
 //
-//			deadPlayers.OnAdd ().Subscribe (_ => Debug.Log ("player died")).AddTo (this.Disposer);
-//			this.Disposer.Add (deadPlayers);
+//			hurtPlayersStandingStill.AddTo (this.Disposer);
+//			hurtPlayersStandingStill.OnAdd ().Subscribe (_ => Debug.Log ("player is unhealthy and standing still")).AddTo (this.Disposer);
 
-			var group = GroupFactory
-				.AddTypes (new Type[] { typeof(EntityBehaviour), typeof(HealthComponent) })
-				.Create ();
-
-			this.Disposer.Add (group);
+			var group = GroupFactory.AddTypes (new Type[] { typeof(EntityBehaviour), typeof(HealthComponent) }).Create ();
+			group.AddTo (this.Disposer);
 
 			group.OnAdd().Subscribe (entity =>
 			{
