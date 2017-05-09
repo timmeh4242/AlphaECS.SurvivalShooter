@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using AlphaECS;
 using Zenject;
 using UniRx;
+using System.Linq;
 
 namespace AlphaECS
 {
@@ -10,41 +11,42 @@ namespace AlphaECS
 	public class GroupFactory
     {
 		[Inject] protected DiContainer Container = null;
+//		protected Dictionary<HashSet<Type>, Group> Groups = new Dictionary<HashSet<Type>, Group>();
 
-//		protected Dictionary<HashSet<Type>, Dictionary<HashSet<List<Func<IEntity, ReactiveProperty<bool>>>>, Group> Groups = new Dictionary<HashSet<List<Func<IEntity, ReactiveProperty<bool>>>>, Group>();
-		protected Dictionary<HashSet<Type>, Group> Groups = new Dictionary<HashSet<Type>, Group>();
-
-		private IGroup group;
 		private Type[] types;
 		private List<Func<IEntity, ReactiveProperty<bool>>> predicates = new List<Func<IEntity, ReactiveProperty<bool>>> ();
 
-		public Group Create(Type[] types)
+		public Group Create(Type[] _types)
 		{
-			this.types = types;
+			this.types = _types;
 			return this.Create ();
 		}
 
 		public Group Create()
 		{
-			var hashSet = new HashSet<Type> (types);
-			if (Groups.ContainsKey (hashSet))
-			{
-				UnityEngine.Debug.Log ("group cached!");
-				return Groups [hashSet];
-			}
-
+//			var hashSet = new HashSet<Type> (types);
+//			foreach (var key in Groups.Keys)
+//			{
+//				if (hashSet.SetEquals(key) && predicates.Count == 0)
+//				{
+//					this.types = null;
+//					this.predicates.Clear();
+//					return Groups [key];
+//				}
+//			}
+				
 			var group = new Group (types, predicates);
 			Container.Inject (group);
 
-			this.types = null;
-			this.predicates.Clear();
-			Groups.Add (hashSet, group);
+			types = null;
+			predicates.Clear();
+//			Groups.Add (hashSet, group);
 			return group;
 		}
 
-		public GroupFactory AddTypes(Type[] types)
+		public GroupFactory AddTypes(Type[] _types)
 		{
-			this.types = types;
+			this.types = _types;
 			return this;
 		}
 

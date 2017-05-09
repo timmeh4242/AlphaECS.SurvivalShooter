@@ -21,15 +21,14 @@ namespace AlphaECS.SurvivalShooter
 //				})
 //				.Create ();
 //
-//			deadPlayers.OnAdd ().Subscribe (_ => Debug.Log ("player died"));
+//			deadPlayers.OnAdd ().Subscribe (_ => Debug.Log ("player died")).AddTo (this.Disposer);
+//			this.Disposer.Add (deadPlayers);
 
-			var blah = GroupFactory
-				.AddTypes (new Type[] { typeof(EntityBehaviour), typeof(HealthComponent) })
-				.Create ();
-			
 			var group = GroupFactory
 				.AddTypes (new Type[] { typeof(EntityBehaviour), typeof(HealthComponent) })
 				.Create ();
+
+			this.Disposer.Add (group);
 
 			group.OnAdd().Subscribe (entity =>
 			{
@@ -54,8 +53,8 @@ namespace AlphaECS.SurvivalShooter
 						PoolManager.GetPool ().RemoveEntity (entity);
 						GameObject.Destroy (entityBehaviour.gameObject);
 					}).AddTo(entityBehaviour.Disposer);
-				}).AddTo (health);
-			}).AddTo (group);
+				}).AddTo (health.Disposer);
+			}).AddTo (this.Disposer);
 				
 			EventSystem.OnEvent<DamageEvent> ().Subscribe (_ =>
 			{

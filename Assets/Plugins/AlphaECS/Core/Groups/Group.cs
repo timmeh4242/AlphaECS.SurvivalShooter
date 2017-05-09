@@ -76,9 +76,10 @@ namespace AlphaECS
 					}
 					else
 					{
-						cachedEntities.Remove(entity);
+						PreRemove(entity);
+						RemoveEntity(entity);
 					}
-				});
+				}).AddTo (this.Disposer);;
 			}).AddTo (this.Disposer);
 
 			cachedEntities.ObserveRemove ().Select (x => x.Value).Subscribe (entity =>
@@ -95,25 +96,17 @@ namespace AlphaECS
 				}
 			}
 
-			EventSystem.OnEvent<EntityAddedEvent> ().Where (_ => _.Entity.HasComponents (Components.ToArray())).Subscribe (_ =>
-			{
-				cachedEntities.Add(_.Entity);
-			}).AddTo(this);
+			EventSystem.OnEvent<EntityAddedEvent> ().Where (_ => _.Entity.HasComponents (Components.ToArray()) && cachedEntities.Contains(_.Entity) == false).Subscribe (_ =>
+			{ cachedEntities.Add(_.Entity); }).AddTo(this);
 
-			EventSystem.OnEvent<EntityRemovedEvent> ().Where (_ => Entities.Contains(_.Entity)).Subscribe (_ =>
-			{
-				cachedEntities.Remove(_.Entity);
-			}).AddTo(this);
+			EventSystem.OnEvent<EntityRemovedEvent> ().Where (_ => cachedEntities.Contains(_.Entity)).Subscribe (_ =>
+			{ cachedEntities.Remove(_.Entity); }).AddTo(this);
 
-			EventSystem.OnEvent<ComponentAddedEvent> ().Where (_ => _.Entity.HasComponents (Components.ToArray()) && Entities.Contains(_.Entity) == false).Subscribe (_ =>
-			{
-				cachedEntities.Add(_.Entity);
-			}).AddTo(this);
+			EventSystem.OnEvent<ComponentAddedEvent> ().Where (_ => _.Entity.HasComponents (Components.ToArray()) && cachedEntities.Contains(_.Entity) == false).Subscribe (_ =>
+			{ cachedEntities.Add(_.Entity); }).AddTo(this);
 
-			EventSystem.OnEvent<ComponentRemovedEvent> ().Where (_ => Components.Contains(_.Component.GetType()) && Entities.Contains(_.Entity)).Subscribe (_ =>
-			{
-				cachedEntities.Remove(_.Entity);
-			}).AddTo(this);
+			EventSystem.OnEvent<ComponentRemovedEvent> ().Where (_ => Components.Contains(_.Component.GetType()) && cachedEntities.Contains(_.Entity)).Subscribe (_ =>
+			{ cachedEntities.Remove(_.Entity); }).AddTo(this);
 		}
 
 		void AddEntity(IEntity entity)
