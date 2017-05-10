@@ -10,7 +10,7 @@ namespace AlphaECS.SurvivalShooter
 		public int StartingHealth { get; set; }
 		public IntReactiveProperty CurrentHealth { get; set; }
 		public bool IsDamaged { get; set; }
-		public BoolReactiveProperty IsDead { get; set; }
+//		public BoolReactiveProperty IsDead { get; set; }
 
 		private CompositeDisposable _disposer = new CompositeDisposable();
 		public CompositeDisposable Disposer
@@ -27,7 +27,7 @@ namespace AlphaECS.SurvivalShooter
 		public HealthComponent()
 		{
 			CurrentHealth = new IntReactiveProperty ();
-			IsDead = new BoolReactiveProperty ();
+//			IsDead = new BoolReactiveProperty ();
 		}
 	}
 }

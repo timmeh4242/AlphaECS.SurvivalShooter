@@ -19,7 +19,7 @@ namespace AlphaECS.SurvivalShooter
 
 			EventSystem.OnEvent<DamageEvent> ().Where(_ => _.Target.HasComponent<InputComponent>() == false).Subscribe (_ =>
 			{
-				if(_.Target.GetComponent<HealthComponent>().IsDead.Value == true)
+				if(_.Target.GetComponent<HealthComponent>().CurrentHealth.Value <= 0)
 					return;
 
 				var entityBehaviour = _.Target.GetComponent<EntityBehaviour>();
@@ -41,7 +41,7 @@ namespace AlphaECS.SurvivalShooter
 				var animator = entity.GetComponent<Animator>();
 				var rb = entity.GetComponent<Rigidbody>();
 
-				healthComponent.IsDead.DistinctUntilChanged ().Where (value => value == true).Subscribe (_ =>
+				healthComponent.CurrentHealth.DistinctUntilChanged ().Where (value => value <= 0).Subscribe (_ =>
 				{
 					capsuleCollider.isTrigger = true;
 					animator.SetTrigger ("Die");

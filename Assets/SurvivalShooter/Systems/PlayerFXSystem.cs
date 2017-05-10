@@ -17,13 +17,15 @@ namespace AlphaECS.SurvivalShooter
 		public Image DamageImage;
 		public float FlashSpeed = 5f;
 		public Color FlashColor = new Color(1f, 0f, 0f, 0.1f);
+
+		[Inject]
+		public DeadEntities DeadEntities { get; set; }
 			
 		public override void Setup ()
 		{
 			base.Setup ();
 
 			var group = GroupFactory.Create(new Type[] { typeof(EntityBehaviour), typeof(HealthComponent), typeof(InputComponent), typeof(Animator) });
-
 			group.OnAdd().Subscribe (entity =>
 			{
 				var entityBehaviour = entity.GetComponent<EntityBehaviour>();
@@ -31,11 +33,7 @@ namespace AlphaECS.SurvivalShooter
 				var previousValue = health.CurrentHealth.Value;
 
 				var audioSources = entityBehaviour.GetComponentsInChildren<AudioSource>();
-
 				var hurtSound = audioSources.Where(audioSource => audioSource.clip.name.Contains("Hurt")).FirstOrDefault();
-				var deathSound = audioSources.Where(audioSource => audioSource.clip.name.Contains("Death")).FirstOrDefault();
-
-				var animator = entity.GetComponent<Animator>();
 
 				health.CurrentHealth.DistinctUntilChanged ().Subscribe (value =>
 				{
@@ -50,22 +48,26 @@ namespace AlphaECS.SurvivalShooter
 	
 						hurtSound.Play();				
 					}
-					// if you gained health...
-					else if(value >= previousValue && value >= 0)
-					{
-
-					}
-					// if you're dead...
-					else if(value < 0)
-					{
-						animator.SetTrigger ("Die");
-						deathSound.Play();
-					}
 
 					HealthSlider.value = value;
 					previousValue = value;
 				}).AddTo(this.Disposer).AddTo(health.Disposer);
 			}).AddTo(this.Disposer);
+
+			DeadEntities.OnAdd ().Subscribe (entity =>
+			{
+				if(entity.HasComponent<InputComponent>() == false)
+					return;
+				
+				var entityBehaviour = entity.GetComponent<EntityBehaviour>();
+				var animator = entity.GetComponent<Animator>();
+
+				var audioSources = entityBehaviour.GetComponentsInChildren<AudioSource>();
+				var deathSound = audioSources.Where(audioSource => audioSource.clip.name.Contains("Death")).FirstOrDefault();
+				animator.SetTrigger ("Die");
+				deathSound.Play();
+
+			}).AddTo (this.Disposer);
 		}
 	}
 }

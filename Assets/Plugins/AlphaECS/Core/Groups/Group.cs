@@ -27,7 +27,7 @@ namespace AlphaECS
 		public IEnumerable<Type> Components { get; set; }
 		public Predicate<IEntity> Predicate { get; set; }
 
-		private List<Func<IEntity, ReactiveProperty<bool>>> Predicates = new List<Func<IEntity, ReactiveProperty<bool>>> ();
+		protected List<Func<IEntity, ReactiveProperty<bool>>> Predicates = new List<Func<IEntity, ReactiveProperty<bool>>> ();
 
 		protected CompositeDisposable _disposer = new CompositeDisposable();
 		public CompositeDisposable Disposer
@@ -35,6 +35,8 @@ namespace AlphaECS
 			get { return _disposer; }
 			set { _disposer = value; }
 		}
+
+		public Group(){}
 
 		public Group(Type[] components, List<Func<IEntity, ReactiveProperty<bool>>> predicates)
         {
@@ -47,7 +49,7 @@ namespace AlphaECS
         }
 
 		[Inject]
-		public void Setup(IEventSystem eventSystem, IPoolManager poolManager)
+		public virtual void Setup(IEventSystem eventSystem, IPoolManager poolManager)
 		{
 			EventSystem = eventSystem;
 			EntityPool = poolManager.GetPool ();
