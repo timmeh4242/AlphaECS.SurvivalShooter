@@ -75,6 +75,34 @@ namespace Zenject
 
 #if !NOT_UNITY3D
 
+        public ConditionCopyNonLazyBinder FromNewComponentOn(GameObject gameObject)
+        {
+            BindingUtil.AssertIsValidGameObject(gameObject);
+            BindingUtil.AssertIsComponent(ContractType);
+            BindingUtil.AssertIsNotAbstract(ContractType);
+
+            ProviderFunc =
+                (container) => new AddToExistingGameObjectComponentProvider(
+                    gameObject, container, ContractType,
+                    null, new List<TypeValuePair>());
+
+            return this;
+        }
+
+        public ConditionCopyNonLazyBinder FromNewComponentOn(
+            Func<InjectContext, GameObject> gameObjectGetter)
+        {
+            BindingUtil.AssertIsComponent(ContractType);
+            BindingUtil.AssertIsNotAbstract(ContractType);
+
+            ProviderFunc =
+                (container) => new AddToExistingGameObjectComponentProviderGetter(
+                    gameObjectGetter, container, ContractType,
+                    null, new List<TypeValuePair>());
+
+            return this;
+        }
+
         public NameTransformConditionCopyNonLazyBinder FromNewComponentOnNewGameObject()
         {
             BindingUtil.AssertIsComponent(ContractType);
@@ -88,20 +116,6 @@ namespace Zenject
                     new List<TypeValuePair>(), gameObjectInfo);
 
             return new NameTransformConditionCopyNonLazyBinder(BindInfo, gameObjectInfo);
-        }
-
-        public ConditionCopyNonLazyBinder FromNewComponentOn(GameObject gameObject)
-        {
-            BindingUtil.AssertIsValidGameObject(gameObject);
-            BindingUtil.AssertIsComponent(ContractType);
-            BindingUtil.AssertIsNotAbstract(ContractType);
-
-            ProviderFunc =
-                (container) => new AddToExistingGameObjectComponentProvider(
-                    gameObject, container, ContractType,
-                    null, new List<TypeValuePair>());
-
-            return this;
         }
 
         public NameTransformConditionCopyNonLazyBinder FromComponentInNewPrefab(UnityEngine.Object prefab)
@@ -137,6 +151,31 @@ namespace Zenject
 
             return new NameTransformConditionCopyNonLazyBinder(BindInfo, gameObjectInfo);
         }
+
+        public ConditionCopyNonLazyBinder FromNewScriptableObjectResource(string resourcePath)
+        {
+            BindingUtil.AssertIsValidResourcePath(resourcePath);
+            BindingUtil.AssertIsInterfaceOrScriptableObject(ContractType);
+
+            ProviderFunc =
+                (container) => new ScriptableObjectResourceProvider(
+                    resourcePath, ContractType, container, null, new List<TypeValuePair>(), true);
+
+            return this;
+        }
+
+        public ConditionCopyNonLazyBinder FromScriptableObjectResource(string resourcePath)
+        {
+            BindingUtil.AssertIsValidResourcePath(resourcePath);
+            BindingUtil.AssertIsInterfaceOrScriptableObject(ContractType);
+
+            ProviderFunc =
+                (container) => new ScriptableObjectResourceProvider(
+                    resourcePath, ContractType, container, null, new List<TypeValuePair>(), false);
+
+            return this;
+        }
+
 #endif
     }
 }

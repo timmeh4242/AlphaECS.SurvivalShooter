@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 using ModestTree;
+using Zenject.Internal;
 
 #if !NOT_UNITY3D
 
@@ -46,23 +47,35 @@ namespace Zenject
 
         public static ProfileBlock Start(string sampleNameFormat, object obj1, object obj2)
         {
-            if (!UnityEngine.Profiling.Profiler.enabled)
+            if (ZenUtilInternal.IsOutsideUnity())
             {
                 return null;
             }
-            return Start(string.Format(sampleNameFormat, obj1, obj2));
+
+            return StartInternal(string.Format(sampleNameFormat, obj1, obj2));
         }
 
         public static ProfileBlock Start(string sampleNameFormat, object obj)
         {
-            if (!UnityEngine.Profiling.Profiler.enabled)
+            if (ZenUtilInternal.IsOutsideUnity())
             {
                 return null;
             }
-            return Start(string.Format(sampleNameFormat, obj));
+
+            return StartInternal(string.Format(sampleNameFormat, obj));
         }
 
         public static ProfileBlock Start(string sampleName)
+        {
+            if (ZenUtilInternal.IsOutsideUnity())
+            {
+                return null;
+            }
+
+            return StartInternal(sampleName);
+        }
+
+        static ProfileBlock StartInternal(string sampleName)
         {
             if (!UnityEngine.Profiling.Profiler.enabled)
             {

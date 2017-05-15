@@ -10,21 +10,27 @@ using UniRx;
 namespace Zenject
 {
     // This is just used for generic constraints
-    public interface ISignal : ISignalBase
+    public interface ISignal<TParam1> : ISignalBase
     {
-        void Fire();
+        void Fire(TParam1 p1);
+        void Listen(Action<TParam1> listener);
+        void Unlisten(Action<TParam1> listener);
     }
 
-    public abstract class Signal<TDerived> : SignalBase, ISignal
-        where TDerived : Signal<TDerived>
+    public abstract class Signal<TParam1, TDerived> : SignalBase, ISignal<TParam1>
+        where TDerived : Signal<TParam1, TDerived>
+#if ENABLE_IL2CPP
+        // See discussion here for why we do this: https://github.com/modesttree/Zenject/issues/219#issuecomment-284751679
+        where TParam1 : class
+#endif
     {
-        readonly List<Action> _listeners = new List<Action>();
+        readonly List<Action<TParam1>> _listeners = new List<Action<TParam1>>();
 #if ZEN_SIGNALS_ADD_UNIRX
-        readonly Subject<Unit> _observable = new Subject<Unit>();
+        readonly Subject<TParam1> _observable = new Subject<TParam1>();
 #endif
 
 #if ZEN_SIGNALS_ADD_UNIRX
-        public IObservable<Unit> AsObservable
+        public IObservable<TParam1> AsObservable
         {
             get
             {
@@ -38,7 +44,7 @@ namespace Zenject
             get { return _listeners.Count; }
         }
 
-        public void Listen(Action listener)
+        public void Listen(Action<TParam1> listener)
         {
             Assert.That(!_listeners.Contains(listener),
                 () => "Tried to add method '{0}' to signal '{1}' but it has already been added"
@@ -46,7 +52,7 @@ namespace Zenject
             _listeners.Add(listener);
         }
 
-        public void Unlisten(Action listener)
+        public void Unlisten(Action<TParam1> listener)
         {
             bool success = _listeners.Remove(listener);
 
@@ -55,25 +61,25 @@ namespace Zenject
                 .Fmt(listener.ToDebugString(), this.GetType()));
         }
 
-        public static TDerived operator + (Signal<TDerived> signal, Action listener)
+        public static TDerived operator + (Signal<TParam1, TDerived> signal, Action<TParam1> listener)
         {
             signal.Listen(listener);
             return (TDerived)signal;
         }
 
-        public static TDerived operator - (Signal<TDerived> signal, Action listener)
+        public static TDerived operator - (Signal<TParam1, TDerived> signal, Action<TParam1> listener)
         {
             signal.Unlisten(listener);
             return (TDerived)signal;
         }
 
-        public void Fire()
+        public void Fire(TParam1 p1)
         {
 #if UNITY_EDITOR
             using (ProfileBlock.Start("Signal '{0}'", this.GetType().Name))
 #endif
             {
-                var wasHandled = Manager.Trigger(SignalId, new object[0]);
+                var wasHandled = Manager.Trigger(SignalId, new object[] { p1 });
 
                 wasHandled |= !_listeners.IsEmpty();
 
@@ -84,7 +90,7 @@ namespace Zenject
                     using (ProfileBlock.Start(listener.ToDebugString()))
 #endif
                     {
-                        listener();
+                        listener(p1);
                     }
                 }
 
@@ -94,9 +100,10 @@ namespace Zenject
                 using (ProfileBlock.Start("UniRx Stream"))
 #endif
                 {
-                    _observable.OnNext(Unit.Default);
+                    _observable.OnNext(p1);
                 }
 #endif
+
                 if (Settings.RequiresHandler && !wasHandled)
                 {
                     throw Assert.CreateException(

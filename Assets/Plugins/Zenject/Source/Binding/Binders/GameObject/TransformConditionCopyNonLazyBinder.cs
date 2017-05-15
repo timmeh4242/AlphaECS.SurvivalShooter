@@ -24,7 +24,7 @@ namespace Zenject
             return this;
         }
 
-        public ConditionCopyNonLazyBinder UnderTransform(Func<DiContainer, Transform> parentGetter)
+        public ConditionCopyNonLazyBinder UnderTransform(Func<InjectContext, Transform> parentGetter)
         {
             GameObjectInfo.ParentTransformGetter = parentGetter;
             return this;

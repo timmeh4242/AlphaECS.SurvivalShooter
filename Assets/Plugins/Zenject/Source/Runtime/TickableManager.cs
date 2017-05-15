@@ -7,6 +7,9 @@ namespace Zenject
 {
     public class TickableManager
     {
+        [Inject(Optional = true, Source = InjectSources.Parent)]
+        readonly TickableManager _parent = null;
+
         [Inject(Optional = true, Source = InjectSources.Local)]
         readonly List<ITickable> _tickables = null;
 
@@ -39,6 +42,11 @@ namespace Zenject
         public IEnumerable<ITickable> Tickables
         {
             get { return _tickables; }
+        }
+
+        public bool IsPaused
+        {
+            get { return _isPaused || (_parent != null ? _parent.IsPaused : _isPaused); }
         }
 
         [Inject]
@@ -153,7 +161,7 @@ namespace Zenject
 
         public void Update()
         {
-            if(_isPaused)
+            if(IsPaused)
             {
                 return;
             }
@@ -164,7 +172,7 @@ namespace Zenject
 
         public void FixedUpdate()
         {
-            if(_isPaused)
+            if(IsPaused)
             {
                 return;
             }
@@ -175,7 +183,7 @@ namespace Zenject
 
         public void LateUpdate()
         {
-            if(_isPaused)
+            if(IsPaused)
             {
                 return;
             }

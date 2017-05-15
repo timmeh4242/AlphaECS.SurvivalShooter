@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using ModestTree;
 
 namespace Zenject
 {
@@ -64,6 +66,25 @@ namespace Zenject
         }
 
 #if !NOT_UNITY3D
+
+        public ConditionCopyNonLazyBinder FromComponentInHierarchy()
+        {
+            BindingUtil.AssertIsInterfaceOrComponent(ContractType);
+
+            return FromMethod((container) =>
+                {
+                    var matches = container.Resolve<Context>().GetRootGameObjects()
+                        .SelectMany(x => x.GetComponentsInChildren<TContract>()).ToList();
+
+                    Assert.That(!matches.IsEmpty(),
+                        "Found zero matches when looking up type '{0}' using FromComponentInHierarchy for factory", ContractType);
+
+                    Assert.That(matches.Count() == 1,
+                        "Found multiple matches when looking up type '{0}' using FromComponentInHierarchy for factory.  Only expected to find one!", ContractType);
+
+                    return matches.Single();
+                });
+        }
 
         public ConditionCopyNonLazyBinder FromResource(string resourcePath)
         {

@@ -25,7 +25,7 @@ namespace Zenject
             set;
         }
 
-        public Func<DiContainer, Transform> ParentTransformGetter
+        public Func<InjectContext, Transform> ParentTransformGetter
         {
             get;
             set;

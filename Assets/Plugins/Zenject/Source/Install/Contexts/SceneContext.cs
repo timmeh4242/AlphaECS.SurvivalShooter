@@ -287,6 +287,11 @@ namespace Zenject
             }
 
             InstallInstallers();
+
+            foreach (var decoratorContext in _decoratorContexts)
+            {
+                decoratorContext.InstallLateDecoratorInstallers();
+            }
         }
 
         protected override IEnumerable<MonoBehaviour> GetInjectableMonoBehaviours()

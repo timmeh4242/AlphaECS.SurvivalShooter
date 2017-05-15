@@ -23,7 +23,7 @@ namespace Zenject
             foreach (var pool in _poolFactories)
             {
                 Assert.IsEqual(pool.NumActive, 0,
-                    "Found active objects in pool '{0}' during dispose.  Did you forget to despawn an object of type '{1}'?".Fmt(pool.GetType(), pool.ContractType));
+                    "Found active objects in pool '{0}' during dispose.  Did you forget to despawn an object of type '{1}'?".Fmt(pool.GetType(), pool.ItemType));
             }
         }
     }

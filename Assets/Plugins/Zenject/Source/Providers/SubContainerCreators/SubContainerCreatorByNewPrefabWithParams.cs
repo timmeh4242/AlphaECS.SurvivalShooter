@@ -3,6 +3,8 @@
 using System;
 using System.Collections.Generic;
 using ModestTree;
+using System.Linq;
+using Zenject.Internal;
 
 namespace Zenject
 {
@@ -32,9 +34,21 @@ namespace Zenject
         {
             var tempSubContainer = Container.CreateSubContainer();
 
+            var installerInjectables = TypeAnalyzer.GetInfo(_installerType);
+
             foreach (var argPair in args)
             {
-                tempSubContainer.Bind(argPair.Type)
+                // We need to intelligently match on the exact parameters here to avoid the issue
+                // brought up in github issue #217
+                var match = installerInjectables.AllInjectables
+                    .Where(x => argPair.Type.DerivesFromOrEqual(x.MemberType))
+                    .OrderBy(x => ZenUtilInternal.GetInheritanceDelta(argPair.Type, x.MemberType)).FirstOrDefault();
+
+                Assert.IsNotNull(match,
+                    "Could not find match for argument type '{0}' when injecting into sub container installer '{1}'",
+                    argPair.Type, _installerType);
+
+                tempSubContainer.Bind(match.MemberType)
                     .FromInstance(argPair.Value, true).WhenInjectedInto(_installerType);
             }
 
@@ -61,4 +75,5 @@ namespace Zenject
 }
 
 #endif
+
 

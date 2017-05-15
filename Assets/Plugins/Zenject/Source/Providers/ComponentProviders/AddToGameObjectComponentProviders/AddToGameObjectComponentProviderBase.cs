@@ -58,7 +58,20 @@ namespace Zenject
 
             if (!_container.IsValidating || DiContainer.CanCreateOrInjectDuringValidation(_componentType))
             {
-                instance = gameObj.AddComponent(_componentType);
+                if (_componentType == typeof(Transform))
+                // Treat transform as a special case because it's the one component that's always automatically added
+                // Otherwise, calling AddComponent below will fail and return null
+                // This is nice to allow doing things like
+                //      Container.Bind<Transform>().FromNewComponentOnNewGameObject();
+                {
+                    instance = gameObj.transform;
+                }
+                else
+                {
+                    instance = gameObj.AddComponent(_componentType);
+                }
+
+                Assert.IsNotNull(instance);
             }
             else
             {

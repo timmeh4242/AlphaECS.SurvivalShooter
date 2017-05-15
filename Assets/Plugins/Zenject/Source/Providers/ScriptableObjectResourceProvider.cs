@@ -15,10 +15,12 @@ namespace Zenject
         readonly string _resourcePath;
         readonly List<TypeValuePair> _extraArguments;
         readonly object _concreteIdentifier;
+        readonly bool _createNew;
 
         public ScriptableObjectResourceProvider(
             string resourcePath, Type resourceType,
-            DiContainer container, object concreteIdentifier, List<TypeValuePair> extraArguments)
+            DiContainer container, object concreteIdentifier, List<TypeValuePair> extraArguments,
+            bool createNew)
         {
             _container = container;
             Assert.DerivesFromOrEqual<ScriptableObject>(resourceType);
@@ -27,6 +29,7 @@ namespace Zenject
             _extraArguments = extraArguments;
             _resourceType = resourceType;
             _resourcePath = resourcePath;
+            _createNew = createNew;
         }
 
         public Type GetInstanceType(InjectContext context)
@@ -37,12 +40,20 @@ namespace Zenject
         public IEnumerator<List<object>> GetAllInstancesWithInjectSplit(
             InjectContext context, List<TypeValuePair> args)
         {
-            Assert.IsEmpty(args);
-
             Assert.IsNotNull(context);
 
-            var objects = Resources.LoadAll(_resourcePath, _resourceType)
-                .Select(x => ScriptableObject.Instantiate(x)).Cast<object>().ToList();
+            List<object> objects;
+
+            if (_createNew)
+            {
+                objects = Resources.LoadAll(_resourcePath, _resourceType)
+                    .Select(x => ScriptableObject.Instantiate(x)).Cast<object>().ToList();
+            }
+            else
+            {
+                objects = Resources.LoadAll(_resourcePath, _resourceType)
+                    .Cast<object>().ToList();
+            }
 
             Assert.That(!objects.IsEmpty(),
                 "Could not find resource at path '{0}' with type '{1}'", _resourcePath, _resourceType);

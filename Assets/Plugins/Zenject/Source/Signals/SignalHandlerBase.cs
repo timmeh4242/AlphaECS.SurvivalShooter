@@ -4,7 +4,7 @@ using ModestTree;
 
 namespace Zenject
 {
-    public abstract class SignalHandlerBase : ISignalHandler, IDisposable, IInitializable
+    public abstract class SignalHandlerBase : ISignalHandler, IDisposable, IInitializable, IValidatable
     {
         readonly SignalManager _manager;
         readonly BindingId _signalId;
@@ -37,6 +37,11 @@ namespace Zenject
             {
                 Assert.That(value.GetType().DerivesFromOrEqual<T>());
             }
+        }
+
+        public virtual void Validate()
+        {
+            // optional
         }
 
         public abstract void Execute(object[] args);

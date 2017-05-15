@@ -12,6 +12,8 @@ namespace Zenject
     {
         List<InitializableInfo> _initializables;
 
+        bool _hasInitialized;
+
         [Inject]
         public InitializableManager(
             [Inject(Optional = true, Source = InjectSources.Local)]
@@ -34,6 +36,9 @@ namespace Zenject
 
         public void Initialize()
         {
+            Assert.That(!_hasInitialized);
+            _hasInitialized = true;
+
             _initializables = _initializables.OrderBy(x => x.Priority).ToList();
 
             foreach (var initializable in _initializables.Select(x => x.Initializable).GetDuplicates())

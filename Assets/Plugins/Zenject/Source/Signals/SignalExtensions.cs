@@ -25,6 +25,10 @@ namespace Zenject
 
         public static SignalHandlerBinderWithId<TParam1> BindSignal<TParam1, TSignal>(this DiContainer container)
             where TSignal : ISignal<TParam1>
+#if ENABLE_IL2CPP
+            // See discussion here for why we do this: https://github.com/modesttree/Zenject/issues/219#issuecomment-284751679
+            where TParam1 : class
+#endif
         {
             var binder = container.StartBinding();
             return new SignalHandlerBinderWithId<TParam1>(
@@ -33,6 +37,11 @@ namespace Zenject
 
         public static SignalHandlerBinderWithId<TParam1, TParam2> BindSignal<TParam1, TParam2, TSignal>(this DiContainer container)
             where TSignal : ISignal<TParam1, TParam2>
+#if ENABLE_IL2CPP
+            // See discussion here for why we do this: https://github.com/modesttree/Zenject/issues/219#issuecomment-284751679
+            where TParam1 : class
+            where TParam2 : class
+#endif
         {
             var binder = container.StartBinding();
             return new SignalHandlerBinderWithId<TParam1, TParam2>(
@@ -41,6 +50,12 @@ namespace Zenject
 
         public static SignalHandlerBinderWithId<TParam1, TParam2, TParam3> BindSignal<TParam1, TParam2, TParam3, TSignal>(this DiContainer container)
             where TSignal : ISignal<TParam1, TParam2, TParam3>
+#if ENABLE_IL2CPP
+            // See discussion here for why we do this: https://github.com/modesttree/Zenject/issues/219#issuecomment-284751679
+            where TParam1 : class
+            where TParam2 : class
+            where TParam3 : class
+#endif
         {
             var binder = container.StartBinding();
             return new SignalHandlerBinderWithId<TParam1, TParam2, TParam3>(
@@ -49,6 +64,13 @@ namespace Zenject
 
         public static SignalHandlerBinderWithId<TParam1, TParam2, TParam3, TParam4> BindSignal<TParam1, TParam2, TParam3, TParam4, TSignal>(this DiContainer container)
             where TSignal : ISignal<TParam1, TParam2, TParam3, TParam4>
+#if ENABLE_IL2CPP
+            // See discussion here for why we do this: https://github.com/modesttree/Zenject/issues/219#issuecomment-284751679
+            where TParam1 : class
+            where TParam2 : class
+            where TParam3 : class
+            where TParam4 : class
+#endif
         {
             var binder = container.StartBinding();
             return new SignalHandlerBinderWithId<TParam1, TParam2, TParam3, TParam4>(

@@ -73,17 +73,17 @@ namespace Zenject
         {
             get;
         }
+        public abstract IEnumerable<GameObject> GetRootGameObjects();
+
 
         public void AddNormalInstaller(InstallerBase installer)
         {
             _normalInstallers.Add(installer);
         }
 
-        public abstract IEnumerable<GameObject> GetRootGameObjects();
-
-        void CheckInstallerPrefabTypes()
+        void CheckInstallerPrefabTypes(List<MonoInstaller> installers, List<MonoInstaller> installerPrefabs)
         {
-            foreach (var installer in _installers)
+            foreach (var installer in installers)
             {
                 Assert.IsNotNull(installer, "Found null installer in Context '{0}'", this.name);
 
@@ -93,7 +93,7 @@ namespace Zenject
 #endif
             }
 
-            foreach (var installerPrefab in _installerPrefabs)
+            foreach (var installerPrefab in installerPrefabs)
             {
                 Assert.IsNotNull(installerPrefab, "Found null prefab in Context");
 
@@ -109,7 +109,16 @@ namespace Zenject
 
         protected void InstallInstallers()
         {
-            CheckInstallerPrefabTypes();
+            InstallInstallers(_normalInstallers, _scriptableObjectInstallers, _installers, _installerPrefabs);
+        }
+
+        protected void InstallInstallers(
+            List<InstallerBase> normalInstallers,
+            List<ScriptableObjectInstaller> scriptableObjectInstallers,
+            List<MonoInstaller> installers,
+            List<MonoInstaller> installerPrefabs)
+        {
+            CheckInstallerPrefabTypes(installers, installerPrefabs);
 
             // Ideally we would just have one flat list of all the installers
             // since that way the user has complete control over the order, but
@@ -129,10 +138,10 @@ namespace Zenject
             // ScriptableObjectInstallers are often used for settings (including settings
             // that are injected into other installers like MonoInstallers)
 
-            var allInstallers = _normalInstallers.Cast<IInstaller>()
-                .Concat(_scriptableObjectInstallers.Cast<IInstaller>()).Concat(_installers.Cast<IInstaller>()).ToList();
+            var allInstallers = normalInstallers.Cast<IInstaller>()
+                .Concat(scriptableObjectInstallers.Cast<IInstaller>()).Concat(installers.Cast<IInstaller>()).ToList();
 
-            foreach (var installerPrefab in _installerPrefabs)
+            foreach (var installerPrefab in installerPrefabs)
             {
                 Assert.IsNotNull(installerPrefab, "Found null installer prefab in '{0}'", this.GetType());
 

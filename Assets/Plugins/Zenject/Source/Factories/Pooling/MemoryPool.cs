@@ -5,7 +5,7 @@ using ModestTree;
 namespace Zenject
 {
     // Zero parameters
-    public abstract class MemoryPool<TValue> : MemoryPoolBase<TValue>, IMemoryPool<TValue>
+    public class MemoryPool<TValue> : MemoryPoolBase<TValue>, IMemoryPool<TValue>
     {
         public TValue Spawn()
         {
@@ -21,7 +21,7 @@ namespace Zenject
     }
 
     // One parameter
-    public abstract class MemoryPool<TParam1, TValue>
+    public class MemoryPool<TParam1, TValue>
         : MemoryPoolBase<TValue>, IMemoryPool<TParam1, TValue>
     {
         public TValue Spawn(TParam1 param)
@@ -38,7 +38,7 @@ namespace Zenject
     }
 
     // Two parameters
-    public abstract class MemoryPool<TParam1, TParam2, TValue>
+    public class MemoryPool<TParam1, TParam2, TValue>
         : MemoryPoolBase<TValue>, IMemoryPool<TParam1, TParam2, TValue>
     {
         public TValue Spawn(TParam1 param1, TParam2 param2)
@@ -48,11 +48,14 @@ namespace Zenject
             return item;
         }
 
-        protected abstract void Reinitialize(TParam1 p1, TParam2 p2, TValue item);
+        protected virtual void Reinitialize(TParam1 p1, TParam2 p2, TValue item)
+        {
+            // Optional
+        }
     }
 
     // Three parameters
-    public abstract class MemoryPool<TParam1, TParam2, TParam3, TValue>
+    public class MemoryPool<TParam1, TParam2, TParam3, TValue>
         : MemoryPoolBase<TValue>, IMemoryPool<TParam1, TParam2, TParam3, TValue>
     {
         public TValue Spawn(TParam1 param1, TParam2 param2, TParam3 param3)
@@ -62,11 +65,14 @@ namespace Zenject
             return item;
         }
 
-        protected abstract void Reinitialize(TParam1 p1, TParam2 p2, TParam3 p3, TValue item);
+        protected virtual void Reinitialize(TParam1 p1, TParam2 p2, TParam3 p3, TValue item)
+        {
+            // Optional
+        }
     }
 
     // Four parameters
-    public abstract class MemoryPool<TParam1, TParam2, TParam3, TParam4, TValue>
+    public class MemoryPool<TParam1, TParam2, TParam3, TParam4, TValue>
         : MemoryPoolBase<TValue>, IMemoryPool<TParam1, TParam2, TParam3, TParam4, TValue>
     {
         public TValue Spawn(TParam1 param1, TParam2 param2, TParam3 param3, TParam4 param4)
@@ -76,11 +82,14 @@ namespace Zenject
             return item;
         }
 
-        protected abstract void Reinitialize(TParam1 p1, TParam2 p2, TParam3 p3, TParam4 p4, TValue item);
+        protected virtual void Reinitialize(TParam1 p1, TParam2 p2, TParam3 p3, TParam4 p4, TValue item)
+        {
+            // Optional
+        }
     }
 
     // Five parameters
-    public abstract class MemoryPool<TParam1, TParam2, TParam3, TParam4, TParam5, TValue>
+    public class MemoryPool<TParam1, TParam2, TParam3, TParam4, TParam5, TValue>
         : MemoryPoolBase<TValue>, IMemoryPool<TParam1, TParam2, TParam3, TParam4, TParam5, TValue>
     {
         public TValue Spawn(TParam1 param1, TParam2 param2, TParam3 param3, TParam4 param4, TParam5 param5)
@@ -90,6 +99,9 @@ namespace Zenject
             return item;
         }
 
-        protected abstract void Reinitialize(TParam1 p1, TParam2 p2, TParam3 p3, TParam4 p4, TParam5 p5, TValue item);
+        protected virtual void Reinitialize(TParam1 p1, TParam2 p2, TParam3 p3, TParam4 p4, TParam5 p5, TValue item)
+        {
+            // Optional
+        }
     }
 }

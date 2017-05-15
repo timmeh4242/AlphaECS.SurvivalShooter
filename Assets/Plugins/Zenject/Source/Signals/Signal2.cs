@@ -10,21 +10,30 @@ using UniRx;
 namespace Zenject
 {
     // This is just used for generic constraints
-    public interface ISignal<TParam1, TParam2, TParam3, TParam4> : ISignalBase
+    public interface ISignal<TParam1, TParam2> : ISignalBase
     {
-        void Fire(TParam1 p1, TParam2 p2, TParam3 p3, TParam4 p4);
+        void Fire(TParam1 p1, TParam2 p2);
+
+        void Unlisten(Action<TParam1, TParam2> listener);
+        void Listen(Action<TParam1, TParam2> listener);
     }
 
-    public abstract class Signal<TParam1, TParam2, TParam3, TParam4, TDerived> : SignalBase, ISignal<TParam1, TParam2, TParam3, TParam4>
-        where TDerived : Signal<TParam1, TParam2, TParam3, TParam4, TDerived>
+    public abstract class Signal<TParam1, TParam2, TDerived> : SignalBase, ISignal<TParam1, TParam2>
+        where TDerived : Signal<TParam1, TParam2, TDerived>
+#if ENABLE_IL2CPP
+        // See discussion here for why we do this: https://github.com/modesttree/Zenject/issues/219#issuecomment-284751679
+        where TParam1 : class
+        where TParam2 : class
+#endif
     {
-        readonly List<Action<TParam1, TParam2, TParam3, TParam4>> _listeners = new List<Action<TParam1, TParam2, TParam3, TParam4>>();
+        readonly List<Action<TParam1, TParam2>> _listeners = new List<Action<TParam1, TParam2>>();
+
 #if ZEN_SIGNALS_ADD_UNIRX
-        readonly Subject<Tuple<TParam1, TParam2, TParam3, TParam4>> _observable = new Subject<Tuple<TParam1, TParam2, TParam3, TParam4>>();
+        readonly Subject<Tuple<TParam1, TParam2>> _observable = new Subject<Tuple<TParam1, TParam2>>();
 #endif
 
 #if ZEN_SIGNALS_ADD_UNIRX
-        public IObservable<Tuple<TParam1, TParam2, TParam3, TParam4>> AsObservable
+        public IObservable<Tuple<TParam1, TParam2>> AsObservable
         {
             get
             {
@@ -38,7 +47,7 @@ namespace Zenject
             get { return _listeners.Count; }
         }
 
-        public void Listen(Action<TParam1, TParam2, TParam3, TParam4> listener)
+        public void Listen(Action<TParam1, TParam2> listener)
         {
             Assert.That(!_listeners.Contains(listener),
                 () => "Tried to add method '{0}' to signal '{1}' but it has already been added"
@@ -46,7 +55,7 @@ namespace Zenject
             _listeners.Add(listener);
         }
 
-        public void Unlisten(Action<TParam1, TParam2, TParam3, TParam4> listener)
+        public void Unlisten(Action<TParam1, TParam2> listener)
         {
             bool success = _listeners.Remove(listener);
             Assert.That(success,
@@ -54,25 +63,25 @@ namespace Zenject
                 .Fmt(listener.ToDebugString(), this.GetType()));
         }
 
-        public static TDerived operator + (Signal<TParam1, TParam2, TParam3, TParam4, TDerived> signal, Action<TParam1, TParam2, TParam3, TParam4> listener)
+        public static TDerived operator + (Signal<TParam1, TParam2, TDerived> signal, Action<TParam1, TParam2> listener)
         {
             signal.Listen(listener);
             return (TDerived)signal;
         }
 
-        public static TDerived operator - (Signal<TParam1, TParam2, TParam3, TParam4, TDerived> signal, Action<TParam1, TParam2, TParam3, TParam4> listener)
+        public static TDerived operator - (Signal<TParam1, TParam2, TDerived> signal, Action<TParam1, TParam2> listener)
         {
             signal.Unlisten(listener);
             return (TDerived)signal;
         }
 
-        public void Fire(TParam1 p1, TParam2 p2, TParam3 p3, TParam4 p4)
+        public void Fire(TParam1 p1, TParam2 p2)
         {
 #if UNITY_EDITOR
             using (ProfileBlock.Start("Signal '{0}'", this.GetType().Name))
 #endif
             {
-                var wasHandled = Manager.Trigger(SignalId, new object[] { p1, p2, p3, p4 });
+                var wasHandled = Manager.Trigger(SignalId, new object[] { p1, p2 });
 
                 wasHandled |= !_listeners.IsEmpty();
 
@@ -83,7 +92,7 @@ namespace Zenject
                     using (ProfileBlock.Start(listener.ToDebugString()))
 #endif
                     {
-                        listener(p1, p2, p3, p4);
+                        listener(p1, p2);
                     }
                 }
 
@@ -93,7 +102,7 @@ namespace Zenject
                 using (ProfileBlock.Start("UniRx Stream"))
 #endif
                 {
-                    _observable.OnNext(Tuple.Create(p1, p2, p3, p4));
+                    _observable.OnNext(Tuple.Create(p1, p2));
                 }
 #endif
 

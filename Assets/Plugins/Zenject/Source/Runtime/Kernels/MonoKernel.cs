@@ -19,6 +19,7 @@ namespace Zenject
         [InjectLocal]
         DisposableManager _disposablesManager = null;
 
+        bool _hasInitialized;
         bool _isDestroyed;
 
         protected bool IsDestroyed
@@ -28,6 +29,17 @@ namespace Zenject
 
         public virtual void Start()
         {
+            if (!_hasInitialized)
+            {
+                _hasInitialized = true;
+                _initializableManager.Initialize();
+            }
+        }
+
+        public void ForceInitialize()
+        {
+            Assert.That(!_hasInitialized);
+            _hasInitialized = true;
             _initializableManager.Initialize();
         }
 

@@ -53,11 +53,72 @@
 <a id="user-content-release-notes" class="anchor" href="#release-notes" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a><a id="user-content-release-notes"></a>Release Notes</h2>
 
 <h3>
-<a id="user-content-50-february-11-2017" class="anchor" href="#50-february-11-2017" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>5.0 (February 11, 2017)</h3>
+<a id="user-content-510-april-3-2017" class="anchor" href="#510-april-3-2017" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>5.1.0 (April 3, 2017)</h3>
+
+<p>Notable</p>
+
+<ul>
+<li>Fixes related to upgrading to Unity 5.6</li>
+<li>Moved Zenject folder to plugins directory</li>
+<li>Changed to trigger injection before Awake / OnEnable / Start for dynamically instantaited prefabs. This is nice because you can treat [Inject] methods more like constructors, and then use Awake/Start for initialization logic, for both dynamically created objects and objects in the scene at the start</li>
+<li>Marked the [Inject] attribute with MeansImplicitUseAttribute to improve integration with JetBrains Resharper</li>
+<li>Fixed bug that was happening when using ZenjectSceneLoader with LoadSceneMode.Single (it was destroying ProjectContext)</li>
+<li>Added support for declaring [Inject] methods with return type IEnumerator similar to Start</li>
+<li>Changed UnderTransform bind method overload to accept InjectContext instead of just DiContainer to be consistent with the other action overloads</li>
+<li>Added new bind method FromComponentOn that takes an Action&lt;&gt; instead of a specific game object</li>
+<li>Changed to just always include SignalManager in the project context since this is where it should always be declared anyway</li>
+<li>Changed to require that all signal parameters be reference types when on IL2CPP platforms.  See docs for why this is necessary.</li>
+<li>Added new signal bind method that gets both parameters and a handler class (so you can perform an operation on the parameters before forwarding to the handler for example)</li>
+</ul>
+
+<p>Minor</p>
+
+<ul>
+<li>Fixed bug where some fields marked as InjectOptional were still producing errors</li>
+<li>Changed to allow doing Bind().FromNewComponentOnNewGameObject()</li>
+<li>[Memory pools] Minor change to allow specifying an explicit interface for the memory pool itself</li>
+<li>[Memory pools] Fixed bug where validation was failing</li>
+<li>[Memory pools] Added Listen and Unlisten methods to ISignal</li>
+<li>Changed Pause/Resume methods on TickableManager to be inherited from parents</li>
+<li>Added an option to exclude self (current object) in FromComponentInChildren and FromComponentInParents</li>
+<li>Fixed minor issue when using FromSubContainerResolve with factories</li>
+</ul>
+
+<h3>
+<a id="user-content-502-march-5-2017" class="anchor" href="#502-march-5-2017" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>5.0.2 (March 5, 2017)</h3>
+
+<ul>
+<li>Fixed to allow parameterized tests using double parameters in ZenjectIntegrationTestFixtures</li>
+<li>Added another overload to BindMemoryPool to allow creating them directly without creating an empty subclass</li>
+<li>Changed memory pools to take an IFactory&lt;&gt; instead of a provider so that they can be instantiated directly by anyone that wants to do some custom stuff with it without needing to use BindMemoryPool</li>
+<li>Bug fix to validation for game object contexts</li>
+<li>Fixed script execution order to ensure that tickables, initializables, etc. are executed before MonoBehaviours in the scene (this is how it was in older versions)</li>
+<li>Changed to call IInitializable.Initialize immediately for GameObjextContext prefabs that are created dynamically. This is nice because otherwise, when you create a GameObjectContext via a factory, you can't use it immediately Unity waits until the end of the frame to call Start() to trigger Initialize</li>
+<li>Changed to use a runtime check inside profiler blocks to allow creating unit tests outside unity</li>
+<li>Fixed signals to validate properly</li>
+<li>Renamed FromScriptableObjectResource to FromNewScriptableObjectResource for consistency.</li>
+<li>Added a few missing factory bindings (FromComponentInHierarchy and FromNewScriptableObjectResource)</li>
+<li>Fixed signal installer bindings to work properly with AsTransient and multi-bindings</li>
+</ul>
+
+<h3>
+<a id="user-content-501-february-15-2017" class="anchor" href="#501-february-15-2017" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>5.0.1 (February 15, 2017)</h3>
+
+<ul>
+<li>Hotfix.  Signal UniRx integration was completely broken</li>
+</ul>
+
+<h3>
+<a id="user-content-50-february-13-2017" class="anchor" href="#50-february-13-2017" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>5.0 (February 13, 2017)</h3>
+
+<p>Summary</p>
+
+<p>Notable parts of this release includes the long awaited support for Memory Pools, a re-design of Commands/Signals, and support for late resolve via Lazy&lt;&gt; construct.  It also includes some API breaking changes to make it easier for new users.  Some of the bind methods were renamed to better represent what they mean, and in some cases the scope is now required to be made explicit, to avoid accidentally using transient scope.  Finally, there was also some significant performance improvements for when using Zenject in scenes with many transforms.</p>
 
 <p>New Features</p>
 
 <ul>
+<li>Significant changes to commands and signals.  The functionality of commands was merged into Signals, and some more features were added to it to support subcontainers (see docs)</li>
 <li>Added Lazy&lt;&gt; construct so that you can have the resolve occur upon first usage</li>
 <li>Added menu option "Validate All Active Scenes"</li>
 <li>Added support for memory pools.  This includes a fluent interface similar to how factories work</li>
@@ -81,24 +142,18 @@
 <li>Updated sample projects to be easier to understand</li>
 <li>Improved error messages to include full type names</li>
 <li>Changed list bindings to default to optional so that you don't have to do this explicitly constantly</li>
-</ul>
-
-<p>Optimizations</p>
-
-<ul>
-<li>Fixed major performance issue for scenes that have a lot of transforms Re issue #188.</li>
-<li>Fixed to avoid the extra performance costs of calling SetParent by directly passing the parent to the GameObject.Instantiate method issue #188</li>
-</ul>
-
-<p>Breaking changes</p>
-
-<ul>
 <li>Changed to require that the scope be explicitly set for some of the bind methods to avoid extremely common errors of accidentally leaving it as transient.  Bind methods that are more like "look ups" (eg. FromMethod, FromComponentInParents, etc.) have it as optional, however bind methods that create new instances require that it be set explicitly</li>
-<li>Moved commands and signals packages into a seperate repo</li>
 <li>Renamed BindAllInterfaces to BindInterfacesTo and BindAllInterfacesAndSelf to BindInterfacesAndSelfTo to avoid the extremely common mistake of forgetting the To</li>
 <li>Removed support for passing arguments to InjectGameObject and InstantiatePrefab methods (issue #125)</li>
 <li>Removed UnityEventManager since it isn't core to keep things lightweight</li>
 <li>Renamed the Resolve overload that included an ID to ResolveId to avoid the ambiguity with the non generic version of Resolve</li>
+<li>Signals package received significant changes
+
+<ul>
+<li>The order of generic arguments to the Signal&lt;&gt; base class was changed to have parameters first to be consistent with everything else</li>
+<li>The functionality of commands was merged into signals</li>
+</ul>
+</li>
 <li>Renamed the following construction methods.  This was motivated by the fact that with the new construction methods it's unclear which ones are "look ups" versus creating new instances
 
 <ul>
@@ -115,6 +170,8 @@
 <p>Bug fixes</p>
 
 <ul>
+<li>(optimization) Fixed major performance issue for scenes that have a lot of transforms Re issue #188.</li>
+<li>(optimization) Fixed to avoid the extra performance costs of calling SetParent by directly passing the parent to the GameObject.Instantiate method issue #188</li>
 <li>Fixed extremely rare bug that would cause an infinite loop when using complex subcontainer setups</li>
 <li>Fixed to work with nunit test case attributes</li>
 <li>Fixed to instantiate prefabs without always changing them to be active</li>

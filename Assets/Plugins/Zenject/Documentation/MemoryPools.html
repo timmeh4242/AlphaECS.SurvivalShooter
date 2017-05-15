@@ -182,7 +182,7 @@
 <p>The full format of the binding is the following:</p>
 
 <pre>
-Container.BindMemoryPool&lt;<b>Param1Type, Param2Type, etc..., ObjectType, MemoryPoolType</b>&gt;()
+Container.BindMemoryPool&lt;<b>ObjectType, MemoryPoolType</b>&gt;()
     .With<b>(InitialSize|FixedSize)</b>()
     .ExpandBy<b>(OneAtATime|Doubling)</b>()
     .To&lt;<b>ResultType</b>&gt;()
@@ -448,7 +448,7 @@ Container.BindMemoryPool&lt;<b>Param1Type, Param2Type, etc..., ObjectType, Memor
 
 <p>The main difference here is that Foo.Pool now derives from MonoMemoryPool instead of MemoryPool.  MonoMemoryPool is a helper class that will automatically enable and disable the game object for us when it is added/removed from the pool.  The implementation for MonoMemoryPool is simply this:</p>
 
-<div class="highlight highlight-source-cs"><pre><span class="pl-k">public</span> abstract <span class="pl-k">class</span> <span class="pl-en">MonoMemoryPool</span>&lt;<span class="pl-en">TParam1</span>, <span class="pl-en">TValue</span>&gt; : <span class="pl-en">MemoryPool</span>&lt;<span class="pl-en">TParam1</span>, <span class="pl-en">TValue</span>&gt;
+<div class="highlight highlight-source-cs"><pre><span class="pl-k">public</span> <span class="pl-k">abstract</span> <span class="pl-k">class</span> <span class="pl-en">MonoMemoryPool</span>&lt;<span class="pl-en">TParam1</span>, <span class="pl-en">TValue</span>&gt; : <span class="pl-en">MemoryPool</span>&lt;<span class="pl-en">TParam1</span>, <span class="pl-en">TValue</span>&gt;
     <span class="pl-k">where</span> <span class="pl-en">TValue</span> : <span class="pl-en">Component</span>
 {
     <span class="pl-k">protected</span> <span class="pl-k">override</span> <span class="pl-k">void</span> <span class="pl-en">OnCreated</span>(<span class="pl-en">TValue</span> <span class="pl-smi">item</span>)
@@ -535,6 +535,30 @@ Container.BindMemoryPool&lt;<b>Param1Type, Param2Type, etc..., ObjectType, Memor
 }</pre></div>
 
 <p>We might also want to add a Reset() method to the IFoo interface as well here, and call that on Reinitialize()</p>
+
+<h3>
+<a id="user-content-instantiating-memory-pools-directly" class="anchor" href="#instantiating-memory-pools-directly" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a><a id="user-content-instantiating-directory"></a>Instantiating Memory Pools Directly</h3>
+
+<p>For complex scenarios involing custom factories, it might be desirable to directly instantiate memory pools.  In this case, you just have to make sure to provide an IFactory&lt;&gt; derived class to be used for creating new instances and all the settings information that would normally be provided via the bind statements.  For example:</p>
+
+<div class="highlight highlight-source-cs"><pre><span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">BarFactory</span> : <span class="pl-en">IFactory</span>&lt;<span class="pl-en">Bar</span>&gt;
+{
+    <span class="pl-k">public</span> <span class="pl-en">Bar</span> <span class="pl-en">Create</span>()
+    {
+        ...
+        [Custom creation logic]
+        ...
+    }
+}
+
+<span class="pl-k">var</span> <span class="pl-en">settings </span>= <span class="pl-k">new</span> <span class="pl-en">MemoryPoolSettings</span>()
+{
+    InitialSize = <span class="pl-c1">1</span>,
+    ExpandMethod = PoolExpandMethods.Double,
+};
+
+<span class="pl-k">var</span> <span class="pl-en">pool </span>= _container.<span class="pl-en">Instantiate</span>&lt;<span class="pl-en">MemoryPool</span>&lt;<span class="pl-en">Bar</span>&gt;&gt;(
+    new object[] { settings, <span class="pl-k">new</span> <span class="pl-en">MyBarFactory</span>&lt;Bar&gt;() });</pre></div>
 
               </article>
             </div>

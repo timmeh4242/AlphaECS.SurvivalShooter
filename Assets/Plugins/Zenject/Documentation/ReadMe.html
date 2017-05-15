@@ -56,7 +56,7 @@
 
 <p><a href="https://gitter.im/Zenject/Lobby?utm_source=badge&amp;utm_medium=badge&amp;utm_campaign=pr-badge&amp;utm_content=badge"><img src="https://camo.githubusercontent.com/41b69ae38db71a6bad0cb78db1672c7a2f2424ed/68747470733a2f2f6261646765732e6769747465722e696d2f5a656e6a6563742f4c6f6262792e737667" alt="Join the chat at https://gitter.im/Zenject/Lobby" data-canonical-src="https://badges.gitter.im/Zenject/Lobby.svg" style="max-width:100%;"></a></p>
 
-<p>If you are looking for the older documentation for Zenject 3.X click <a href="https://github.com/modesttree/Zenject/tree/f0dd30ad451dcbc3eb17e636455a6c89b14ad537">here</a>.</p>
+<p>If you are looking for the older documentation for Zenject 3.X click <a href="https://github.com/modesttree/Zenject/tree/f0dd30ad451dcbc3eb17e636455a6c89b14ad537">here</a> and for 4.x click <a href="https://github.com/modesttree/Zenject/tree/0b4a15b1e6e680c94fd34a2d7420eb41e320b21b">here</a>.</p>
 
 <p>Many hours have gone into the creation of this framework and many more will go to continue maintaining it.  If you or your team have found it useful, consider <a href="http://svermeulen.github.io/DonateToZenject.html">buying me a coffee</a>!  Every donation makes me significantly more likely to find time for it.</p>
 
@@ -77,6 +77,7 @@
 <li>Android</li>
 <li>Webplayer</li>
 <li>WebGL</li>
+<li>PS4 (with IL2CPP backend)</li>
 <li>Windows Store (including 8.1, Phone 8.1, Universal 8.1 and Universal 10 - both .NET and IL2CPP backend)</li>
 </ul>
 
@@ -144,7 +145,7 @@
 <p>From Source</p>
 
 <ul>
-<li>You can also just clone this repo and copy the <code>UnityProject/Assets/Zenject</code> directory to your own Unity3D project.  In this case, make note of the folders underneath "OptionalExtras" and choose only the ones you want.</li>
+<li>You can also just clone this repo and copy the <code>UnityProject/Assets/Plugins/Zenject</code> directory to your own Unity3D project.  In this case, make note of the folders underneath "OptionalExtras" and choose only the ones you want.</li>
 </ul>
 </li>
 </ol>
@@ -399,7 +400,7 @@
     <span class="pl-k">public</span> <span class="pl-k">override</span> <span class="pl-k">void</span> <span class="pl-en">InstallBindings</span>()
     {
         Container.Bind&lt;<span class="pl-k">string</span>&gt;().FromInstance(<span class="pl-s"><span class="pl-pds">"</span>Hello World!<span class="pl-pds">"</span></span>);
-        Container.Bind&lt;Greeter&gt;().NonLazy();
+        Container.Bind&lt;Greeter&gt;().AsSingle().NonLazy();
     }
 }
 
@@ -494,6 +495,10 @@
 <p>Note that the dependencies that you receive via inject methods should themselves have already been injected (the only exception to this is in the case where you have circular dependencies).  This can be important if you use inject methods to perform some basic initialization, since you may need the given dependencies to themselves be initialized via their Inject methods.</p>
 
 <p>Using [Inject] methods to inject dependencies is the recommended approach for MonoBehaviours, since MonoBehaviours cannot have constructors.</p>
+
+<p>Also note that you can define your inject methods to have return type IEnumerator.  In this case, they will be started as a coroutine.  In the case where the object is a MonoBehaviour, it will be started as a coroutine on itself, and otherwise it will use the "Context" MonoBehaviour that the object is in (that is, either ProjectContext, SceneContext or GameObjectContext)</p>
+
+<p>Note however that we would recommend minimizing the initialization logic in [Inject] methods however.  You can use Start() or Awake() to have initialization logic instead (this should work for both dynamically instantiated prefabs and objects added to the scene during edit time).</p>
 
 <p><strong>Recommendations</strong></p>
 
@@ -747,6 +752,8 @@ Container.Bind&lt;<b>ContractType</b>&gt;()
 
 <div class="highlight highlight-source-cs"><pre><span class="pl-en">Container.Bind</span>&lt;<span class="pl-en">Foo</span>&gt;().<span class="pl-en">FromNewComponentSibling</span>();</pre></div>
 
+<p>Note that if the given component type is already attached to the current transform that this will just return that instead of creating a new component.  As a result, this bind statement functions similar to Unity's [RequireComponent] attribute.</p>
+
 <p><strong>ResultType</strong> must derive from UnityEngine.MonoBehaviour / UnityEngine.Component in this case</p>
 
 <p>Also note that if a non-MonoBehaviour requests the given type, an exception will be thrown, since there is no current transform in that case.</p>
@@ -911,7 +918,7 @@ Container.Bind&lt;<b>ContractType</b>&gt;()
 
 <p>You add bindings by overriding the InstallBindings method, which is called by whatever <code>Context</code> the installer has been added to (usually this is <code>SceneContext</code>).  MonoInstaller is a MonoBehaviour so you can add FooInstaller by attaching it to a GameObject.  Since it is a GameObject you can also add public members to it to configure your installer from the Unity inspector.  This allows you to add references within the scene, references to assets, or simply tuning data (see <a href="#using-the-unity-inspector-to-configure-settings">here</a> for more information on tuning data).</p>
 
-<p>Note that in order for your installer to be triggered it must be attached to the Installers property of the <code>SceneContext</code> object.  The installers are executed in the order given to <code>SceneContext</code> however this order should not usually matter (since nothing should be instantiated during the install process)</p>
+<p>Note that in order for your installer to be triggered it must be attached to the Installers property of the <code>SceneContext</code> object.  Installers in the order given to <code>SceneContext</code> (with scriptable object installers first, then mono installers, then prefab installers) however this order should not usually matter (since nothing should be instantiated during the install process).</p>
 
 <p>In many cases you want to have your installer derive from MonoInstaller, so that you can have inspector settings.  There is also another base class called simply <code>Installer</code> which you can use in cases where you do not need it to be a MonoBehaviour.</p>
 
@@ -1356,7 +1363,7 @@ Please feel free to submit any other sources of confusion to sfvermeulen@gmail.c
 
 ## &lt;a id="game-object-bind-methods"&gt;&lt;/a&gt;Game Object Bind Methods
 
-For bindings that create new game objects (eg. FromComponentInNewPrefab or FromGameObject) there are also two extra bind methods.
+For bindings that create new game objects (eg. FromComponentInNewPrefab or FromNewComponentOnNewGameObject) there are also two extra bind methods.
 
 * **WithGameObjectName** = The name to give the new Game Object associated with this binding.
 
@@ -2703,7 +2710,43 @@ x.<b>InitialList</b>().<b>Conditional</b>().<b>AssemblySources</b>()
 <li>
 <p><strong><a id="user-content-aot-support"></a>Does this work on AOT platforms such as iOS and WebGL?</strong></p>
 
-<p>Yes.  However, there are a few things that you should be aware.  One of the things that Unity's IL2CPP compiler does is strip out any code that is not used.  It calculates what code is used by statically analyzing the code to find usage.  This is great, except that this will miss any methods/types that are not used explicitly.  In particular, any classes that are created solely through Zenject will have their constructors ignored by the IL2CPP compiler.  In order to address this, the [Inject] attribute that is sometimes applied to constructors also serves to automatically mark the constructor to IL2CPP to not strip out.   In other words, to fix this issue all you have to do is mark every constructor that you create through Zenject with an [Inject] attribute when compiling for WebGL / iOS.</p>
+<p>Yes.  However, there are a few things that you should be aware of.  One of the things that Unity's IL2CPP compiler does is strip out any code that is not used.  It calculates what code is used by statically analyzing the code to find usage.  This is great, except that this will miss any methods/types that are not used explicitly.  In particular, any classes that are created solely through Zenject will have their constructors ignored by the IL2CPP compiler.  In order to address this, the [Inject] attribute that is sometimes applied to constructors also serves to automatically mark the constructor to IL2CPP to not strip out.   In other words, to fix this issue all you have to do is mark every constructor that you create through Zenject with an [Inject] attribute when compiling for WebGL / iOS.</p>
+
+<p>Sometimes, an exception to this rule is classes that have generic arguments and which are instantiated with a "value type" generic argument (eg. int, float, enums, anything deriving from struct, etc.).  In this case, compiling with AOT will sometimes strip out the constructor, so Zenject will not be able to create the class and you will get a runtime error.  For example:</p>
+
+<div class="highlight highlight-source-cs"><pre>    <span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">Foo</span>&lt;<span class="pl-en">T1</span>&gt;
+    {
+        <span class="pl-k">public</span> <span class="pl-en">Foo</span>()
+        {
+            Debug.Log(<span class="pl-s"><span class="pl-pds">"</span>Successfully created Foo!<span class="pl-pds">"</span></span>);
+        }
+    }
+
+    <span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">Runner2</span> : <span class="pl-en">MonoBehaviour</span>
+    {
+        <span class="pl-k">public</span> <span class="pl-k">void</span> <span class="pl-en">OnGUI</span>()
+        {
+            <span class="pl-k">if</span> (GUI.Button(<span class="pl-k">new</span> <span class="pl-en">Rect</span>(<span class="pl-c1">100</span>, <span class="pl-c1">100</span>, <span class="pl-c1">500</span>, <span class="pl-c1">100</span>), <span class="pl-s"><span class="pl-pds">"</span>Attempt to Create Foo<span class="pl-pds">"</span></span>))
+            {
+                <span class="pl-k">var</span> <span class="pl-en">container </span>= <span class="pl-k">new</span> <span class="pl-en">DiContainer</span>();
+
+                <span class="pl-c">// This will throw exceptions on AOT platforms because the constructor for Foo&lt;int&gt; is stripped out of the build</span>
+                container.Instantiate&lt;Foo&lt;<span class="pl-k">int</span>&gt;&gt;();
+
+                <span class="pl-c">// This will run fine however, because string is not value type</span>
+                <span class="pl-c">//container.Instantiate&lt;Foo&lt;string&gt;&gt;();</span>
+            }
+        }
+
+        <span class="pl-k">static</span> <span class="pl-k">void</span> <span class="pl-en">_AotWorkaround</span>()
+        {
+            <span class="pl-c">// As a workaround, we can explicitly reference the constructor here to force the AOT</span>
+            <span class="pl-c">// compiler to leave it in the build</span>
+            <span class="pl-c">// new Foo&lt;int&gt;();</span>
+        }
+    }</pre></div>
+
+<p>Normally, in a case like above where a constructor is being stripped out, we can force-include it by adding the <code>[Inject]</code> attribute on the Foo constructor, however this does not work for classes with generic types that include a value type.  Therefore, the recommended workarounds here are to either explicitly reference the constructor similar to what you see in the _AotWorkaround, or avoid using value type generic arguments.  One easy way to avoid using value types is to wrap it in a reference type (for example, by using something like <a href="https://gist.github.com/svermeulen/a6929e6e26f2de2cc697d24f108c5f85">this</a>)</p>
 </li>
 <li>
 <p><strong><a id="user-content-faq-performance"></a>How is performance?</strong></p>
@@ -2762,7 +2805,7 @@ public class TestInstaller : MonoInstaller
     public override void InstallBindings()
     {
         Container.Bind&lt;IInitializable&gt;().To&lt;Foo&gt;().AsSingle();
-        Container.Bind&lt;AsyncProcessor&gt;().FromGameObject().AsSingle();
+        Container.Bind&lt;AsyncProcessor&gt;().FromNewComponentOnNewGameObject().AsSingle();
     }
 }
 </code></pre>
@@ -2797,6 +2840,8 @@ public class TestInstaller : MonoInstaller
 <a href="https://play.google.com/store/apps/details?id=com.numinousgames.Untethered&amp;hl=en">Untethered</a> (Google VR)</li>
 <li>
 <a href="https://toyclash.com/">Toy Clash</a> - (<a href="https://www.oculus.com/experiences/gear-vr/1407846952568081/">GearVR</a>)</li>
+<li>
+<a href="http://bedtimemath.org/apps">Bedtime Math App</a> - (<a href="https://itunes.apple.com/us/app/bedtimemath/id637910701">iOS</a> and <a href="https://play.google.com/store/apps/details?id=com.twofours.bedtimemath">Android</a>)</li>
 </ul>
 
 <p>Libraries</p>

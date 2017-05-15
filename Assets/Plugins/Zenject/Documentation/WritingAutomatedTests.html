@@ -147,7 +147,7 @@
 
 <p>As you can see above, this approach is very basic and just involves inheriting from the <code>ZenjectUnitTestFixture</code> class.  All this helper class does is ensure that a new Container is re-created before each test method is called.   That's it.  This is the entire code for it:</p>
 
-<div class="highlight highlight-source-cs"><pre><span class="pl-k">public</span> abstract <span class="pl-k">class</span> <span class="pl-en">ZenjectUnitTestFixture</span>
+<div class="highlight highlight-source-cs"><pre><span class="pl-k">public</span> <span class="pl-k">abstract</span> <span class="pl-k">class</span> <span class="pl-en">ZenjectUnitTestFixture</span>
 {
     <span class="pl-en">DiContainer</span> <span class="pl-en">_container</span>;
 
@@ -233,8 +233,8 @@
         GameSettingsInstaller.InstallFromResource(Container);
         <span class="pl-k">var</span> <span class="pl-en">gameSettings </span>= Container.Resolve&lt;GameInstaller.Settings&gt;();
         Container.Bind&lt;AsteroidManager&gt;().AsSingle();
-        Container.BindFactory&lt;Asteroid, Asteroid.Factory&gt;().FromPrefab(gameSettings.AsteroidPrefab);
-        Container.Bind&lt;Camera&gt;().WithId(<span class="pl-s"><span class="pl-pds">"</span>Main<span class="pl-pds">"</span></span>).FromGameObject();
+        Container.BindFactory&lt;Asteroid, Asteroid.Factory&gt;().FromComponentInNewPrefab(gameSettings.AsteroidPrefab);
+        Container.Bind&lt;Camera&gt;().WithId(<span class="pl-s"><span class="pl-pds">"</span>Main<span class="pl-pds">"</span></span>).FromNewComponentOnNewGameObject().AsSingle();
         Container.Bind&lt;LevelHelper&gt;().AsSingle();
 
         Initialize();

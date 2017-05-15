@@ -13,36 +13,35 @@ namespace Zenject
         }
     }
 
+    [Serializable]
+    public class MemoryPoolSettings
+    {
+        public int InitialSize;
+        public PoolExpandMethods ExpandMethod;
+    }
+
     public abstract class MemoryPoolBase<TContract> : IValidatable, IMemoryPool
     {
-        readonly HashSet<TContract> _activeItems = new HashSet<TContract>();
-
         Stack<TContract> _inactiveItems;
-        Type _concreteType;
-        InjectContext _injectContext;
-        IProvider _provider;
-        PoolExpandMethods _expandMethod;
+        IFactory<TContract> _factory;
+        MemoryPoolSettings _settings;
+
+        int _activeCount;
 
         [Inject]
         void Construct(
-            Type concreteType,
-            IProvider provider,
+            IFactory<TContract> factory,
             DiContainer container,
-            int initialSize,
-            PoolExpandMethods expandMethod)
+            MemoryPoolSettings settings)
         {
-            Assert.That(concreteType.DerivesFromOrEqual<TContract>());
+            _settings = settings;
+            _factory = factory;
 
-            _expandMethod = expandMethod;
-            _provider = provider;
-            _concreteType = concreteType;
-            _injectContext = new InjectContext(container, concreteType);
-
-            _inactiveItems = new Stack<TContract>(initialSize);
+            _inactiveItems = new Stack<TContract>(settings.InitialSize);
 
             if (!container.IsValidating)
             {
-                for (int i = 0; i < initialSize; i++)
+                for (int i = 0; i < settings.InitialSize; i++)
                 {
                     _inactiveItems.Push(AllocNew());
                 }
@@ -66,25 +65,12 @@ namespace Zenject
 
         public int NumActive
         {
-            get { return _activeItems.Count; }
+            get { return _activeCount; }
         }
 
-        public Type ContractType
+        public Type ItemType
         {
             get { return typeof(TContract); }
-        }
-
-        public Type ConcreteType
-        {
-            get { return _concreteType; }
-        }
-
-        public void DespawnAll()
-        {
-            foreach (var item in _activeItems.ToList())
-            {
-                Despawn(item);
-            }
         }
 
         public void Despawn(TContract item)
@@ -92,10 +78,7 @@ namespace Zenject
             Assert.That(!_inactiveItems.Contains(item),
             "Tried to return an item to pool {0} twice", this.GetType());
 
-            bool removed = _activeItems.Remove(item);
-
-            Assert.That(removed,
-                "Tried to return an item to the pool that was not originally created in pool");
+            _activeCount--;
 
             _inactiveItems.Push(item);
 
@@ -106,12 +89,8 @@ namespace Zenject
         {
             try
             {
-                var resultObj = _provider.GetInstance(_injectContext);
-
-                Assert.IsNotNull(resultObj);
-                Assert.That(resultObj.GetType().DerivesFromOrEqual(_concreteType));
-
-                var item = (TContract)resultObj;
+                var item = _factory.Create();
+                Assert.IsNotNull(item, "Factory '{0}' returned null value when creating via {1}!", _factory.GetType(), this.GetType());
                 OnCreated(item);
                 return item;
             }
@@ -119,7 +98,7 @@ namespace Zenject
             {
                 throw new ZenjectException(
                     "Error during construction of type '{0}' via {1}.Create method!".Fmt(
-                        _concreteType, this.GetType().Name()), e);
+                        typeof(TContract), this.GetType().Name()), e);
             }
         }
 
@@ -127,7 +106,7 @@ namespace Zenject
         {
             try
             {
-                _provider.GetInstance(_injectContext);
+                _factory.Create();
             }
             catch (Exception e)
             {
@@ -148,8 +127,7 @@ namespace Zenject
 
             item = _inactiveItems.Pop();
 
-            bool added = _activeItems.Add(item);
-            Assert.That(added);
+            _activeCount++;
 
             OnSpawned(item);
             return item;
@@ -157,7 +135,7 @@ namespace Zenject
 
         void ExpandPool()
         {
-            switch (_expandMethod)
+            switch (_settings.ExpandMethod)
             {
                 case PoolExpandMethods.Fixed:
                 {

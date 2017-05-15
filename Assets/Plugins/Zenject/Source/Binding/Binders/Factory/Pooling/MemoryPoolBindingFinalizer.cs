@@ -22,7 +22,14 @@ namespace Zenject
 
         protected override void OnFinalizeBinding(DiContainer container)
         {
-            var provider = _factoryBindInfo.ProviderFunc(container);
+            var factory = new FactoryProviderWrapper<TContract>(
+                _factoryBindInfo.ProviderFunc(container), new InjectContext(container, typeof(TContract)));
+
+            var settings = new MemoryPoolSettings()
+            {
+                InitialSize = _poolBindInfo.InitialSize,
+                ExpandMethod = _poolBindInfo.ExpandMethod,
+            };
 
             RegisterProviderForAllContracts(
                 container,
@@ -30,8 +37,7 @@ namespace Zenject
                     new TransientProvider(
                         _factoryBindInfo.FactoryType,
                         container,
-                        InjectUtil.CreateArgListExplicit(
-                            typeof(TContract), provider, _poolBindInfo.InitialSize, _poolBindInfo.ExpandMethod),
+                        InjectUtil.CreateArgListExplicit(factory, settings),
                         null,
                         BindInfo.ContextInfo)));
         }

@@ -12,6 +12,54 @@ namespace Zenject
 {
     public class SceneDecoratorContext : Context
     {
+        [SerializeField]
+        List<MonoInstaller> _lateInstallers = new List<MonoInstaller>();
+
+        [SerializeField]
+        List<MonoInstaller> _lateInstallerPrefabs = new List<MonoInstaller>();
+
+        [SerializeField]
+        List<ScriptableObjectInstaller> _lateScriptableObjectInstallers = new List<ScriptableObjectInstaller>();
+
+        public IEnumerable<MonoInstaller> LateInstallers
+        {
+            get
+            {
+                return _lateInstallers;
+            }
+            set
+            {
+                _lateInstallers.Clear();
+                _lateInstallers.AddRange(value);
+            }
+        }
+
+        public IEnumerable<MonoInstaller> LateInstallerPrefabs
+        {
+            get
+            {
+                return _lateInstallerPrefabs;
+            }
+            set
+            {
+                _lateInstallerPrefabs.Clear();
+                _lateInstallerPrefabs.AddRange(value);
+            }
+        }
+
+        public IEnumerable<ScriptableObjectInstaller> LateScriptableObjectInstallers
+        {
+            get
+            {
+                return _lateScriptableObjectInstallers;
+            }
+            set
+            {
+                _lateScriptableObjectInstallers.Clear();
+                _lateScriptableObjectInstallers.AddRange(value);
+            }
+        }
+
         [FormerlySerializedAs("SceneName")]
         [SerializeField]
         string _decoratedContractName = null;
@@ -64,6 +112,11 @@ namespace Zenject
         protected override IEnumerable<MonoBehaviour> GetInjectableMonoBehaviours()
         {
             return ZenUtilInternal.GetInjectableMonoBehaviours(this.gameObject.scene);
+        }
+
+        public void InstallLateDecoratorInstallers()
+        {
+            InstallInstallers(new List<InstallerBase>(), _lateScriptableObjectInstallers, _lateInstallers, _lateInstallerPrefabs);
         }
     }
 }

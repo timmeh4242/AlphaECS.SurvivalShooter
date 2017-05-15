@@ -6,6 +6,5 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/SurvivalShooter/Scenes/Kernel.unity
-  - enabled: 1
     path: Assets/SurvivalShooter/Scenes/Level_01.unity
+    guid: 81f19880d038844fa93776c3ab616a04

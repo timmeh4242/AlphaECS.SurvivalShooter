@@ -123,6 +123,20 @@ namespace Zenject
             return new ScopeArgConditionCopyNonLazyBinder(BindInfo);
         }
 
+        public ScopeArgConditionCopyNonLazyBinder FromNewComponentOn(Func<InjectContext, GameObject> gameObjectGetter)
+        {
+            BindingUtil.AssertIsComponent(ConcreteTypes);
+            BindingUtil.AssertTypesAreNotAbstract(ConcreteTypes);
+
+            BindInfo.RequireExplicitScope = true;
+            SubFinalizer = new ScopableBindingFinalizer(
+                BindInfo, SingletonTypes.FromComponentGameObject, gameObjectGetter,
+                (container, type) => new AddToExistingGameObjectComponentProviderGetter(
+                    gameObjectGetter, container, type, BindInfo.ConcreteIdentifier, BindInfo.Arguments));
+
+            return new ScopeArgConditionCopyNonLazyBinder(BindInfo);
+        }
+
         public ArgConditionCopyNonLazyBinder FromNewComponentSibling()
         {
             BindingUtil.AssertIsComponent(ConcreteTypes);
@@ -141,7 +155,7 @@ namespace Zenject
             return FromNewComponentOnNewGameObject(new GameObjectCreationParameters());
         }
 
-        public NameTransformScopeArgConditionCopyNonLazyBinder FromNewComponentOnNewGameObject(
+        internal NameTransformScopeArgConditionCopyNonLazyBinder FromNewComponentOnNewGameObject(
             GameObjectCreationParameters gameObjectInfo)
         {
             BindingUtil.AssertIsComponent(ConcreteTypes);
@@ -166,7 +180,7 @@ namespace Zenject
                 prefab, new GameObjectCreationParameters());
         }
 
-        public NameTransformScopeArgConditionCopyNonLazyBinder FromComponentInNewPrefab(
+        internal NameTransformScopeArgConditionCopyNonLazyBinder FromComponentInNewPrefab(
             UnityEngine.Object prefab, GameObjectCreationParameters gameObjectInfo)
         {
             BindingUtil.AssertIsValidPrefab(prefab);
@@ -184,7 +198,7 @@ namespace Zenject
             return FromComponentInNewPrefabResource(resourcePath, new GameObjectCreationParameters());
         }
 
-        public NameTransformScopeArgConditionCopyNonLazyBinder FromComponentInNewPrefabResource(
+        internal NameTransformScopeArgConditionCopyNonLazyBinder FromComponentInNewPrefabResource(
             string resourcePath, GameObjectCreationParameters gameObjectInfo)
         {
             BindingUtil.AssertIsValidResourcePath(resourcePath);
@@ -197,7 +211,18 @@ namespace Zenject
             return new NameTransformScopeArgConditionCopyNonLazyBinder(BindInfo, gameObjectInfo);
         }
 
+        public ScopeArgConditionCopyNonLazyBinder FromNewScriptableObjectResource(string resourcePath)
+        {
+            return FromScriptableObjectResourceInternal(resourcePath, true);
+        }
+
         public ScopeArgConditionCopyNonLazyBinder FromScriptableObjectResource(string resourcePath)
+        {
+            return FromScriptableObjectResourceInternal(resourcePath, false);
+        }
+
+        ScopeArgConditionCopyNonLazyBinder FromScriptableObjectResourceInternal(
+            string resourcePath, bool createNew)
         {
             BindingUtil.AssertIsValidResourcePath(resourcePath);
             BindingUtil.AssertIsInterfaceOrScriptableObject(AllParentTypes);
@@ -205,10 +230,10 @@ namespace Zenject
             BindInfo.RequireExplicitScope = true;
             SubFinalizer = new ScopableBindingFinalizer(
                 BindInfo,
-                SingletonTypes.FromScriptableObjectResource,
+                createNew ? SingletonTypes.FromNewScriptableObjectResource : SingletonTypes.FromScriptableObjectResource,
                 resourcePath.ToLower(),
                 (container, type) => new ScriptableObjectResourceProvider(
-                    resourcePath, type, container, BindInfo.ConcreteIdentifier, BindInfo.Arguments));
+                    resourcePath, type, container, BindInfo.ConcreteIdentifier, BindInfo.Arguments, createNew));
 
             return new ScopeArgConditionCopyNonLazyBinder(BindInfo);
         }

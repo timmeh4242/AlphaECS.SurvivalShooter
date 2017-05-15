@@ -41,11 +41,8 @@ namespace Zenject
             {
                 if (_instance == null)
                 {
-                    _instance = InstantiateNewRoot();
-
-                    // Note: We use Initialize instead of awake here in case someone calls
-                    // ProjectContext.Instance while ProjectContext is initializing
-                    _instance.Initialize();
+                    InstantiateAndInitialize();
+                    Assert.IsNotNull(_instance);
                 }
 
                 return _instance;
@@ -77,29 +74,58 @@ namespace Zenject
             return prefab;
         }
 
-        public static ProjectContext InstantiateNewRoot()
+        static void InstantiateAndInitialize()
         {
             Assert.That(GameObject.FindObjectsOfType<ProjectContext>().IsEmpty(),
                 "Tried to create multiple instances of ProjectContext!");
 
-            ProjectContext instance;
-
             var prefab = TryGetPrefab();
+
+            bool shouldMakeActive = false;
 
             if (prefab == null)
             {
-                instance = new GameObject("ProjectContext")
+                _instance = new GameObject("ProjectContext")
                     .AddComponent<ProjectContext>();
             }
             else
             {
-                instance = GameObject.Instantiate(prefab).GetComponent<ProjectContext>();
+                var wasActive = prefab.activeSelf;
 
-                Assert.IsNotNull(instance,
+                shouldMakeActive = wasActive;
+
+                if (wasActive)
+                {
+                    prefab.SetActive(false);
+                }
+
+                try
+                {
+                    _instance = GameObject.Instantiate(prefab).GetComponent<ProjectContext>();
+                }
+                finally
+                {
+                    if (wasActive)
+                    {
+                        // Always make sure to reset prefab state otherwise this change could be saved
+                        // persistently
+                        prefab.SetActive(true);
+                    }
+                }
+
+                Assert.IsNotNull(_instance,
                     "Could not find ProjectContext component on prefab 'Resources/{0}.prefab'", ProjectContextResourcePath);
             }
 
-            return instance;
+            // Note: We use Initialize instead of awake here in case someone calls
+            // ProjectContext.Instance while ProjectContext is initializing
+            _instance.Initialize();
+
+            if (shouldMakeActive)
+            {
+                // We always instantiate it as disabled so that Awake and Start events are triggered after inject
+                _instance.gameObject.SetActive(true);
+            }
         }
 
         public void EnsureIsInitialized()
@@ -177,6 +203,7 @@ namespace Zenject
             _container.Bind(typeof(TickableManager), typeof(InitializableManager), typeof(DisposableManager), typeof(GuiRenderableManager))
                 .ToSelf().AsSingle().CopyIntoAllSubContainers();
 
+            _container.Bind<SignalManager>().AsSingle();
             _container.Bind<Context>().FromInstance(this);
 
             _container.Bind<ProjectKernel>().FromNewComponentOn(this.gameObject).AsSingle().NonLazy();

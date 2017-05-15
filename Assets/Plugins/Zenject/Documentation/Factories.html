@@ -215,6 +215,10 @@
 
 <p>The dynamic parameters that are provided to the Enemy constructor are declared by using generic arguments to the Factory&lt;&gt; base class of Enemy.Factory.  This will add a method to Enemy.Factory that takes the parameters with the given types, which is called by EnemySpawner.</p>
 
+<p>Note: You can have multiple parameters declared with the same type.  In this case, the order that the values are given to the factory will match the parameter order - assuming that you are using constructor or method injection.  However, if you are using field or property injection, then the order that values are injected is not guaranteed to follow the declaration order, since these fields are retrieved using Type.GetFields which does not guarantee order as described <a href="https://msdn.microsoft.com/en-us/library/ch9714z3.aspx">here</a></p>
+
+<p>In this case, they will be injected in the same order that they are declared in your class.  In the case of constructor/inject-method parameters, this will be the order the parameters are given in, or in the case of fields the order will be from top to bottom that they are declared in.  Constructor parameters are processed first, then fields, then properties, then inject methods.</p>
+
 <p>There is no requirement that the <code>Enemy.Factory</code> class be a nested class within Enemy, however we have found this to be a very useful convention.  <code>Enemy.Factory</code> is always intentionally left empty and simply derives from the built-in Zenject <code>Factory&lt;&gt;</code> class, which handles the work of using the DiContainer to construct a new instance of Enemy.</p>
 
 <p>The reason that we don't use the <code>Factory&lt;Enemy&gt;</code> class directly is because this can become error prone when adding/removing parameters and also can get verbose since the parameter types must be declared whenever you refer to this class.  This is error prone because if for example you add a parameter to enemy and change the factory from <code>Factory&lt;Enemy&gt;</code> to <code>Factory&lt;float, Enemy&gt;</code>, any references to <code>Factory&lt;Enemy&gt;</code> will not be resolved.  And this will not be caught at compile time and instead will only be seen during validation or runtime.  So we recommend always using an empty class that derives from <code>Factory&lt;&gt;</code> instead.</p>
@@ -257,6 +261,8 @@
 <p>And similarly for FromInstance, FromMethod, FromSubContainerResolve, or any of the other construction methods.</p>
 
 <p>Using FromSubContainerResolve can be particularly useful if your dynamically created object has a lot of its own dependencies.  You can have it behave like a Facade.  See the Subcontainers section for details on nested containers / facades.</p>
+
+<p>Also note that you for dynamically instantiated MonoBehaviours (for example when using FromComponentInNewPrefab with BindFactory) injection should always occur before Awake and Start, so you can use Awake and Start for initialization logic and use the inject method strictly for saving dependencies (ie. similar to constructors for non-monobehaviours)</p>
 
 <h2>
 <a id="user-content-abstract-factories" class="anchor" href="#abstract-factories" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a><a id="user-content-abstract-factories"></a>Abstract Factories</h2>

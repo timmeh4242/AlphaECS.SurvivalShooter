@@ -7,17 +7,10 @@ namespace Zenject
         int NumActive { get; }
         int NumInactive { get; }
 
-        Type ContractType
+        Type ItemType
         {
             get;
         }
-
-        Type ConcreteType
-        {
-            get;
-        }
-
-        void DespawnAll();
     }
 
     public interface IMemoryPool<TValue> : IMemoryPool
