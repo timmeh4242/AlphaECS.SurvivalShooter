@@ -10,9 +10,9 @@ namespace AlphaECS.SurvivalShooter
 {
 	public class LevelSystem : SystemBehaviour
 	{
-		public override void Setup ()
+		public override void Setup (IEventSystem eventSystem, IPoolManager poolManager, GroupFactory groupFactory)
 		{
-			base.Setup ();
+			base.Setup (eventSystem, poolManager, groupFactory);
 
 			EventSystem.OnEvent<DeathEvent> ().Where (_ => _.Target.HasComponent<InputComponent> ()).Subscribe (_ =>
 			{

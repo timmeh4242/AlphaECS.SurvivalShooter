@@ -3,45 +3,37 @@ using System.Collections;
 using UniRx;
 using UnityEngine;
 using Zenject;
+using AlphaECS;
 
 namespace AlphaECS.Unity
 {
     public abstract class SystemBehaviour : MonoBehaviour, ISystem, IDisposableContainer, IDisposable
     {
-        [Inject]
 		public IEventSystem EventSystem { get; set; }
-
-        [Inject]
 		public IPoolManager PoolManager { get; set; }
+		public GroupFactory GroupFactory { get; set; }
 
-        [Inject]
-        protected PrefabFactory PrefabFactory { get; set; }
-
-        [Inject]
-		protected GroupFactory GroupFactory { get; set; }
+		[Inject]
+        public PrefabFactory PrefabFactory { get; set; }
 
         private CompositeDisposable _disposer = new CompositeDisposable();
         public CompositeDisposable Disposer
         {
             get { return _disposer; }
-            set { _disposer = value; }
+            private set { _disposer = value; }
         }
 
         void OnDestroy()
         {
             Dispose();
-            //			EventSystem.Publish (new ComponentDestroyed (){ Component = this });
         }
 
         [Inject]
-        public virtual void Setup()
+		public virtual void Setup(IEventSystem eventSystem, IPoolManager poolManager, GroupFactory groupFactory)
         {
-        }
-
-        [Inject]
-        public virtual IEnumerator SetupAsync()
-        {
-            yield break;
+			EventSystem = eventSystem;
+			PoolManager = poolManager;
+			GroupFactory = groupFactory;
         }
 
         public virtual void Dispose()

@@ -5,6 +5,7 @@ using AlphaECS.SurvivalShooter;
 using AlphaECS.Unity;
 using UnityEngine.UI;
 using UniRx;
+using AlphaECS;
 
 public class ScoreHUD : ComponentBehaviour
 {
@@ -12,9 +13,9 @@ public class ScoreHUD : ComponentBehaviour
 
 	Text ScoreText;
 
-	public override void Setup ()
+	public override void Setup (IEventSystem eventSystem)
 	{
-		base.Setup ();
+		base.Setup (eventSystem);
 
 		ScoreText = GetComponent<Text> ();
 		ScoringSystem.Score.DistinctUntilChanged ().Subscribe (value =>

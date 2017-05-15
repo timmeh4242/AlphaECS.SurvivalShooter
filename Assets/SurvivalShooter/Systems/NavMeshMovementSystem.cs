@@ -14,9 +14,9 @@ namespace AlphaECS.SurvivalShooter
 		Transform Target;
 		HealthComponent TargetHealth;
 
-		public override void Setup ()
+		public override void Setup (IEventSystem eventSystem, IPoolManager poolManager, GroupFactory groupFactory)
 		{
-			base.Setup ();
+			base.Setup (eventSystem, poolManager, groupFactory);
 
 			var group = GroupFactory.Create (new Type[] { typeof(HealthComponent), typeof(EntityBehaviour), typeof(UnityEngine.AI.NavMeshAgent) });
 			group.OnAdd().Subscribe (entity =>

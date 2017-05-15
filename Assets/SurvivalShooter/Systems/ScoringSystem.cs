@@ -10,9 +10,9 @@ namespace AlphaECS.SurvivalShooter
 	{
 		public IntReactiveProperty Score { get; private set; }
 
-		public override void Setup ()
+		public override void Setup (IEventSystem eventSystem, IPoolManager poolManager, GroupFactory groupFactory)
 		{
-			base.Setup ();
+			base.Setup (eventSystem, poolManager, groupFactory);
 
 			Score = new IntReactiveProperty ();
 

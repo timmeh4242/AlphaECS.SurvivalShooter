@@ -13,9 +13,9 @@ namespace AlphaECS.SurvivalShooter
 		public readonly float MovementSpeed = 2.0f;
 		private int FloorMask;
 
-		public override void Setup ()
+		public override void Setup (IEventSystem eventSystem, IPoolManager poolManager, GroupFactory groupFactory)
 		{
-			base.Setup ();
+			base.Setup (eventSystem, poolManager, groupFactory);
 
 			FloorMask = LayerMask.GetMask("Floor");
 

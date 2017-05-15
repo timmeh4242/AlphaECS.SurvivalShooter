@@ -13,9 +13,9 @@ namespace AlphaECS.SurvivalShooter
 		// TODO remove this in favor of a factory...
 		[Inject] DiContainer Container { get; set; }
 
-		public override void Setup ()
+		public override void Setup (IEventSystem eventSystem, IPoolManager poolManager, GroupFactory groupFactory)
 		{
-			base.Setup ();
+			base.Setup (eventSystem, poolManager, groupFactory);
 
 			var group = GroupFactory.Create (new Type[]{ typeof(SpawnerComponent) });
 			group.OnAdd().Subscribe (entity =>

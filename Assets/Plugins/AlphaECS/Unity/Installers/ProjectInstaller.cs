@@ -9,15 +9,10 @@ using UniRx;
 
 public class ProjectInstaller : MonoInstaller
 {
-	public const string KernelScene = "Kernel";
 	List<GameObject> KernelObjects = new List<GameObject> ();
 
 	public override void InstallBindings()
     {
-    	// this is a dummy scene we load in first because unity doesn't let you unload all scenes
-		SceneManager.LoadScene (KernelScene, LoadSceneMode.Additive);
-		var kernelScene = SceneManager.GetSceneByName (KernelScene);
-
 		var resources = Resources.LoadAll ("Kernel");
 		foreach(var resource in resources)
 		{
@@ -31,6 +26,9 @@ public class ProjectInstaller : MonoInstaller
 			}
 		}
 
+		/* zenject will throw a warning here
+		* we can safely ignore this as we're using our "setup" method on these kernel systems as a di constructor only
+		* and the dependencies which we're injecting are in the framework scope and have already been bound to the container with AlphaECSInstaller */
 		foreach(var go in KernelObjects)
 		{
 			Container.InjectGameObject (go);

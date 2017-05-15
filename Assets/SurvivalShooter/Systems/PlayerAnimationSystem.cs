@@ -14,9 +14,9 @@ namespace AlphaECS.SurvivalShooter
 {
 	public class PlayerAnimationSystem : SystemBehaviour
 	{
-		public override void Setup ()
+		public override void Setup (IEventSystem eventSystem, IPoolManager poolManager, GroupFactory groupFactory)
 		{
-			base.Setup ();
+			base.Setup (eventSystem, poolManager, groupFactory);
 
 			var group = GroupFactory.Create (new Type[] { typeof(InputComponent), typeof(EntityBehaviour), typeof(Animator) });
 

@@ -5,7 +5,7 @@ namespace AlphaECS
 {
 	public interface IDisposableContainer
 	{
-		CompositeDisposable Disposer { get; set; }
+		CompositeDisposable Disposer { get; }
 	}
 
 	public static partial class DisposableExtensions

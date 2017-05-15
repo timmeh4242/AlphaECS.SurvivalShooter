@@ -9,9 +9,9 @@ namespace AlphaECS.SurvivalShooter
 {
 	public class MeleeSystem : SystemBehaviour
 	{
-		public override void Setup ()
+		public override void Setup (IEventSystem eventSystem, IPoolManager poolManager, GroupFactory groupFactory)
 		{
-			base.Setup ();
+			base.Setup (eventSystem, poolManager, groupFactory);
 
 			var group = GroupFactory.Create (new Type[]{ typeof(EntityBehaviour), typeof(MeleeComponent) });
 			group.OnAdd().Subscribe (entity =>

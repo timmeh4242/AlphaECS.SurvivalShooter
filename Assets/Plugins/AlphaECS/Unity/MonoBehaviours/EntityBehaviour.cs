@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Zenject;
 
 namespace AlphaECS.Unity
 {
@@ -62,25 +63,31 @@ namespace AlphaECS.Unity
 		[SerializeField]
 		public EntityBehaviour Proxy;
 
-		[SerializeField]
-		[HideInInspector]
+		[SerializeField] [HideInInspector]
 		public string PoolName;
 
-		[SerializeField]
-		[HideInInspector]
+		[SerializeField] [HideInInspector]
 		public bool RemoveEntityOnDestroy = true;
 
-		[SerializeField]
-		[HideInInspector]
+		[SerializeField] [HideInInspector]
 		public List<string> CachedComponents = new List<string>();
 
-		[SerializeField]
-		[HideInInspector]
+		[SerializeField] [HideInInspector]
 		public List<string> CachedProperties = new List<string>();
 
-		public override void Setup()
+		public IPoolManager PoolManager
 		{
-			base.Setup();
+			get
+			{
+				return poolManager == null ? ProjectContext.Instance.Container.Resolve<IPoolManager>() : poolManager;
+			}
+			set { poolManager = value; }
+		}
+		private IPoolManager poolManager;
+
+		public override void Setup (IEventSystem eventSystem)
+		{
+			base.Setup (eventSystem);
 
 			for (var i = 0; i < CachedComponents.Count(); i++)
 			{

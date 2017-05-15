@@ -25,19 +25,22 @@ namespace AlphaECS
 		}
 
 		public IEnumerable<Type> Components { get; set; }
-		public Predicate<IEntity> Predicate { get; set; }
 
-		protected List<Func<IEntity, ReactiveProperty<bool>>> Predicates = new List<Func<IEntity, ReactiveProperty<bool>>> ();
+		protected List<Func<IEntity, ReactiveProperty<bool>>> _predicates = new List<Func<IEntity, ReactiveProperty<bool>>> ();
+		public List<Func<IEntity, ReactiveProperty<bool>>> Predicates
+		{
+			get { return _predicates; }
+			private set { _predicates = value; }
+		}
 
 		protected CompositeDisposable _disposer = new CompositeDisposable();
 		public CompositeDisposable Disposer
 		{
 			get { return _disposer; }
-			set { _disposer = value; }
+			private set { _disposer = value; }
 		}
 
-		public Group(){}
-
+		public Group() { }
 		public Group(Type[] components, List<Func<IEntity, ReactiveProperty<bool>>> predicates)
         {
 			Components = components;

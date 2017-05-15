@@ -14,11 +14,6 @@ namespace AlphaECS
 		ReactiveCollection<IEntity> Entities { get; set; }
 
 		IEnumerable<Type> Components { get; set; }
-		Predicate<IEntity> Predicate { get; }
-
-//		bool Match ();
-//		void Setup ();
-//		IEnumerator SetupAsync();
-//        Predicate<IEntity> TargettedEntities { get; }
+		List<Func<IEntity, ReactiveProperty<bool>>> Predicates { get; }
     }
 }

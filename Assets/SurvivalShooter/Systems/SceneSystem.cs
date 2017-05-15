@@ -8,45 +8,51 @@ using UnityEngine.SceneManagement;
 namespace AlphaECS.SurvivalShooter
 {
 	public class SceneSystem : SystemBehaviour
-{
-	public override void Setup ()
 	{
-		base.Setup ();
-
-		EventSystem.OnEvent<LoadSceneEvent> ().Subscribe (e =>
+		public override void Setup (IEventSystem eventSystem, IPoolManager poolManager, GroupFactory groupFactory)
 		{
-			UnloadSceneAsync("Level_01").ToObservable()
-				.SelectMany(x => LoadSceneAsync(e.SceneName))
-				.Subscribe(x => 
-				{
-//					Debug.Log("Loading Complete!");
-				});
-		}).AddTo (this);
+			base.Setup (eventSystem, poolManager, groupFactory);
 
-		EventSystem.OnEvent<UnloadSceneEvent> ().Subscribe (e =>
-		{
-			StartCoroutine(UnloadSceneAsync(e.SceneName));
-		}).AddTo (this);
-	}
+			EventSystem.OnEvent<LoadSceneEvent> ().Subscribe (e =>
+			{
+				LoadScene(e.SceneName);
+//				UnloadSceneAsync("Level_01").ToObservable()
+//					.SelectMany(x => LoadSceneAsync(e.SceneName))
+//					.Subscribe(x => 
+//					{
+//	//					Debug.Log("Loading Complete!");
+//					});
+			}).AddTo (this);
 
-	IEnumerator LoadSceneAsync(string sceneName)
-	{
-		var asyncOperation = SceneManager.LoadSceneAsync (sceneName, LoadSceneMode.Additive);
-		while (!asyncOperation.isDone)
+			EventSystem.OnEvent<UnloadSceneEvent> ().Subscribe (e =>
+			{
+				StartCoroutine(UnloadSceneAsync(e.SceneName));
+			}).AddTo (this);
+		}
+
+		void LoadScene(string sceneName)
 		{
+			SceneManager.LoadScene (sceneName);
+		}
+
+		IEnumerator LoadSceneAsync(string sceneName)
+		{
+			var asyncOperation = SceneManager.LoadSceneAsync (sceneName, LoadSceneMode.Additive);
+			while (!asyncOperation.isDone)
+			{
+				yield return null;
+			}
 			yield return null;
 		}
-		yield return null;
-	}
 
-	IEnumerator UnloadSceneAsync(string sceneName)
-	{
-		var isUnloaded = SceneManager.UnloadScene (sceneName);
-		while (!isUnloaded)
+		IEnumerator UnloadSceneAsync(string sceneName)
 		{
+			var isUnloaded = SceneManager.UnloadScene (sceneName);
+			while (!isUnloaded)
+			{
+				yield return null;
+			}
 			yield return null;
 		}
-		yield return null;
 	}
-}
 }

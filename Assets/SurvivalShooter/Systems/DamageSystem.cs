@@ -12,8 +12,10 @@ namespace AlphaECS.SurvivalShooter
 		[Inject]
 		public DeadEntities DeadEntities { get; set; }
 
-		public override void Setup ()
+		public override void Setup (IEventSystem eventSystem, IPoolManager poolManager, GroupFactory groupFactory)
 		{
+			base.Setup (eventSystem, poolManager, groupFactory);
+
 			DeadEntities.OnAdd ().Subscribe (entity =>
 			{
 				var entityBehaviour = entity.GetComponent<EntityBehaviour>();
