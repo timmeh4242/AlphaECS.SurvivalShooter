@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UniRx;
 
@@ -17,6 +17,6 @@ namespace AlphaECS
 		{ return group.Entities.ObserveAdd ().Select (x => x.Value).StartWith (group.Entities); }
 
 		public static IObservable<IEntity> OnRemove(this IGroup group)
-		{ return group.Entities.ObserveRemove ().Select (x => x.Value).StartWith (group.Entities); }
+		{ return group.Entities.ObserveRemove ().Select (x => x.Value); }
     }
 }
