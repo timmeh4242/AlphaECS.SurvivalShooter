@@ -8,7 +8,7 @@ using AlphaECS;
 
 namespace AlphaECS.SurvivalShooter
 {
-	public class SpawnSystem : SystemBehaviour 
+	public class SpawnSystem : SystemBehaviour
 	{
 		// TODO remove this in favor of a factory...
 		[Inject] DiContainer Container { get; set; }
@@ -29,11 +29,11 @@ namespace AlphaECS.SurvivalShooter
 //			        {
 //			            return;
 //			        }
-				
+
 //					Instantiate (enemy, spawnPoints[spawnPointIndex].position, spawnPoints[spawnPointIndex].rotation);
-		
-					var instance = PrefabFactory.Instantiate (spawner.Prefab);
-					instance.transform.SetParent(spawner.transform);
+
+					var instance = PrefabFactory.Instantiate (spawner.Prefab, spawner.transform);
+					// instance.transform.SetParent(spawner.transform, false);
 					instance.transform.position = spawner.transform.position;
 					instance.transform.rotation = spawner.transform.rotation;
 				}).AddTo(spawner);
