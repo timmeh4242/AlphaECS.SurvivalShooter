@@ -634,10 +634,10 @@ MonoBehaviour:
   - AlphaECS.SurvivalShooter.InputComponent
   - AlphaECS.SurvivalShooter.ShooterComponent
   CachedProperties:
-  - "{\n\t\"StartingHealth\":100\t, \n\t\"CurrentHealth\":0\t, \n\t\"IsDamaged\":false\t,
-    \n\t\"IsDead\":false}\n"
-  - "{\n\t\"Horizontal\":0\t, \n\t\"Vertical\":0}\n"
-  - "{\n\t\"Damage\":10\t, \n\t\"ShotsPerSecond\":10\t, \n\t\"Range\":100\t, \n\t\"IsShooting\":false}\n"
+  - "{\r\n\t\"StartingHealth\":100\t, \r\n\t\"CurrentHealth\":0\t, \r\n\t\"IsDamaged\":false}\r\n"
+  - "{\r\n\t\"Horizontal\":0\t, \r\n\t\"Vertical\":0}\r\n"
+  - "{\r\n\t\"Damage\":10\t, \r\n\t\"ShotsPerSecond\":10\t, \r\n\t\"Range\":100\t,
+    \r\n\t\"IsShooting\":false}\r\n"
 --- !u!1 &327611185
 GameObject:
   m_ObjectHideFlags: 0

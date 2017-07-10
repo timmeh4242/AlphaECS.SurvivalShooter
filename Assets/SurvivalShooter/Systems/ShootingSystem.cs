@@ -19,15 +19,16 @@ namespace AlphaECS.SurvivalShooter
 
 			ShootableMask = LayerMask.GetMask("Shootable");
 
-			var group = GroupFactory.Create(new Type[] { typeof(EntityBehaviour), typeof(ShooterComponent) });
+			var shooters = GroupFactory.Create(new Type[] { typeof(ViewComponent), typeof(ShooterComponent) });
 
-			group.OnAdd().Subscribe (entity =>
+			shooters.OnAdd().Subscribe (entity =>
 			{
-				var entityBehaviour = entity.GetComponent<EntityBehaviour> ();
+				var viewComponent = entity.GetComponent<ViewComponent> ();
+				var targetTransform = viewComponent.Transforms[0];
 				var shooter = entity.GetComponent<ShooterComponent> ();
 				shooter.IsShooting = new BoolReactiveProperty ();
 
-				var gunBarrel = entityBehaviour.transform.FindChild("GunBarrelEnd");
+				var gunBarrel = targetTransform.FindChild("GunBarrelEnd");
 				var shotParticles = gunBarrel.GetComponent<ParticleSystem> ();
 				var shotLine = gunBarrel.GetComponent <LineRenderer> ();
 				var shotAudio = gunBarrel.GetComponent<AudioSource> ();
@@ -78,7 +79,7 @@ namespace AlphaECS.SurvivalShooter
 							{
 								shotLine.enabled = false;
 								shotLight.enabled = false;	
-							}).AddTo(this.Disposer).AddTo(entityBehaviour.Disposer);
+							}).AddTo(this.Disposer).AddTo(viewComponent.Disposer);
 						}).AddTo(this.Disposer).AddTo(shooter.Disposer);
 					}
 					else
@@ -91,7 +92,7 @@ namespace AlphaECS.SurvivalShooter
 
 			Observable.EveryUpdate().Subscribe(_ =>
 			{
-				foreach(var entity in group.Entities)
+				foreach(var entity in shooters.Entities)
 				{
 					var shooter = entity.GetComponent<ShooterComponent> ();
 					if (Input.GetButton ("Fire1"))

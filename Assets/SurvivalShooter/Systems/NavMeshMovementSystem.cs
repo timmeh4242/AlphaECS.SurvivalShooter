@@ -18,10 +18,10 @@ namespace AlphaECS.SurvivalShooter
 		{
 			base.Setup (eventSystem, poolManager, groupFactory);
 
-			var group = GroupFactory.Create (new Type[] { typeof(HealthComponent), typeof(EntityBehaviour), typeof(UnityEngine.AI.NavMeshAgent) });
+			var group = GroupFactory.Create (new Type[] { typeof(HealthComponent), typeof(ViewComponent), typeof(UnityEngine.AI.NavMeshAgent) });
 			group.OnAdd().Subscribe (entity =>
 			{
-				var entityBehaviour = entity.GetComponent<EntityBehaviour>();
+				var viewComponent = entity.GetComponent<ViewComponent>();
 				var navMeshAgent = entity.GetComponent<NavMeshAgent> ();
 				var health = entity.GetComponent<HealthComponent> ();
 
@@ -31,15 +31,15 @@ namespace AlphaECS.SurvivalShooter
 					{
 						var go = GameObject.FindGameObjectWithTag ("Player");
 						if (go == null)
-							return;
+						{ return; }
 
 						Target = go.transform;
 						if (Target == null)
-							return;
+						{ return; }
 
 						TargetHealth = Target.GetComponent<EntityBehaviour> ().Entity.GetComponent<HealthComponent> ();
 						if (TargetHealth == null)
-							return;
+						{ return; }
 					}
 
 					if (health.CurrentHealth.Value > 0 && TargetHealth.CurrentHealth.Value > 0)

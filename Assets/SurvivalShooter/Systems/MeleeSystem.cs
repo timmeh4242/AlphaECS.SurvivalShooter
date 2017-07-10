@@ -13,13 +13,14 @@ namespace AlphaECS.SurvivalShooter
 		{
 			base.Setup (eventSystem, poolManager, groupFactory);
 
-			var group = GroupFactory.Create (new Type[]{ typeof(EntityBehaviour), typeof(MeleeComponent) });
+			var group = GroupFactory.Create (new Type[]{ typeof(ViewComponent), typeof(MeleeComponent) });
 			group.OnAdd().Subscribe (entity =>
 			{
-				var entityBehaviour = entity.GetComponent<EntityBehaviour> ();
+				var viewComponent = entity.GetComponent<ViewComponent> ();
+				var targetTransform = viewComponent.Transforms[0];
 				var attacker = entity.GetComponent<MeleeComponent> ();
 				attacker.TargetInRange = new BoolReactiveProperty ();
-				var collider = entityBehaviour.GetComponent<Collider> ();
+				var collider = targetTransform.GetComponent<Collider> ();
 
 				collider.OnTriggerEnterAsObservable ().Subscribe (_ =>
 				{
@@ -43,10 +44,10 @@ namespace AlphaECS.SurvivalShooter
 					if (targetView != null)
 					{
 						if(targetView.Entity.HasComponent<InputComponent>() == false)
-							return;
+						{ return; }
 
 						if(targetView.Entity.HasComponent<HealthComponent>() == false)
-							return;
+						{ return; }
 
 						attacker.Target = null;
 						attacker.TargetInRange.Value = false;
@@ -62,16 +63,16 @@ namespace AlphaECS.SurvivalShooter
 						var interval = TimeSpan.FromSeconds(1f / attacker.AttacksPerSecond);
 						attacker.Attack = Observable.Timer(delay, interval).Subscribe(_ =>
 						{
-							var attackPosition = attacker.Target.GetComponent<EntityBehaviour>().transform.position;
+							var attackPosition = attacker.Target.GetComponent<ViewComponent>().Transforms[0].position;
 							EventSystem.Publish (new DamageEvent (entity, attacker.Target, attacker.Damage, attackPosition));
-						}).AddTo(attacker.Target.GetComponent<EntityBehaviour>().Disposer);
+						}).AddTo(attacker.Target.GetComponent<ViewComponent>().Disposer);
 					}
 					else
 					{
 						if(attacker.Attack != null)
-							attacker.Attack.Dispose();
+						{ attacker.Attack.Dispose(); }
 					}
-				}).AddTo (entityBehaviour.Disposer);
+				}).AddTo (viewComponent.Disposer);
 			}).AddTo (this);
 		}
 			

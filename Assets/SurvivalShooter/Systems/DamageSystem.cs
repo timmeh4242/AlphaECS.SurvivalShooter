@@ -18,15 +18,15 @@ namespace AlphaECS.SurvivalShooter
 
 			DeadEntities.OnAdd ().Subscribe (entity =>
 			{
-				var entityBehaviour = entity.GetComponent<EntityBehaviour>();
+				var viewComponent = entity.GetComponent<ViewComponent>();
 				Observable.Timer (TimeSpan.FromSeconds (2)).Subscribe (_2 =>
 				{
 					PoolManager.GetPool ().RemoveEntity (entity);
-					GameObject.Destroy (entityBehaviour.gameObject);
-				}).AddTo(entityBehaviour.Disposer);
+					GameObject.Destroy (viewComponent.Transforms[0].gameObject);
+				}).AddTo(viewComponent.Disposer);
 			}).AddTo (this.Disposer);
 
-			var group = GroupFactory.AddTypes (new Type[] { typeof(EntityBehaviour), typeof(HealthComponent) }).Create ();
+			var group = GroupFactory.AddTypes (new Type[] { typeof(ViewComponent), typeof(HealthComponent) }).Create ();
 			group.AddTo (this.Disposer);
 				
 			EventSystem.OnEvent<DamageEvent> ().Subscribe (_ =>

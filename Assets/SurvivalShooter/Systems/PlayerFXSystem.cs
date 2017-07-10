@@ -25,14 +25,15 @@ namespace AlphaECS.SurvivalShooter
 		{
 			base.Setup (eventSystem, poolManager, groupFactory);
 
-			var group = GroupFactory.Create(new Type[] { typeof(EntityBehaviour), typeof(HealthComponent), typeof(InputComponent), typeof(Animator) });
+			var group = GroupFactory.Create(new Type[] { typeof(ViewComponent), typeof(HealthComponent), typeof(InputComponent), typeof(Animator) });
 			group.OnAdd().Subscribe (entity =>
 			{
-				var entityBehaviour = entity.GetComponent<EntityBehaviour>();
+				var viewComponent = entity.GetComponent<ViewComponent>();
+				var targetTransform = viewComponent.Transforms[0];
 				var health = entity.GetComponent<HealthComponent> ();
 				var previousValue = health.CurrentHealth.Value;
 
-				var audioSources = entityBehaviour.GetComponentsInChildren<AudioSource>();
+				var audioSources = targetTransform.GetComponentsInChildren<AudioSource>();
 				var hurtSound = audioSources.Where(audioSource => audioSource.clip.name.Contains("Hurt")).FirstOrDefault();
 
 				health.CurrentHealth.DistinctUntilChanged ().Subscribe (value =>
@@ -59,10 +60,10 @@ namespace AlphaECS.SurvivalShooter
 				if(entity.HasComponent<InputComponent>() == false)
 					return;
 				
-				var entityBehaviour = entity.GetComponent<EntityBehaviour>();
+				var viewComponent = entity.GetComponent<ViewComponent>();
 				var animator = entity.GetComponent<Animator>();
 
-				var audioSources = entityBehaviour.GetComponentsInChildren<AudioSource>();
+				var audioSources = viewComponent.Transforms[0].GetComponentsInChildren<AudioSource>();
 				var deathSound = audioSources.Where(audioSource => audioSource.clip.name.Contains("Death")).FirstOrDefault();
 				animator.SetTrigger ("Die");
 				deathSound.Play();

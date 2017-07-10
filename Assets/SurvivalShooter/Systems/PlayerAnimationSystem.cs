@@ -18,7 +18,7 @@ namespace AlphaECS.SurvivalShooter
 		{
 			base.Setup (eventSystem, poolManager, groupFactory);
 
-			var group = GroupFactory.Create (new Type[] { typeof(InputComponent), typeof(EntityBehaviour), typeof(Animator) });
+			var group = GroupFactory.Create (new Type[] { typeof(InputComponent), typeof(ViewComponent), typeof(Animator) });
 
 			group.OnAdd().Subscribe (entity =>
 			{

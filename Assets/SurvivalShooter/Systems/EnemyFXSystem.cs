@@ -20,22 +20,23 @@ namespace AlphaECS.SurvivalShooter
 			EventSystem.OnEvent<DamageEvent> ().Where(_ => _.Target.HasComponent<InputComponent>() == false).Subscribe (_ =>
 			{
 				if(_.Target.GetComponent<HealthComponent>().CurrentHealth.Value <= 0)
-					return;
+				{ return; }
 
-				var entityBehaviour = _.Target.GetComponent<EntityBehaviour>();
-				var soundFX = entityBehaviour.GetComponentsInChildren<AudioSource>();
+				var viewComponent = _.Target.GetComponent<ViewComponent>();
+				var soundFX = viewComponent.Transforms[0].GetComponentsInChildren<AudioSource>();
 				var hurtFX = soundFX.Where(_2 => _2.clip.name.Contains("Hurt")).FirstOrDefault();
 				hurtFX.Play();
 
-				var particles = entityBehaviour.GetComponentInChildren <ParticleSystem> ();
+				var particles = viewComponent.Transforms[0].GetComponentInChildren <ParticleSystem> ();
 				particles.transform.position = _.HitPoint;
 				particles.Play();
 			}).AddTo (this);
 
-			var group = GroupFactory.Create (new Type[]{ typeof(EntityBehaviour), typeof(HealthComponent), typeof(NavMeshAgent), typeof(CapsuleCollider), typeof(Animator), typeof(Rigidbody) });
+			var group = GroupFactory.Create (new Type[]{ typeof(ViewComponent), typeof(HealthComponent), typeof(NavMeshAgent), typeof(CapsuleCollider), typeof(Animator), typeof(Rigidbody) });
 			group.OnAdd().Subscribe (entity =>
 			{
-				var entityBehaviour = entity.GetComponent<EntityBehaviour> ();
+				var viewComponent = entity.GetComponent<ViewComponent> ();
+				var targetTransform = viewComponent.Transforms[0];
 				var healthComponent = entity.GetComponent<HealthComponent> ();
 				var capsuleCollider = entity.GetComponent<CapsuleCollider>();
 				var animator = entity.GetComponent<Animator>();
@@ -45,7 +46,7 @@ namespace AlphaECS.SurvivalShooter
 				{
 					capsuleCollider.isTrigger = true;
 					animator.SetTrigger ("Die");
-					var soundFX = entityBehaviour.GetComponentsInChildren<AudioSource> ();
+					var soundFX = targetTransform.GetComponentsInChildren<AudioSource> ();
 					var deathFX = soundFX.Where(_2 => _2.clip.name.Contains("Death")).FirstOrDefault();
 					deathFX.Play();
 
@@ -56,15 +57,15 @@ namespace AlphaECS.SurvivalShooter
 					{
 						var sink = Observable.EveryUpdate ().Subscribe (_3 =>
 						{
-							entityBehaviour.transform.Translate (-Vector3.up * DeathSinkSpeed * Time.deltaTime);
-						}).AddTo(entityBehaviour.Disposer);
+							targetTransform.Translate (-Vector3.up * DeathSinkSpeed * Time.deltaTime);
+						}).AddTo(viewComponent.Disposer);
 
 						Observable.Timer (TimeSpan.FromSeconds (2)).Subscribe (_3 =>
 						{
 							sink.Dispose ();
 						});
 					});
-				}).AddTo (entityBehaviour.Disposer);
+				}).AddTo (viewComponent.Disposer);
 			}).AddTo (this);
 		}
 	}

@@ -102,6 +102,17 @@ namespace AlphaECS.Unity
 				Entity.AddComponent(component);
 			}
 
+			if (!Entity.HasComponent<ViewComponent> ()) {
+				var viewComponent = new ViewComponent ();
+				viewComponent.Transforms.Add (this.transform);
+				Entity.AddComponent (viewComponent);
+			}
+			else
+			{
+				var viewComponent = Entity.GetComponent<ViewComponent> ();
+				viewComponent.Transforms.Add (this.transform);
+			}
+
 			var monoBehaviours = GetComponents<Component>();
 			foreach (var mb in monoBehaviours)
 			{
@@ -111,17 +122,8 @@ namespace AlphaECS.Unity
 				}
 				else
 				{
-					if (mb.GetType() != typeof(Transform))
-					{
-						if (mb.GetType() == typeof(EntityBehaviour))
-						{
-							if (!Entity.HasComponent<EntityBehaviour>()) Entity.AddComponent(mb);
-						}
-						else
-						{
-							Entity.AddComponent(mb);
-						}
-					}
+					if (mb.GetType() != typeof(Transform) && mb.GetType() != typeof(EntityBehaviour))
+					{ Entity.AddComponent(mb); }
 				}
 			}
 		}

@@ -19,7 +19,7 @@ namespace AlphaECS.SurvivalShooter
 
 			FloorMask = LayerMask.GetMask("Floor");
 
-			var group = GroupFactory.Create(new Type[] { typeof(EntityBehaviour), typeof(InputComponent), typeof(Rigidbody) });
+			var group = GroupFactory.Create(new Type[] { typeof(ViewComponent), typeof(InputComponent), typeof(Rigidbody) });
 
 			Observable.EveryFixedUpdate ().Subscribe (_ =>
 			{
