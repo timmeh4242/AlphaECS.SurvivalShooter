@@ -92,7 +92,7 @@ namespace AlphaECS.Unity
 			for (var i = 0; i < CachedComponents.Count(); i++)
 			{
 				var typeName = CachedComponents[i];
-				var type = GetTypeWithAssembly(typeName);
+				var type = TypeUtilities.GetTypeWithAssembly(typeName);
 				if (type == null) { throw new Exception("Cannot resolve type for [" + typeName + "]"); }
 
 				var component = (object)Activator.CreateInstance(type);
@@ -152,19 +152,6 @@ namespace AlphaECS.Unity
 			poolToUse.RemoveEntity(Entity);
 
 			base.OnDestroy();
-		}
-
-		private Type GetTypeWithAssembly(string typeName)
-		{
-			var type = Type.GetType(typeName);
-			if (type != null) return type;
-			foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
-			{
-				type = a.GetType(typeName);
-				if (type != null)
-					return type;
-			}
-			return null;
 		}
 	}
 }
