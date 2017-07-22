@@ -5,37 +5,47 @@ using System;
 
 namespace AlphaECS
 {
-	public class PrefabFactory
-	{
-		[Inject]
-		protected DiContainer Container = null;
+    public class PrefabFactory
+    {
+        [Inject]
+        protected DiContainer Container = null;
 
-		public GameObject Instantiate(GameObject prefab)
-		{
-			var gameObject = Container.InstantiatePrefab(prefab);
-			return gameObject;
-		}
+        public GameObject Instantiate(GameObject prefab)
+        {
+            var gameObject = Container.InstantiatePrefab(prefab);
+            return gameObject;
+        }
 
-		public GameObject Instantiate(GameObject prefab, Transform parent)
-		{
-			var gameObject = Container.InstantiatePrefab(prefab, parent);
-			return gameObject;
-		}
+        public GameObject Instantiate(GameObject prefab, Transform parent)
+        {
+            var gameObject = Container.InstantiatePrefab(prefab, parent);
+            return gameObject;
+        }
 
-		public GameObject Instantiate(IEntity entity, GameObject prefab, Transform parent)
-		{
-			var gameObject = GameObject.Instantiate (prefab, parent);
+        public GameObject Instantiate(IEntity entity, GameObject prefab, Transform parent)
+        {
+            var gameObject = GameObject.Instantiate(prefab, parent);
 
-			if(!gameObject.GetComponent<EntityBehaviour>())
-			{ throw new Exception("GameObject has no EntityBehaviour monobehaviour to link to!"); }
+            if (!gameObject.GetComponent<EntityBehaviour>())
+            {
+                throw new Exception("GameObject has no EntityBehaviour monobehaviour to link to!");
+            }
 
-			var entityBehaviour = gameObject.GetComponent<EntityBehaviour> ();
-			entityBehaviour.Entity = entity;
-			entityBehaviour.RemoveEntityOnDestroy = false;
+            var entityBehaviour = gameObject.GetComponent<EntityBehaviour>();
+            entityBehaviour.Entity = entity;
+            entityBehaviour.RemoveEntityOnDestroy = false;
 
-			Container.InjectGameObject (gameObject);
+            Container.InjectGameObject(gameObject);
 
-			return gameObject;
-		}
-	}
+            return gameObject;
+        }
+
+        public Transform DefaultParent
+        {
+            get
+            {
+                return Container.DefaultParent;
+            }
+        }
+    }
 }

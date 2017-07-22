@@ -8,7 +8,7 @@ namespace AlphaECS.Unity
 {
     public abstract class ComponentBehaviour : MonoBehaviour, IDisposable
     {
-		protected IEventSystem EventSystem { get; set; }
+        protected IEventSystem EventSystem { get; set; }
 
         private CompositeDisposable _disposer = new CompositeDisposable();
         public CompositeDisposable Disposer

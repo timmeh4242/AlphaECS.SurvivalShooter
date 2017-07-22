@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UniRx;
@@ -40,7 +40,8 @@ namespace AlphaECS
 			private set { _disposer = value; }
 		}
 
-		public Group() { }
+        public Group(){}
+
 		public Group(Type[] components, List<Func<IEntity, ReactiveProperty<bool>>> predicates)
         {
 			Components = components;
@@ -129,7 +130,28 @@ namespace AlphaECS
 			Disposer.Dispose ();
 		}
 
-		protected virtual void PreAdd(IEntity entity) {}
-		protected virtual void PreRemove(IEntity entity) {}
+		Subject<IEntity> onPreAdd;
+
+		protected virtual void PreAdd(IEntity entity)
+		{
+			if (onPreAdd != null) onPreAdd.OnNext (entity);
+		}
+
+		public IObservable<IEntity> OnPreAdd()
+		{
+			return onPreAdd ?? (onPreAdd = new Subject<IEntity> ());
+		}
+
+		Subject<IEntity> onPreRemove;
+
+		protected virtual void PreRemove(IEntity entity)
+		{
+			if (onPreRemove != null) onPreRemove.OnNext (entity);
+		}
+
+		public IObservable<IEntity> OnPreRemove()
+		{
+			return onPreRemove ?? (onPreRemove = new Subject<IEntity> ());
+		}
     }
 }

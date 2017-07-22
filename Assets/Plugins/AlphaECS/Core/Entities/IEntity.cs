@@ -16,6 +16,7 @@ namespace AlphaECS
         void RemoveComponent<T>() where T : class;
         void RemoveAllComponents();
         T GetComponent<T>() where T : class;
+		object GetComponent (Type type);
 
         bool HasComponent<T>() where T : class;
         bool HasComponents(params Type[] component);

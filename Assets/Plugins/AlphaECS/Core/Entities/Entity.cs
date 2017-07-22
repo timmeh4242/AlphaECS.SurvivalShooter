@@ -24,7 +24,7 @@ namespace AlphaECS
         }
 
 		public object AddComponent(object component)
-		{
+        {
 			//TODO not sure this should be silently returning this way... 
 			//... ideally we should be returning the component and able to check for null elsewhere
 			if(_components.ContainsKey(component.GetType()))
@@ -33,10 +33,10 @@ namespace AlphaECS
 				return _components [component.GetType ()];
 			}
 
-			_components.Add(component.GetType(), component);
-			EventSystem.Publish(new ComponentAddedEvent(this, component));
+            _components.Add(component.GetType(), component);
+            EventSystem.Publish(new ComponentAddedEvent(this, component));
 			return component;
-		}
+        }
 
 		public T AddComponent<T>() where T : class, new()
 		{ return (T)AddComponent(new T()); }
@@ -79,6 +79,18 @@ namespace AlphaECS
 
 		public T GetComponent<T>() where T : class
         { return _components[typeof(T)] as T; }
+
+		public object GetComponent(Type type)
+		{
+			if (_components.ContainsKey (type))
+			{
+				return _components [type];
+			}
+			else
+			{
+				return null;
+			}
+		}
 
 		public void Dispose()
 		{ RemoveAllComponents(); }

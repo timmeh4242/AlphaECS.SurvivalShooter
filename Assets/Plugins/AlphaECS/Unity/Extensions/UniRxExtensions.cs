@@ -1,5 +1,6 @@
 ﻿using System; // require keep for Windows Universal App
 using UnityEngine;
+using System.Linq;
 
 #if !(UNITY_4_0 || UNITY_4_1 || UNITY_4_2 || UNITY_4_3 || UNITY_4_4 || UNITY_4_5)
 using UnityEngine.EventSystems;
@@ -218,6 +219,20 @@ namespace UniRx.Triggers
 		{
 			if (component == null || component.gameObject == null) return Observable.Empty<PointerEventData>();
 			return GetOrAddComponent<ObservableScrollTrigger>(component.gameObject).OnScrollAsObservable();
+		}
+
+
+
+		public static IObservable<ObservableStateMachineTrigger.OnStateInfo> OnStateEntered(this Animator animator, string fullPath) 
+		{
+
+			var observableStateMachineTriggers = animator.GetBehaviours<ObservableStateMachineTrigger>();
+			int fullPathHash = Animator.StringToHash(fullPath);
+
+			var observableTriggers = observableStateMachineTriggers.Select(trigger => trigger.OnStateEnterAsObservable()
+				.Where(onStateInfo => onStateInfo.StateInfo.fullPathHash == fullPathHash));
+
+			return Observable.Merge(observableTriggers);
 		}
 	}
 }
