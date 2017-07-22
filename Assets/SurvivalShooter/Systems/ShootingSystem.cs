@@ -28,7 +28,7 @@ namespace AlphaECS.SurvivalShooter
 				var shooter = entity.GetComponent<ShooterComponent> ();
 				shooter.IsShooting = new BoolReactiveProperty ();
 
-				var gunBarrel = targetTransform.FindChild("GunBarrelEnd");
+				var gunBarrel = targetTransform.Find("GunBarrelEnd");
 				var shotParticles = gunBarrel.GetComponent<ParticleSystem> ();
 				var shotLine = gunBarrel.GetComponent <LineRenderer> ();
 				var shotAudio = gunBarrel.GetComponent<AudioSource> ();
