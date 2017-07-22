@@ -7,7 +7,7 @@ namespace AlphaECS
 { 
 	public static class ComponentExtensions
 	{
-		public static JSONClass SerializeComponent(this object component)
+		public static JSONClass Serialize(this object component)
 		{
 			var node = new JSONClass();
 			foreach (var property in component.GetType().GetProperties())
@@ -126,7 +126,7 @@ namespace AlphaECS
 			return node;
 		}
 
-		public static void DeserializeComponent(this object component, JSONNode node)
+		public static void Deserialize(this object component, JSONNode node)
 		{
 			foreach (var property in component.GetType().GetProperties())
 			{

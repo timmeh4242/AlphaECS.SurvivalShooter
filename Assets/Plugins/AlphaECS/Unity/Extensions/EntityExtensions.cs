@@ -10,7 +10,7 @@ namespace AlphaECS
 {
 	public static class EntityExtensions
 	{
-		public static string SerializeEntity(this IEntity entity)
+        public static string Serialize(this IEntity entity)
 		{
 			var json = "{ \"Id\": " + entity.Id + ", \n";
 
@@ -32,7 +32,7 @@ namespace AlphaECS
 			return json;
 		}
 
-		public static IEntity DeserializeEntity(this IEntity entity, string json)
+        public static IEntity Deserialize(this IEntity entity, string json)
 		{
 			var node = JSON.Parse (json);
 

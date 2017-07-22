@@ -33,7 +33,7 @@ namespace AlphaECS.Unity.Helpers.UIAspects
             if (string.IsNullOrEmpty(editorStateData)) { return component; }
 
             var componentJson = JSON.Parse(editorStateData);
-            component.DeserializeComponent(componentJson);
+            component.Deserialize(componentJson);
             return component;
         }
 

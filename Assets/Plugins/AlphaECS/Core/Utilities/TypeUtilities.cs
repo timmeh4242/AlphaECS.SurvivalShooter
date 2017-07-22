@@ -4,9 +4,9 @@ using UnityEngine;
 using System;
 using System.Linq;
 
-public static class TypeExtensions
+public static class TypeUtilities
 {
-	public static Type GetTypeWithAssembly(this string typeName)
+	public static Type GetTypeWithAssembly(string typeName)
 	{
 		var type = Type.GetType(typeName);
 		if (type != null) return type;
@@ -19,7 +19,7 @@ public static class TypeExtensions
 		return null;
 	}
 
-	public static Type TryGetConvertedType(this string typeName)
+	public static Type TryGetConvertedType(string typeName)
 	{
 		var type = Type.GetType(typeName);
 		var namePortions = typeName.Split(',')[0].Split('.');
@@ -32,7 +32,7 @@ public static class TypeExtensions
 			{
 				if (typeName == assemblyTypes[j].Name)
 				{
-					type = assemblyTypes [j];
+					type = assemblyTypes[j];
 					if (type != null)
 					{ return type; }
 				}

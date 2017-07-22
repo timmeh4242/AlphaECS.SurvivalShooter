@@ -97,7 +97,7 @@ namespace AlphaECS.Unity
 
 				var component = (object)Activator.CreateInstance(type);
 				var componentProperties = JSON.Parse(CachedProperties[i]);
-				component.DeserializeComponent(componentProperties);
+				component.Deserialize(componentProperties);
 
 				Entity.AddComponent(component);
 			}

@@ -103,7 +103,7 @@ namespace AlphaECS
 					var component = (object)Activator.CreateInstance(availableTypes[index]);
 					var componentName = component.ToString();
 					_view.CachedComponents.Add(componentName);
-					var json = component.SerializeComponent();
+					var json = component.Serialize();
 					_view.CachedProperties.Add(json.ToString());
 				}
 			});
@@ -230,7 +230,7 @@ namespace AlphaECS
 			{
 				component = (object)Activator.CreateInstance(type);
 				var node = JSON.Parse(_view.CachedProperties[index]);
-				component.DeserializeComponent(node);
+				component.Deserialize(node);
 			}
 
 //			var members = component.GetType().GetMembers();
@@ -346,7 +346,7 @@ namespace AlphaECS
 				if (!Application.isPlaying)
 				{
 					_view.CachedComponents[index] = component.GetType().ToString();
-					var json = component.SerializeComponent();
+					var json = component.Serialize();
 					_view.CachedProperties[index] = json.ToString();
 				}
 				EditorGUILayout.EndHorizontal();
