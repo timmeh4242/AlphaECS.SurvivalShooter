@@ -6,7 +6,7 @@ using System;
 using UniRx;
 using System.Linq;
 using Zenject;
-using AlphaECS.Json;
+using SimpleJSON;
 
 namespace AlphaECS.Unity
 {

@@ -3,7 +3,7 @@
 //using EcsRx.Components;
 //using EcsRx.Json;
 using AlphaECS.Unity.Editor;
-using AlphaECS.Json;
+using SimpleJSON;
 using UnityEditor;
 using UnityEngine;
 

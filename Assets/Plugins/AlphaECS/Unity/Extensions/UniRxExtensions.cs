@@ -223,7 +223,7 @@ namespace UniRx.Triggers
 
 
 
-		public static IObservable<ObservableStateMachineTrigger.OnStateInfo> OnStateEntered(this Animator animator, string fullPath) 
+		public static IObservable<ObservableStateMachineTrigger.OnStateInfo> OnStateEnter(this Animator animator, string fullPath) 
 		{
 
 			var observableStateMachineTriggers = animator.GetBehaviours<ObservableStateMachineTrigger>();
@@ -234,5 +234,70 @@ namespace UniRx.Triggers
 
 			return Observable.Merge(observableTriggers);
 		}
+
+        public static IObservable<ObservableStateMachineTrigger.OnStateInfo> OnStateUpdate(this Animator animator, params string[] fullPaths) 
+        {
+			var fullPathHashes = fullPaths.Select(s => Animator.StringToHash(s)).ToArray();
+			return animator.OnStateUpdate (fullPathHashes);
+        }
+
+		public static IObservable<ObservableStateMachineTrigger.OnStateInfo> OnStateUpdate(this Animator animator, params int[] fullPathHashes) 
+		{
+			var observableStateMachineTriggers = animator.GetBehaviours<ObservableStateMachineTrigger>();
+
+			var observableTriggers = observableStateMachineTriggers.Select(trigger => trigger.OnStateUpdateAsObservable()
+				.Where(onStateInfo => fullPathHashes.Contains(onStateInfo.StateInfo.fullPathHash)));
+
+			return Observable.Merge(observableTriggers);
+		}
+
+        public static IObservable<ObservableStateMachineTrigger.OnStateInfo> OnStateNormalizedTime(this Animator animator, string fullPath, float normalizedTime) 
+        {
+
+            var observableStateMachineTriggers = animator.GetBehaviours<ObservableStateMachineTrigger>();
+            int fullPathHash = Animator.StringToHash(fullPath);
+
+            var emit = false;
+
+            var observableTriggers = observableStateMachineTriggers.Select(trigger => trigger.OnStateUpdateAsObservable()
+                .Where(onStateInfo => 
+                {
+                    if (onStateInfo.StateInfo.fullPathHash == fullPathHash)
+                    {
+                        if (emit)
+                        {
+                            if (onStateInfo.StateInfo.normalizedTime >= normalizedTime)
+                            {
+                                emit = false;
+                                return true;
+                            }
+                        }
+                        else
+                        {
+                            if (onStateInfo.StateInfo.normalizedTime < normalizedTime)
+                            {
+                                emit = true;
+                            }
+                        }
+
+                    }
+
+                    return false;
+                }));
+
+            return Observable.Merge(observableTriggers);
+        }
+
+        public static IObservable<ObservableStateMachineTrigger.OnStateInfo> OnStateExit(this Animator animator, string fullPath) 
+        {
+
+            var observableStateMachineTriggers = animator.GetBehaviours<ObservableStateMachineTrigger>();
+            int fullPathHash = Animator.StringToHash(fullPath);
+
+            var observableTriggers = observableStateMachineTriggers.Select(trigger => trigger.OnStateExitAsObservable()
+                .Where(onStateInfo => onStateInfo.StateInfo.fullPathHash == fullPathHash));
+
+            return Observable.Merge(observableTriggers);
+        }
 	}
 }

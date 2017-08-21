@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AlphaECS;
-using AlphaECS.Json;
+using SimpleJSON;
 using AlphaECS.Unity;
 using UniRx;
 using UnityEditor;
@@ -71,6 +71,13 @@ namespace AlphaECS
 				}
 				else
 				{
+					this.UseVerticalBoxLayout(() =>
+					{
+//						var id = _view.Entity.Id.ToString();
+//						this.WithLabelField("Entity Id: ", id);
+						_view.CachedId = this.WithTextField("Id:", _view.CachedId);
+					});
+
 					_view.PoolName = this.WithTextField("Pool: ", _view.PoolName);
 				}
 
@@ -333,7 +340,7 @@ namespace AlphaECS
 				// }
 				else
 				{
-//					Debug.LogWarning("This type is not supported: " + _type.Name + " - In component: " + component.GetType().Name);
+//					Debug.LogWarning("This property type is not supported: " + _type.Name + " - In component: " + component.GetType().Name);
 					Debug.LogWarning("This property type is not supported!");
 					isTypeSupported = false;
 				}

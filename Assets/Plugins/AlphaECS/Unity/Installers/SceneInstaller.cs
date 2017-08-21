@@ -15,4 +15,15 @@ public class SceneInstaller : MonoInstaller
 			Container.Bind(system.GetType()).FromInstance (system).AsSingle ();
 		}
     }
+
+	public override void Start ()
+	{
+		base.Start ();
+
+		var entityBehaviours = GetComponentsInChildren<EntityBehaviour> (true);
+		foreach (var eb in entityBehaviours)
+		{
+			eb.gameObject.ForceEnable ();
+		}
+	}
 }

@@ -24,6 +24,12 @@ namespace AlphaECS.Unity
             Dispose();
 
             if (IsQuitting) return;
+
+			if (EventSystem == null)
+			{
+				Debug.LogWarning("A COMPONENT ON " + this.gameObject.name + " WAS NOT INJECTED PROPERLY!");
+				return;
+			}
             EventSystem.Publish(new ComponentDestroyed() { Component = this });
         }
 

@@ -21,20 +21,25 @@ namespace AlphaECS
             EventSystem = eventSystem;
         }
 
-        public IEntity CreateEntity(IBlueprint blueprint = null)
-        {
-            var newId = IdentityGenerator.GenerateId();
-            var entity = new Entity(newId, EventSystem);
+		public IEntity CreateEntity(IBlueprint blueprint = null)
+		{
+			return CreateEntity(Guid.NewGuid().ToString(), blueprint);
+		}
 
-            _entities.Add(entity);
+		public IEntity CreateEntity(string id = null, IBlueprint blueprint = null)
+		{
+			id = !string.IsNullOrEmpty(id) ? id : Guid.NewGuid ().ToString ();
+			var entity = new Entity(id, EventSystem);
 
-            EventSystem.Publish(new EntityAddedEvent(entity, this));
+			_entities.Add(entity);
 
-            if (blueprint != null)
-            { blueprint.Apply(entity); }
+			EventSystem.Publish(new EntityAddedEvent(entity, this));
 
-            return entity;
-        }
+			if (blueprint != null)
+			{ blueprint.Apply(entity); }
+
+			return entity;
+		}
 
         public void RemoveEntity(IEntity entity)
         {

@@ -13,12 +13,14 @@ namespace AlphaECS
         public GameObject Instantiate(GameObject prefab)
         {
             var gameObject = Container.InstantiatePrefab(prefab);
+			gameObject.ForceEnable ();
             return gameObject;
         }
 
         public GameObject Instantiate(GameObject prefab, Transform parent)
         {
             var gameObject = Container.InstantiatePrefab(prefab, parent);
+			gameObject.ForceEnable ();
             return gameObject;
         }
 
@@ -34,6 +36,8 @@ namespace AlphaECS
             var entityBehaviour = gameObject.GetComponent<EntityBehaviour>();
             entityBehaviour.Entity = entity;
             entityBehaviour.RemoveEntityOnDestroy = false;
+
+			gameObject.ForceEnable ();
 
             Container.InjectGameObject(gameObject);
 

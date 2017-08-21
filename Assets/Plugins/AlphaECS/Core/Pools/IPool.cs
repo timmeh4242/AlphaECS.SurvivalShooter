@@ -9,7 +9,7 @@ namespace AlphaECS
         IEnumerable<IEntity> Entities { get; }
         IIdentityGenerator IdentityGenerator { get; }
 
-        IEntity CreateEntity(IBlueprint blueprint = null);
+        IEntity CreateEntity(string id = null, IBlueprint blueprint = null);
         void RemoveEntity(IEntity entity);
     }
 }

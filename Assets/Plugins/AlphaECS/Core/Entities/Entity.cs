@@ -13,10 +13,10 @@ namespace AlphaECS
 
         public IEventSystem EventSystem { get; private set; }
 
-        public int Id { get; private set; }
+		public string Id { get; private set; }
 		public IEnumerable<object> Components { get { return _components.Values; } }
 
-        public Entity(int id, IEventSystem eventSystem)
+        public Entity(string id, IEventSystem eventSystem)
         {
             Id = id;
             EventSystem = eventSystem;
@@ -68,6 +68,11 @@ namespace AlphaECS
 
 		public bool HasComponent<T>() where T : class
         { return _components.ContainsKey(typeof(T)); }
+
+		public bool HasComponent(Type componentType)
+		{
+			return _components.ContainsKey(componentType);
+		}
 
         public bool HasComponents(params Type[] componentTypes)
         {

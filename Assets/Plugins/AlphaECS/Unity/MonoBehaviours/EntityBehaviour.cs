@@ -1,4 +1,4 @@
-﻿using AlphaECS.Json;
+﻿using SimpleJSON;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,7 +46,7 @@ namespace AlphaECS.Unity
 				{
 					return Proxy.Entity;
 				}
-				return entity == null ? (entity = Pool.CreateEntity()) : entity;
+				return entity == null ? (entity = Pool.CreateEntity(CachedId)) : entity;
 			}
 			set
 			{
@@ -62,6 +62,9 @@ namespace AlphaECS.Unity
 
 		[SerializeField]
 		public EntityBehaviour Proxy;
+
+		[SerializeField] [HideInInspector]
+		public string CachedId;
 
 		[SerializeField] [HideInInspector]
 		public string PoolName;
@@ -102,7 +105,8 @@ namespace AlphaECS.Unity
 				Entity.AddComponent(component);
 			}
 
-			if (!Entity.HasComponent<ViewComponent> ()) {
+			if (!Entity.HasComponent<ViewComponent> ())
+			{
 				var viewComponent = new ViewComponent ();
 				viewComponent.Transforms.Add (this.transform);
 				Entity.AddComponent (viewComponent);
@@ -131,7 +135,7 @@ namespace AlphaECS.Unity
 		public override void OnDestroy()
 		{
 			if (IsQuitting) return;
-			if (!RemoveEntityOnDestroy)return;
+			if (!RemoveEntityOnDestroy) return;
 			if (Proxy != null) return;
 
 			IPool poolToUse;

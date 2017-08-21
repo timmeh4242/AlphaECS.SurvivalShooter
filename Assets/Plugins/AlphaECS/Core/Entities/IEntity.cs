@@ -7,7 +7,7 @@ namespace AlphaECS
 {
 	public interface IEntity : IDisposable
     {
-        int Id { get; }
+        string Id { get; }
 		IEnumerable<object> Components { get; }
 
 		object AddComponent(object component);
@@ -19,6 +19,7 @@ namespace AlphaECS
 		object GetComponent (Type type);
 
         bool HasComponent<T>() where T : class;
+		bool HasComponent(Type componentType);
         bool HasComponents(params Type[] component);
     }
 }
