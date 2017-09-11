@@ -9,7 +9,8 @@ namespace AlphaECS.Unity
 {
 	public class ViewComponent : IComponent, IDisposable, IDisposableContainer
 	{
-		public List<Transform> Transforms = new List<Transform>();
+		public ReactiveCollection<Transform> Transforms = new ReactiveCollection<Transform>();
+
 		private CompositeDisposable _disposer = new CompositeDisposable();
 		public CompositeDisposable Disposer
 		{

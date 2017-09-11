@@ -7,6 +7,7 @@ using UniRx;
 
 namespace AlphaECS
 {
+//	[Serializable]
 	public class Entity : IEntity
     {
 		private readonly Dictionary<Type, object> _components;
@@ -83,7 +84,16 @@ namespace AlphaECS
         }
 
 		public T GetComponent<T>() where T : class
-        { return _components[typeof(T)] as T; }
+        {
+			var type = typeof(T);
+			if (_components.ContainsKey (type))
+			{
+				return _components [typeof(T)] as T;
+			} else
+			{
+				return null;
+			}
+		}
 
 		public object GetComponent(Type type)
 		{

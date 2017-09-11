@@ -543,6 +543,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Proxy: {fileID: 0}
+  CachedId: 
   PoolName: 
   RemoveEntityOnDestroy: 1
   CachedComponents: []
@@ -627,6 +628,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Proxy: {fileID: 0}
+  CachedId: 
   PoolName: 
   RemoveEntityOnDestroy: 1
   CachedComponents:
@@ -634,10 +636,9 @@ MonoBehaviour:
   - AlphaECS.SurvivalShooter.InputComponent
   - AlphaECS.SurvivalShooter.ShooterComponent
   CachedProperties:
-  - "{\r\n\t\"StartingHealth\":100\t, \r\n\t\"CurrentHealth\":0\t, \r\n\t\"IsDamaged\":false}\r\n"
-  - "{\r\n\t\"Horizontal\":0\t, \r\n\t\"Vertical\":0}\r\n"
-  - "{\r\n\t\"Damage\":10\t, \r\n\t\"ShotsPerSecond\":10\t, \r\n\t\"Range\":100\t,
-    \r\n\t\"IsShooting\":false}\r\n"
+  - '{"StartingHealth":100,"CurrentHealth":0,"IsDamaged":false}'
+  - '{"Horizontal":0,"Vertical":0}'
+  - '{"Damage":10,"ShotsPerSecond":10,"Range":100,"IsShooting":false}'
 --- !u!1 &327611185
 GameObject:
   m_ObjectHideFlags: 0
@@ -1911,6 +1912,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Proxy: {fileID: 0}
+  CachedId: 
   PoolName: 
   RemoveEntityOnDestroy: 1
   CachedComponents: []
@@ -7647,6 +7649,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Proxy: {fileID: 0}
+  CachedId: 
   PoolName: 
   RemoveEntityOnDestroy: 1
   CachedComponents: []
@@ -8063,6 +8066,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Proxy: {fileID: 0}
+  CachedId: 
   PoolName: 
   RemoveEntityOnDestroy: 1
   CachedComponents: []

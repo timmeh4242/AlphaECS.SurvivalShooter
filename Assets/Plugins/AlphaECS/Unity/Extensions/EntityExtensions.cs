@@ -5,23 +5,36 @@ using SimpleJSON;
 using AlphaECS.Unity;
 using System.Linq;
 using System;
+using UniRx;
 
 namespace AlphaECS
 {
 	public static class EntityExtensions
 	{
-		public static string Serialize(this IEntity entity, params Type[] ignorableTypes)
+		public static string Serialize(this IEntity entity, Type[] includedTypes = null, Type[] ignoredTypes = null)
 		{
 			var json = "{ \"Id\": " + "\"" + entity.Id + "\"" + ", \n";
 
 			var types = "\"Types\": [";
-			types += string.Join (",", entity.Components.Where(c => !c.ShouldIgnore(ignorableTypes)).Select (c => "\"" + c.GetType ().ToString () + "\" ").ToArray ()) + "], \n";
+			types += string.Join (",", entity.Components.Where(c => 
+				{
+					if(includedTypes != null && includedTypes.Contains(c.GetType()))
+					{
+						return true;
+					}
+					else
+					{
+						if(!c.GetType().ShouldIgnore(ignoredTypes))
+						{ return true; }
+					}
+					return false;
+				}).Select (c => "\"" + c.GetType ().ToString () + "\" ").ToArray ()) + "], \n";
 			json += types;
 
 			json += "\"Components\": [";
 			foreach (var component in entity.Components)
 			{
-				if (component.ShouldIgnore(ignorableTypes))
+				if (component.GetType().ShouldIgnore(ignoredTypes))
 				{ continue; }
 					
 				var componentAsJson = JsonUtility.ToJson (component);
@@ -32,7 +45,7 @@ namespace AlphaECS
 			return json;
 		}
 
-		public static IEntity Deserialize(this IEntity entity, string json, params Type[] ignorableTypes)
+		public static IEntity Deserialize(this IEntity entity, string json, Type[] includedTypes = null, Type[] ignoredTypes = null)
 		{
 			var node = JSON.Parse (json);
 
@@ -46,63 +59,69 @@ namespace AlphaECS
 					continue;
 				}
 
-				if (!entity.HasComponent (type))
-				{
-					Debug.LogWarning ("Type " + node ["Types"] [i].ToString ().Replace ("\"", "") + " not found on entity!");
-					continue;
-				}
+				if (includedTypes != null && !includedTypes.Contains (type))
+				{ continue; }
 
-				var component = entity.GetComponent (type);
-				if (component == null)
-				{
-					if (component is Component)
+				if (ignoredTypes != null && type.ShouldIgnore(ignoredTypes))
+				{ continue; }
+
+//				if (!entity.HasComponent (type))
+//				{
+//					Debug.LogWarning ("Type " + node ["Types"] [i].ToString ().Replace ("\"", "") + " not found on entity!");
+//					continue;
+//				}
+
+				object component = null;
+
+				if (typeof(Component).IsAssignableFrom(type))
+				{					
+					if (!entity.HasComponent<ViewComponent> ())
 					{
-						if (!entity.HasComponent<ViewComponent> ())
-						{
-							Debug.LogWarning ("No view found for component " + type.ToString () + " !");
-							continue;
-						}
-
-						var viewComponent = entity.GetComponent<ViewComponent> ();
-						var transform = viewComponent.Transforms.FirstOrDefault ();
-
-						if (transform == null)
-						{
-							Debug.LogWarning ("No transform found for component " + type.ToString () + " !");
-							continue;
-						}
-						component = transform.gameObject.AddComponent (type);
+						entity.AddComponent (new ViewComponent ());
+						Debug.LogWarning ("No view found for component " + type.ToString () + " !");
 					}
-					else
+
+					var viewComponent = entity.GetComponent<ViewComponent> ();
+					var index = i;
+					viewComponent.Transforms.ObserveAdd ().Select(x => x.Value).StartWith(viewComponent.Transforms).Subscribe (t =>
+					{
+						if(t.gameObject.GetComponent(type) != null)
+						{
+							component = t.gameObject.GetComponent (type);
+							JsonUtility.FromJsonOverwrite (node ["Components"] [index].ToString(), component);
+						}
+					}).AddTo (viewComponent.Disposer);
+				}
+				else
+				{
+					if (!entity.HasComponent (type))
 					{
 						component = (object)Activator.CreateInstance (type);
 					}
+					else
+					{
+						component = entity.GetComponent (type);
+					}
+					JsonUtility.FromJsonOverwrite (node ["Components"] [i].ToString(), component);
 				}
-
-				if (ignorableTypes.Count() > 0)
-				{
-					if (component.ShouldIgnore(ignorableTypes))
-					{ continue; }
-				}
-
-				JsonUtility.FromJsonOverwrite (node ["Components"] [i].ToString(), component);
 			}
 			return entity;
 		}
 
-		public static bool ShouldIgnore(this object component, Type[] ignorableTypes)
+		public static bool ShouldIgnore(this Type type, Type[] ignoredTypes)
 		{
 			var shouldIgnore = false;
 
-			if ((!(component is MonoBehaviour) && !(component is IComponent)) ||
-				component.GetType ().IsDefined (typeof(NonSerializableDataAttribute), false))
+			//use MonoBehaviour as JsonUtility.ToJson does not support engine types
+			if ((!typeof(MonoBehaviour).IsAssignableFrom(type) && !typeof(IComponent).IsAssignableFrom(type)) ||
+				type.IsDefined (typeof(NonSerializableDataAttribute), false))
 			{
 				shouldIgnore = true;
 			}
 
-			foreach (var type in ignorableTypes)
+			foreach (var t in ignoredTypes)
 			{
-                if (type.IsAssignableFrom(component.GetType()))
+                if (t.IsAssignableFrom(type))
 				{
 					shouldIgnore = true;
 					break;

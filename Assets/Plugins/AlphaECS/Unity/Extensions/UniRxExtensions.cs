@@ -223,17 +223,83 @@ namespace UniRx.Triggers
 
 
 
-		public static IObservable<ObservableStateMachineTrigger.OnStateInfo> OnStateEnter(this Animator animator, string fullPath) 
+
+
+
+		public static IObservable<ObservableStateMachineTrigger.OnStateMachineInfo> OnStateMachineEnter(this Animator animator, string fullPath) 
 		{
-
-			var observableStateMachineTriggers = animator.GetBehaviours<ObservableStateMachineTrigger>();
 			int fullPathHash = Animator.StringToHash(fullPath);
+			return animator.OnStateMachineEnter(fullPathHash);
+		}
 
-			var observableTriggers = observableStateMachineTriggers.Select(trigger => trigger.OnStateEnterAsObservable()
-				.Where(onStateInfo => onStateInfo.StateInfo.fullPathHash == fullPathHash));
+		public static IObservable<ObservableStateMachineTrigger.OnStateMachineInfo> OnStateMachineEnter(this Animator animator, int fullPathHash) 
+		{
+			var observableStateMachineTriggers = animator.GetBehaviours<ObservableStateMachineTrigger>();
+			if (observableStateMachineTriggers.Length <= 0 || observableStateMachineTriggers == null)
+			{
+				Debug.LogWarning ("No ObservableStateMachineTriggers were found on " + animator.name + " animator!");
+				return null;
+			}
+
+			var observableTriggers = observableStateMachineTriggers.Select(trigger => trigger.OnStateMachineEnterAsObservable()
+				.Where(onStateMachineInfo => onStateMachineInfo.StateMachinePathHash == fullPathHash));
 
 			return Observable.Merge(observableTriggers);
 		}
+
+
+
+
+
+
+
+
+
+		public static IObservable<ObservableStateMachineTrigger.OnStateMachineInfo> OnStateMachineExit(this Animator animator, string fullPath) 
+		{
+			int fullPathHash = Animator.StringToHash(fullPath);
+			return animator.OnStateMachineExit(fullPathHash);
+		}
+
+		public static IObservable<ObservableStateMachineTrigger.OnStateMachineInfo> OnStateMachineExit(this Animator animator, int fullPathHash) 
+		{
+			var observableStateMachineTriggers = animator.GetBehaviours<ObservableStateMachineTrigger>();
+			if (observableStateMachineTriggers.Length <= 0 || observableStateMachineTriggers == null)
+			{
+				Debug.LogWarning ("No ObservableStateMachineTriggers were found on " + animator.name + " animator!");
+				return null;
+			}
+
+			var observableTriggers = observableStateMachineTriggers.Select(trigger => trigger.OnStateMachineExitAsObservable()
+				.Where(onStateMachineInfo => onStateMachineInfo.StateMachinePathHash == fullPathHash));
+
+			return Observable.Merge(observableTriggers);
+		}
+
+
+
+
+
+		public static IObservable<ObservableStateMachineTrigger.OnStateInfo> OnStateEnter(this Animator animator, string fullPath) 
+		{
+			int fullPathHash = Animator.StringToHash(fullPath);
+            return animator.OnStateEnter(fullPathHash);
+		}
+
+        public static IObservable<ObservableStateMachineTrigger.OnStateInfo> OnStateEnter(this Animator animator, int fullPathHash) 
+        {
+            var observableStateMachineTriggers = animator.GetBehaviours<ObservableStateMachineTrigger>();
+			if (observableStateMachineTriggers.Length <= 0 || observableStateMachineTriggers == null)
+			{
+				Debug.LogWarning ("No ObservableStateMachineTriggers were found on " + animator.name + " animator!");
+				return null;
+			}
+
+            var observableTriggers = observableStateMachineTriggers.Select(trigger => trigger.OnStateEnterAsObservable()
+                .Where(onStateInfo => onStateInfo.StateInfo.fullPathHash == fullPathHash));
+
+            return Observable.Merge(observableTriggers);
+        }
 
         public static IObservable<ObservableStateMachineTrigger.OnStateInfo> OnStateUpdate(this Animator animator, params string[] fullPaths) 
         {
@@ -244,6 +310,11 @@ namespace UniRx.Triggers
 		public static IObservable<ObservableStateMachineTrigger.OnStateInfo> OnStateUpdate(this Animator animator, params int[] fullPathHashes) 
 		{
 			var observableStateMachineTriggers = animator.GetBehaviours<ObservableStateMachineTrigger>();
+			if (observableStateMachineTriggers.Length <= 0 || observableStateMachineTriggers == null)
+			{
+				Debug.LogWarning ("No ObservableStateMachineTriggers were found on " + animator.name + " animator!");
+				return null;
+			}
 
 			var observableTriggers = observableStateMachineTriggers.Select(trigger => trigger.OnStateUpdateAsObservable()
 				.Where(onStateInfo => fullPathHashes.Contains(onStateInfo.StateInfo.fullPathHash)));
@@ -253,8 +324,13 @@ namespace UniRx.Triggers
 
         public static IObservable<ObservableStateMachineTrigger.OnStateInfo> OnStateNormalizedTime(this Animator animator, string fullPath, float normalizedTime) 
         {
-
             var observableStateMachineTriggers = animator.GetBehaviours<ObservableStateMachineTrigger>();
+			if (observableStateMachineTriggers.Length <= 0 || observableStateMachineTriggers == null)
+			{
+				Debug.LogWarning ("No ObservableStateMachineTriggers were found on " + animator.name + " animator!");
+				return null;
+			}
+
             int fullPathHash = Animator.StringToHash(fullPath);
 
             var emit = false;
@@ -288,11 +364,62 @@ namespace UniRx.Triggers
             return Observable.Merge(observableTriggers);
         }
 
+		public static IObservable<ObservableStateMachineTrigger.OnStateInfo> OnStateTime(this Animator animator, string fullPath, float time) 
+		{
+			var observableStateMachineTriggers = animator.GetBehaviours<ObservableStateMachineTrigger>();
+			if (observableStateMachineTriggers.Length <= 0 || observableStateMachineTriggers == null)
+			{
+				Debug.LogWarning ("No ObservableStateMachineTriggers were found on " + animator.name + " animator!");
+				return null;
+			}
+
+			int fullPathHash = Animator.StringToHash(fullPath);
+
+			var emit = false;
+
+			var observableTriggers = observableStateMachineTriggers.Select(trigger => trigger.OnStateUpdateAsObservable()
+				.Where(onStateInfo => 
+				{
+					if (onStateInfo.StateInfo.fullPathHash == fullPathHash)
+					{
+						if (emit)
+						{
+							if (onStateInfo.StateInfo.normalizedTime * onStateInfo.StateInfo.length >= time)
+							{
+								emit = false;
+								return true;
+							}
+						}
+						else
+						{
+							if (onStateInfo.StateInfo.normalizedTime  * onStateInfo.StateInfo.length < time)
+							{
+								emit = true;
+							}
+						}
+
+					}
+
+					return false;
+				}));
+
+			return Observable.Merge(observableTriggers);
+		}
+
         public static IObservable<ObservableStateMachineTrigger.OnStateInfo> OnStateExit(this Animator animator, string fullPath) 
         {
-
-            var observableStateMachineTriggers = animator.GetBehaviours<ObservableStateMachineTrigger>();
             int fullPathHash = Animator.StringToHash(fullPath);
+            return animator.OnStateExit(fullPathHash);
+        }
+
+        public static IObservable<ObservableStateMachineTrigger.OnStateInfo> OnStateExit(this Animator animator, int fullPathHash) 
+        {
+            var observableStateMachineTriggers = animator.GetBehaviours<ObservableStateMachineTrigger>();
+			if (observableStateMachineTriggers.Length <= 0 || observableStateMachineTriggers == null)
+			{
+				Debug.LogWarning ("No ObservableStateMachineTriggers were found on " + animator.name + " animator!");
+				return null;
+			}
 
             var observableTriggers = observableStateMachineTriggers.Select(trigger => trigger.OnStateExitAsObservable()
                 .Where(onStateInfo => onStateInfo.StateInfo.fullPathHash == fullPathHash));

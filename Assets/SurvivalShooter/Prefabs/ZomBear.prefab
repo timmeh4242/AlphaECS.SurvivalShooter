@@ -499,6 +499,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Proxy: {fileID: 0}
+  CachedId: 
   PoolName: 
   RemoveEntityOnDestroy: 1
   CachedComponents:
