@@ -73,10 +73,7 @@ namespace AlphaECS.Unity
 		public bool RemoveEntityOnDestroy = true;
 
 		[SerializeField] [HideInInspector]
-		public List<string> CachedComponents = new List<string>();
-
-		[SerializeField] [HideInInspector]
-		public List<string> CachedProperties = new List<string>();
+        public List<ComponentBase> CachedComponents = new List<ComponentBase>();
 
 		public IPoolManager PoolManager
 		{
@@ -92,22 +89,15 @@ namespace AlphaECS.Unity
 		{
 			base.Setup (eventSystem);
 
-			for (var i = 0; i < CachedComponents.Count(); i++)
+			for (var i = 0; i < CachedComponents.Count; i++)
 			{
-				var typeName = CachedComponents[i];
-				var type = TypeUtilities.GetTypeWithAssembly(typeName);
-				if (type == null) { throw new Exception("Cannot resolve type for [" + typeName + "]"); }
-
-				var component = (object)Activator.CreateInstance(type);
-				var componentProperties = JSON.Parse(CachedProperties[i]);
-				component.Deserialize(componentProperties);
-
+				var component = CachedComponents[i];
 				Entity.AddComponent(component);
 			}
 
 			if (!Entity.HasComponent<ViewComponent> ())
 			{
-				var viewComponent = new ViewComponent ();
+                var viewComponent = ScriptableObject.CreateInstance<ViewComponent>();
 				viewComponent.Transforms.Add (this.transform);
 				Entity.AddComponent (viewComponent);
 			}

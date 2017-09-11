@@ -38,7 +38,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &109428
 GameObject:
   m_ObjectHideFlags: 0
@@ -613,13 +613,7 @@ MonoBehaviour:
   CachedId: 
   PoolName: 
   RemoveEntityOnDestroy: 1
-  CachedComponents:
-  - AlphaECS.SurvivalShooter.HealthComponent
-  - AlphaECS.SurvivalShooter.MeleeComponent
-  CachedProperties:
-  - "{\n\t\"StartingHealth\":300\t, \n\t\"CurrentHealth\":0\t, \n\t\"IsDamaged\":false\t,
-    \n\t\"IsDead\":false}\n"
-  - "{\n\t\"Damage\":30\t, \n\t\"AttacksPerSecond\":2\t, \n\t\"TargetInRange\":false}\n"
+  CachedComponents: []
 --- !u!135 &13598538
 SphereCollider:
   m_ObjectHideFlags: 1

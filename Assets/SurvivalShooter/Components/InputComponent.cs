@@ -1,24 +1,13 @@
 ﻿using AlphaECS;
 using UniRx;
 using System;
+using AlphaECS.Unity;
 
 namespace AlphaECS.SurvivalShooter
 {
-	public class InputComponent : IComponent, IDisposableContainer, IDisposable
+	public class InputComponent : ComponentBase
 	{
-		public FloatReactiveProperty Horizontal { get; set; }
-		public FloatReactiveProperty Vertical { get; set; }
-
-		private CompositeDisposable _disposer = new CompositeDisposable();
-		public CompositeDisposable Disposer
-		{
-			get { return _disposer; }
-			set { _disposer = value; }
-		}
-
-		public void Dispose ()
-		{
-			Disposer.Dispose ();
-		}
+        public FloatReactiveProperty Horizontal = new FloatReactiveProperty();
+		public FloatReactiveProperty Vertical = new FloatReactiveProperty();
 	}
 }

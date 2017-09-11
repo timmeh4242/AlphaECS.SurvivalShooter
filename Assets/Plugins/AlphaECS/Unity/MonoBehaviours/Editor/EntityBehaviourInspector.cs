@@ -7,363 +7,166 @@ using AlphaECS.Unity;
 using UniRx;
 using UnityEditor;
 using UnityEngine;
+using UnityEditorInternal;
+
 
 namespace AlphaECS
 {
-    [CustomEditor(typeof(EntityBehaviour))]
+    [CustomEditor(typeof(EntityBehaviour), true)]
     public class EntityBehaviourInspector : Editor
     {
-        private EntityBehaviour _view;
+        private EntityBehaviour view;
 
-        public bool showComponents;
+        private ReorderableList reorderableElements;
 
-		// can't use object here, should enforce icomponent for when people want to add simple data types via inspector
-//        private readonly IEnumerable<Type> allComponentTypes = AppDomain.CurrentDomain.GetAssemblies()
-//                                .SelectMany(s => s.GetTypes())
-//								.Where(p => typeof(object).IsAssignableFrom(p) && p.IsClass);
+        private bool showComponents = true;
 
 		private readonly IEnumerable<Type> allComponentTypes = AppDomain.CurrentDomain.GetAssemblies()
-								.SelectMany(s => s.GetTypes())
-								.Where(p => typeof(IComponent).IsAssignableFrom(p) && p.IsClass);
+							.SelectMany(s => s.GetTypes())
+							.Where(p => typeof(ComponentBase).IsAssignableFrom(p) && p.IsClass);
 
+		int lineHeight = 15;
+		int lineSpacing = 18;
+
+		private class ObjectInfo
+		{
+			public Type type;
+		}
+
+		void OnEnable()
+		{
+			hideFlags = HideFlags.HideAndDontSave;
+
+			if (view == null)
+            { view = (EntityBehaviour)target; }
+
+			reorderableElements = new ReorderableList(serializedObject, serializedObject.FindProperty("CachedComponents"), true, true, true, true);
+
+			reorderableElements.drawHeaderCallback = (Rect rect) =>
+			{
+				EditorGUI.LabelField(rect, "Components", EditorStyles.boldLabel);
+			};
+
+			reorderableElements.drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
+			{
+				var element = reorderableElements.serializedProperty.GetArrayElementAtIndex(index);
+				var so = new SerializedObject(element.objectReferenceValue);
+				so.Update();
+
+                EditorGUI.LabelField(new Rect(rect.x, rect.y, rect.width, lineHeight), view.CachedComponents[index].GetType().ToString(), EditorStyles.boldLabel);
+
+				var iterator = so.GetIterator();
+				iterator.NextVisible(true); // skip the script reference
+
+				var i = 1;
+				var showChildren = true;
+				while (iterator.NextVisible(showChildren))
+				{
+					EditorGUI.PropertyField(new Rect(rect.x, rect.y + (lineSpacing * i), rect.width, lineHeight), iterator);
+					i++;
+					if (iterator.isArray)
+					{
+						showChildren = iterator.isExpanded;
+					}
+				}
+
+				so.ApplyModifiedProperties();
+			};
+
+			reorderableElements.elementHeightCallback = (int index) =>
+			{
+				float height = 0;
+
+				var element = reorderableElements.serializedProperty.GetArrayElementAtIndex(index);
+				var elementObj = new SerializedObject(element.objectReferenceValue);
+
+				var iterator = elementObj.GetIterator();
+				var i = 1;
+				var showChildren = true;
+				while (iterator.NextVisible(showChildren))
+				{
+					i++;
+					if (iterator.isArray)
+					{
+						showChildren = iterator.isExpanded;
+					}
+				}
+
+				height = lineSpacing * i;
+				return height;
+			};
+
+			reorderableElements.onAddDropdownCallback = (Rect rect, ReorderableList list) =>
+			{
+				var dropdownMenu = new GenericMenu();
+				var types = allComponentTypes.Select(x => x.Name).ToArray();
+
+				for (var i = 0; i < types.Length; i++)
+				{
+					dropdownMenu.AddItem(new GUIContent(types[i]), false, AddAction, new ObjectInfo() { type = allComponentTypes.ElementAt(i) });
+				}
+
+				dropdownMenu.ShowAsContext();
+			};
+
+			reorderableElements.onRemoveCallback = (list) =>
+			{
+                var action = view.CachedComponents[list.index];
+				DestroyImmediate(action, true);
+				view.CachedComponents.RemoveAt(list.index);
+			};
+		}
 
 		public override void OnInspectorGUI()
 		{
-			base.OnInspectorGUI ();
+			if (view == null)
+            { view = (EntityBehaviour)target; }
 
-			_view = (EntityBehaviour)target;
+			base.OnInspectorGUI();
 
-			if (Application.isPlaying && _view.Entity == null)
+			if (view == null) { return; }
+
+			//EditorGUI.LabelField(rect, "Actions", EditorStyles.boldLabel);
+
+			if (showComponents)
 			{
-				EditorGUILayout.LabelField("No Entity Assigned");
-				return;
-			}
-
-			DrawPoolSection();
-			EditorGUILayout.Space();
-			DrawAddComponentSection();
-			DrawComponentsSection();
-			PersistChanges();
-		}
-
-        private void DrawPoolSection ()
-        {
-            this.UseVerticalBoxLayout(() =>
-            {
-				if(Application.isPlaying)
+				if (this.WithIconButton("▾"))
 				{
-					if (GUILayout.Button("Destroy Entity"))
-					{
-						_view.Pool.RemoveEntity(_view.Entity);
-						Destroy(_view.gameObject);
-					}
-
-					this.UseVerticalBoxLayout(() =>
-					{
-						var id = _view.Entity.Id.ToString();
-						this.WithLabelField("Entity Id: ", id);
-					});
-
-					this.UseVerticalBoxLayout(() =>
-					{
-						this.WithLabelField("Pool: ", _view.Pool.Name);
-					});
+					showComponents = false;
 				}
-				else
-				{
-					this.UseVerticalBoxLayout(() =>
-					{
-//						var id = _view.Entity.Id.ToString();
-//						this.WithLabelField("Entity Id: ", id);
-						_view.CachedId = this.WithTextField("Id:", _view.CachedId);
-					});
-
-					_view.PoolName = this.WithTextField("Pool: ", _view.PoolName);
-				}
-
-				EditorGUILayout.BeginHorizontal();
-				_view.RemoveEntityOnDestroy = EditorGUILayout.Toggle(_view.RemoveEntityOnDestroy);
-				EditorGUILayout.LabelField("Remove Entity On Destroy");
-				EditorGUILayout.EndHorizontal();
-            });
-        }
-
-		private void DrawAddComponentSection()
-		{
-			this.UseVerticalBoxLayout(() =>
-			{
-				var availableTypes = allComponentTypes
-					.Where(x => !_view.CachedComponents.Contains(x.ToString()))
-					.ToArray();
-
-				var types = availableTypes.Select(x => string.Format("{0} [{1}]", x.Name, x.Namespace)).ToArray();
-				var index = -1;
-				index = EditorGUILayout.Popup("Add Component", index, types);
-
-				if(Application.isPlaying && index >= 0)
-				{
-					var component = (object)Activator.CreateInstance(availableTypes[index]);
-					_view.Entity.AddComponent(component);
-				}
-				else if (index >= 0)
-				{
-					var component = (object)Activator.CreateInstance(availableTypes[index]);
-					var componentName = component.ToString();
-					_view.CachedComponents.Add(componentName);
-					var json = component.Serialize();
-					_view.CachedProperties.Add(json.ToString());
-				}
-			});
-		}
-
-        private void DrawComponentsSection()
-        {
-            EditorGUILayout.BeginVertical(EditorExtensions.DefaultBoxStyle);
-			int numberOfComponents = !Application.isPlaying ? _view.CachedComponents.Count () : _view.Entity.Components.Count ();
-
-            this.WithHorizontalLayout(() =>
-            {
-				this.WithLabel("Components (" + numberOfComponents + ")");
-				if(showComponents)
-				{
-					if (this.WithIconButton("▾"))
-					{
-						showComponents = false;
-					}
-				}
-				else
-				{
-					if (this.WithIconButton("▸"))						
-					{
-						showComponents = true;
-					}
-				}
-            });
-
-            var componentsToRemove = new List<int>();
-            if (showComponents)
-            {
-				for (var i = 0; i < numberOfComponents; i++)
-                {
-                    this.UseVerticalBoxLayout(() =>
-                    {
-						Type componentType;
-						if(Application.isPlaying)
-						{
-							componentType = _view.Entity.Components.ElementAt(i).GetType();
-						}
-						else
-						{
-							componentType = _view.CachedComponents[i].GetTypeWithAssembly();
-						}
-
-						var typeName = componentType == null ? "" : componentType.Name;
-						var typeNamespace = componentType == null ? "" : componentType.Namespace;
-
-                        this.WithVerticalLayout(() =>
-                        {
-                            this.WithHorizontalLayout(() =>
-                            {
-                                if (this.WithIconButton("-"))
-                                {
-                                    componentsToRemove.Add(i);
-                                }
-
-                                this.WithLabel(typeName);
-                            });
-
-                            EditorGUILayout.LabelField(typeNamespace);
-                            EditorGUILayout.Space();
-                        });
-
-						if (componentType == null)
-						{
-							if (GUILayout.Button ("TYPE NOT FOUND. TRY TO CONVERT TO BEST MATCH?"))
-							{
-								componentType = _view.CachedComponents [i].TryGetConvertedType();
-								if (componentType == null)
-								{
-									Debug.LogWarning ("UNABLE TO CONVERT " + _view.CachedComponents [i]);
-									return;
-								}
-								else
-								{
-									Debug.LogWarning ("CONVERTED " + _view.CachedComponents [i] + " to " + componentType.ToString());
-								}
-							}
-							else
-							{
-								return;
-							}
-						}
-
-						if(componentType.IsSubclassOf(typeof(UnityEngine.Component)))
-							return;
-
-                        ShowComponentProperties(i, componentType);
-                    });
-                }
-            }
-
-            EditorGUILayout.EndVertical();
-
-            for (var i = 0; i < componentsToRemove.Count(); i++)
-            {
-				if (Application.isPlaying)
-				{
-					var component = _view.Entity.Components.ElementAt(componentsToRemove [i]);
-					_view.Entity.RemoveComponent(component);
-
-					if(component.GetType().IsSubclassOf(typeof(UnityEngine.Component)))
-						Destroy((UnityEngine.Component)component);
-				} 
-				else
-				{
-					_view.CachedComponents.RemoveAt (componentsToRemove [i]);
-					_view.CachedProperties.RemoveAt (componentsToRemove [i]);
-				}
-            }
-        }
-
-		private void ShowComponentProperties(int index, Type type)
-		{
-			object component;
-
-			if (Application.isPlaying)
-			{
-				component = _view.Entity.Components.ElementAt (index);
 			}
 			else
 			{
-				component = (object)Activator.CreateInstance(type);
-				var node = JSON.Parse(_view.CachedProperties[index]);
-				component.Deserialize(node);
+				if (this.WithIconButton("▸"))
+				{
+					showComponents = true;
+				}
 			}
 
-//			var members = component.GetType().GetMembers();
-			foreach (var property in component.GetType().GetProperties())
+			if (showComponents)
 			{
-				bool isTypeSupported = true;
-
-				EditorGUILayout.BeginHorizontal();
-				var _type = property.PropertyType;
-				var _value = property.GetValue(component, null);
-
-				if (_type == typeof(int))
-				{
-					_value = EditorGUILayout.IntField(property.Name, (int)_value);
-				}
-				else if (_type == typeof (IntReactiveProperty))
-				{
-					var reactiveProperty = _value as IntReactiveProperty;
-					reactiveProperty.Value = EditorGUILayout.IntField(property.Name, reactiveProperty.Value);
-				}
-				else if (_type == typeof(float))
-				{
-					_value = EditorGUILayout.FloatField(property.Name, (float)_value);
-				}
-				else if (_type == typeof(FloatReactiveProperty))
-				{
-					var reactiveProperty = _value as FloatReactiveProperty;
-					reactiveProperty.Value = EditorGUILayout.FloatField(property.Name, reactiveProperty.Value);
-				}
-				else if (_type == typeof(bool))
-				{
-					_value = EditorGUILayout.Toggle(property.Name, (bool)_value);
-				}
-				else if (_type == typeof(BoolReactiveProperty))
-				{
-					var reactiveProperty = _value as BoolReactiveProperty;
-					reactiveProperty.Value = EditorGUILayout.Toggle(property.Name, reactiveProperty.Value);
-				}
-				else if (_type == typeof(string))
-				{
-					_value = EditorGUILayout.TextField(property.Name, (string)_value);
-				}
-				else if (_type == typeof(StringReactiveProperty))
-				{
-					var reactiveProperty = _value as StringReactiveProperty;
-					reactiveProperty.Value = EditorGUILayout.TextField(property.Name, reactiveProperty.Value);
-				}
-				else if (_type == typeof(Vector2))
-				{
-					_value = EditorGUILayout.Vector2Field(property.Name, (Vector2)_value);
-				}
-				else if (_type == typeof(Vector2ReactiveProperty))
-				{
-					var reactiveProperty = _value as Vector2ReactiveProperty;
-					_value = EditorGUILayout.Vector2Field(property.Name, reactiveProperty.Value);
-				}
-				else if (_type == typeof(Vector3))
-				{
-					_value = EditorGUILayout.Vector3Field(property.Name, (Vector3)_value);
-				}
-				else if (_type == typeof(Vector3ReactiveProperty))
-				{
-					var reactiveProperty = _value as Vector3ReactiveProperty;
-					_value = EditorGUILayout.Vector2Field(property.Name, reactiveProperty.Value);
-				}
-				else if (_type == typeof(Color))
-				{
-					_value = EditorGUILayout.ColorField(property.Name, (Color)_value);
-				}
-				else if (_type == typeof(ColorReactiveProperty))
-				{
-					var reactiveProperty = _value as ColorReactiveProperty;
-					reactiveProperty.Value = EditorGUILayout.ColorField(property.Name, reactiveProperty.Value);
-				}
-//				else if (_type == typeof(Bounds))
-//				{
-//					_value = EditorGUILayout.BoundsField(property.Name, (Bounds)_value);
-//				}
-//				else if (_type == typeof(BoundsReactiveProperty))
-//				{
-//					var reactiveProperty = _value as BoundsReactiveProperty;
-//					reactiveProperty.Value = EditorGUILayout.BoundsField(property.Name, reactiveProperty.Value);
-//				}
-//				else if (_type == typeof(Rect))
-//				{
-//					_value = EditorGUILayout.RectField(property.Name, (Rect)_value);
-//				}
-//				else if (_type == typeof(RectReactiveProperty))
-//				{
-//					var reactiveProperty = _value as RectReactiveProperty;
-//					reactiveProperty.Value = EditorGUILayout.RectField(property.Name, reactiveProperty.Value);
-//				}
-				else if (_type == typeof(Enum))
-				{
-					_value = EditorGUILayout.EnumPopup(property.Name, (Enum)_value);
-				}
-				// else if (_type == typeof(Object))
-				// {
-				// 	_value = EditorGUILayout.ObjectField(property.Name, (Object)property.GetValue(), Object);
-				// }
-				else
-				{
-//					Debug.LogWarning("This property type is not supported: " + _type.Name + " - In component: " + component.GetType().Name);
-					Debug.LogWarning("This property type is not supported!");
-					isTypeSupported = false;
-				}
-
-				if (isTypeSupported == true)
-				{
-					property.SetValue(component, _value, null);
-				}
-
-				if (!Application.isPlaying)
-				{
-					_view.CachedComponents[index] = component.GetType().ToString();
-					var json = component.Serialize();
-					_view.CachedProperties[index] = json.ToString();
-				}
-				EditorGUILayout.EndHorizontal();
+				serializedObject.Update();
+				Undo.RecordObject(view, "Added Component");
+				reorderableElements.DoLayoutList();
+				PersistChanges();
+				serializedObject.ApplyModifiedProperties();
 			}
+		}
+
+		private void AddAction(object info)
+		{
+			var actionInfo = (ObjectInfo)info;
+            var component = (ComponentBase)ScriptableObject.CreateInstance(actionInfo.type);
+			//AssetDatabase.AddObjectToAsset(component, view);
+            view.CachedComponents.Add(component);
 		}
 
 		private void PersistChanges()
 		{
 			if (GUI.changed && !Application.isPlaying)
-			{ this.SaveActiveSceneChanges(); }
+			{
+				this.SaveActiveSceneChanges();
+			}
 		}
-    }
+	}
 }

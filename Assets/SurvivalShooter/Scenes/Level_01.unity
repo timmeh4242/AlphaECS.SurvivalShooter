@@ -547,7 +547,6 @@ MonoBehaviour:
   PoolName: 
   RemoveEntityOnDestroy: 1
   CachedComponents: []
-  CachedProperties: []
 --- !u!1 &309160173
 GameObject:
   m_ObjectHideFlags: 0
@@ -632,13 +631,9 @@ MonoBehaviour:
   PoolName: 
   RemoveEntityOnDestroy: 1
   CachedComponents:
-  - AlphaECS.SurvivalShooter.HealthComponent
-  - AlphaECS.SurvivalShooter.InputComponent
-  - AlphaECS.SurvivalShooter.ShooterComponent
-  CachedProperties:
-  - '{"StartingHealth":100,"CurrentHealth":0,"IsDamaged":false}'
-  - '{"Horizontal":0,"Vertical":0}'
-  - '{"Damage":10,"ShotsPerSecond":10,"Range":100,"IsShooting":false}'
+  - {fileID: 676196914}
+  - {fileID: 1830656144}
+  - {fileID: 2003189042}
 --- !u!1 &327611185
 GameObject:
   m_ObjectHideFlags: 0
@@ -1916,7 +1911,6 @@ MonoBehaviour:
   PoolName: 
   RemoveEntityOnDestroy: 1
   CachedComponents: []
-  CachedProperties: []
 --- !u!1 &642980721
 GameObject:
   m_ObjectHideFlags: 0
@@ -1960,6 +1954,21 @@ CapsuleCollider:
   m_Height: 4.17
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &676196914
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c12d597adfe04d55ad3d04541a83b9f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  StartingHealth: 100
+  CurrentHealth:
+    value: 0
+  IsDamaged: 0
 --- !u!1 &678599868
 GameObject:
   m_ObjectHideFlags: 0
@@ -7653,7 +7662,6 @@ MonoBehaviour:
   PoolName: 
   RemoveEntityOnDestroy: 1
   CachedComponents: []
-  CachedProperties: []
 --- !u!1 &1502630058
 GameObject:
   m_ObjectHideFlags: 0
@@ -8070,7 +8078,6 @@ MonoBehaviour:
   PoolName: 
   RemoveEntityOnDestroy: 1
   CachedComponents: []
-  CachedProperties: []
 --- !u!1 &1660438950
 GameObject:
   m_ObjectHideFlags: 0
@@ -8470,6 +8477,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f1af2fbdf10946c2918c803eaca1b91, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1830656144
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fd874ac1d5dd40b7accd737a825f8d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Horizontal:
+    value: 0
+  Vertical:
+    value: 0
 --- !u!1 &1862664343
 GameObject:
   m_ObjectHideFlags: 0
@@ -9100,6 +9122,22 @@ Transform:
   m_Father: {fileID: 1384153775}
   m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2003189042
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ab088ec5f0424381be6ff517c6475d0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Damage: 10
+  ShotsPerSecond: 10
+  Range: 10
+  IsShooting:
+    value: 0
 --- !u!1 &2026100529
 GameObject:
   m_ObjectHideFlags: 0

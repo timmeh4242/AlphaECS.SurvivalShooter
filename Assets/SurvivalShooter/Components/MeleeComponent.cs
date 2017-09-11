@@ -1,15 +1,16 @@
 ﻿using AlphaECS;
 using UniRx;
 using System;
+using AlphaECS.Unity;
 
 namespace AlphaECS.SurvivalShooter
 {
-	public class MeleeComponent : IComponent
+	public class MeleeComponent : ComponentBase
 	{
-		public int Damage { get; set; }
-		public float AttacksPerSecond { get; set; }
-		public IEntity Target { get; set; }
-		public BoolReactiveProperty TargetInRange { get; set; }
-		public IDisposable Attack { get; set; }
+        public int Damage;
+        public float AttacksPerSecond;
+        public IEntity Target;
+        public BoolReactiveProperty TargetInRange = new BoolReactiveProperty();
+        public IDisposable Attack;
 	}
 }

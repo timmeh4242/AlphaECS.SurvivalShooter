@@ -1,28 +1,17 @@
 ﻿using AlphaECS;
 using UniRx;
 using System;
+using AlphaECS.Unity;
 
 namespace AlphaECS.SurvivalShooter
 {
-	public class ShooterComponent : IComponent, IDisposableContainer, IDisposable
+	public class ShooterComponent : ComponentBase
 	{
-		public int Damage { get; set; }
-		public float ShotsPerSecond { get; set; }
-		public IDisposable Shoot { get; set; }
-		public float Range { get; set; }
+        public int Damage;
+        public float ShotsPerSecond;
+        public IDisposable Shoot;
+        public float Range;
 
-		public BoolReactiveProperty IsShooting { get; set; }
-
-		private CompositeDisposable _disposer = new CompositeDisposable();
-		public CompositeDisposable Disposer
-		{
-			get { return _disposer; }
-			set { _disposer = value; }
-		}
-
-		public void Dispose ()
-		{
-			Disposer.Dispose ();
-		}
+        public BoolReactiveProperty IsShooting = new BoolReactiveProperty();
 	}
 }
