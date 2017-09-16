@@ -11,12 +11,14 @@ namespace AlphaECS.SurvivalShooter
         public int StartingHealth;
         public IntReactiveProperty CurrentHealth = new IntReactiveProperty();
         public bool IsDamaged;
-//		public BoolReactiveProperty IsDead { get; set; }
+        //		public BoolReactiveProperty IsDead { get; set; }
 
-		public HealthComponent()
-		{
-			//CurrentHealth = new IntReactiveProperty ();
-//			IsDead = new BoolReactiveProperty ();
-		}
+        public GameObject aaa;
+
+//		public HealthComponent()
+//		{
+//			//CurrentHealth = new IntReactiveProperty ();
+//			//IsDead = new BoolReactiveProperty ();
+		//}
 	}
 }

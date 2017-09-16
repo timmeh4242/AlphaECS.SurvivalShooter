@@ -46,22 +46,33 @@ namespace AlphaECS
 			if (view == null)
             { view = (EntityBehaviour)target; }
 
-            if (PrefabUtility.GetPrefabType(view.gameObject) == PrefabType.None)
-            {
-                hideFlags = HideFlags.HideAndDontSave;
-            }
-            else
-            {
-                hideFlags = HideFlags.None;
-            }
+            GetPrefabType();
 
-            reorderableComponents = new ReorderableList(serializedObject, serializedObject.FindProperty("CachedComponents"), true, true, true, true);
+            reorderableComponents = new ReorderableList(serializedObject, serializedObject.FindProperty("Components"), true, true, true, true);
 			
             reorderableComponents.drawHeaderCallback = (Rect rect) =>
 			{ EditorGUI.LabelField(rect, "Components", EditorStyles.boldLabel); };
 
             reorderableComponents.drawElementCallback = (rect, index, isActive, isFocused) => 
-            { OnDrawElement(reorderableComponents, view.CachedComponents[index].GetType().ToString(), rect, index, isActive, isFocused); };
+            {
+                //HACK to fix issue when first creating a prefab from an instance
+                if(view.Components[index] == null)
+                {
+                    var instance = FindObjectsOfType<EntityBehaviour>()
+						.Where(eb => eb.name == view.name).FirstOrDefault();
+                    //.Where(eb => eb.Id == view.Id).FirstOrDefault();
+                    if (instance == null)
+                    {
+                        Debug.Log("whoops!");
+                        return;
+                    }
+
+                    AssetDatabase.AddObjectToAsset(instance.Components[index], view.gameObject);
+                    view.Components[index] = instance.Components[index];
+                    Debug.Log("added component");
+                }
+                OnDrawElement(reorderableComponents, view.Components[index].GetType().ToString(), rect, index, isActive, isFocused);
+            };
 
             reorderableComponents.elementHeightCallback = (index) => 
             { return OnElementHeight(reorderableComponents, index); };
@@ -89,7 +100,7 @@ namespace AlphaECS
 			{ return OnElementHeight(reorderableBlueprints, index); };
 
 			reorderableBlueprints.onAddDropdownCallback = (Rect rect, ReorderableList list) =>
-            { OnAddEmpty(rect, list, AddBlueprint, blueprintBaseTypes.ToArray()); };
+            { OnAddDropdown(list); };
 
 			reorderableBlueprints.onRemoveCallback = (list) =>
 			{ RemoveBlueprint(list); };
@@ -166,7 +177,7 @@ namespace AlphaECS
 			dropdownMenu.ShowAsContext();
         }
 
-		private void OnAddEmpty(Rect rect, ReorderableList list, Action<object> action, Type[] types)
+		private void OnAddDropdown(ReorderableList list)
 		{
             //view.Blueprints.Add(null);
             var blueprints = list.serializedProperty.serializedObject.FindProperty("Blueprints");
@@ -200,14 +211,8 @@ namespace AlphaECS
 				serializedObject.Update();
 				Undo.RecordObject(view, "Added Data");
 
-                if(!Application.isPlaying)
-                {
-					reorderableComponents.DoLayoutList();
-                }
-                else
-                {
-					reorderableComponents.DoLayoutList();
-                }
+				reorderableComponents.DoLayoutList();
+				serializedObject.ApplyModifiedProperties();
             }
 
 			if (showBlueprints)
@@ -233,19 +238,14 @@ namespace AlphaECS
 				else
 				{
 					reorderableBlueprints.DoLayoutList();
-					//for (var i = 0; i < view.Entity.Components.Count(); i++)
-					//{
-					//                   var editor = Editor.CreateEditor((UnityEngine.Object)view.Entity.Components.ElementAt(i));
-					//  editor.OnInspectorGUI();
-					//}
 				}
+				serializedObject.ApplyModifiedProperties();
 			}
 
             if(showComponents || showBlueprints)
             {
 				PersistChanges();
-				serializedObject.ApplyModifiedProperties();
-            }
+			}
         }
 
         private void DrawHeaderSection()
@@ -259,7 +259,7 @@ namespace AlphaECS
 				}
 				else
 				{
-					view.CachedId = this.WithTextField("Id:", view.CachedId);
+					view.Id = this.WithTextField("Id:", view.Id);
 					view.PoolName = this.WithTextField("Pool: ", view.PoolName);
 				}
 
@@ -281,73 +281,40 @@ namespace AlphaECS
 
 		private void AddComponent(object info)
 		{
-			var actionInfo = (ObjectInfo)info;
-            var component = (ComponentBase)ScriptableObject.CreateInstance(actionInfo.type);
-
-   //         var prefabType = PrefabUtility.GetPrefabType(view.gameObject);
-   //         if (prefabType == PrefabType.None)
-   //         {
-   //             Debug.Log("not a prefab");
-   //             hideFlags = HideFlags.HideAndDontSave;
-			//}
-   //         else
-   //         {
-			//	Debug.Log("is a prefab");
-			//	hideFlags = HideFlags.None;
-
-   //             if (prefabType == PrefabType.Prefab)
-   //             {
-   //                 AssetDatabase.AddObjectToAsset(component, view.gameObject);
-			//	}
-   //             else
-   //             {
-			//		var prefab = PrefabUtility.GetPrefabParent(view.gameObject);
-			//		AssetDatabase.AddObjectToAsset(component, prefab);
-   //                 var mods = PrefabUtility.GetPropertyModifications(prefab);
-   //                 foreach(var mod in mods)
-   //                 {
-   //                     Debug.Log(mod.value);
-			//		}
-			//	}
-
-   //             PrefabUtility.ResetToPrefabState(view);
-			//}
-            view.CachedComponents.Add(component);
+            var componentInfo = (ObjectInfo)info;
+			var component = (ComponentBase)ScriptableObject.CreateInstance(componentInfo.type);
+            AddComponent(component);
 		}
+
+        private void AddComponent(ComponentBase component)
+        {
+			var prefabType = GetPrefabType();
+			if (prefabType == PrefabType.None)
+			{
+			}
+			else
+			{
+				if (prefabType == PrefabType.Prefab)
+				{
+					AssetDatabase.AddObjectToAsset(component, view.gameObject);
+				}
+				else
+				{
+					var prefab = PrefabUtility.GetPrefabParent(view);
+					AssetDatabase.AddObjectToAsset(component, prefab);
+                    Debug.Log("found parent");
+				}
+			}
+			view.Components.Add(component);
+        }
 
 		private void RemoveComponent(ReorderableList list)
 		{
-			var component = view.CachedComponents[list.index];
-			hideFlags = HideFlags.HideAndDontSave;
-			DestroyImmediate(component, true);
-			view.CachedComponents.RemoveAt(list.index);
+            GetPrefabType();
 
-			//var prefabType = PrefabUtility.GetPrefabType(view.gameObject);
-			//if (prefabType == PrefabType.None)
-			//{
-			//	hideFlags = HideFlags.HideAndDontSave;
-			//}
-			//else
-			//{
-			//	hideFlags = HideFlags.None;
-
-			//	if (prefabType == PrefabType.Prefab)
-			//	{
-			//		//AssetDatabase.AddObjectToAsset(component, view.gameObject);
-			//	}
-			//	else
-			//	{
-			//		//var prefab = PrefabUtility.GetPrefabParent(view.gameObject);
-			//		//AssetDatabase.AddObjectToAsset(component, prefab);
-			//		//var mods = PrefabUtility.GetPropertyModifications(prefab);
-			//		//foreach (var mod in mods)
-			//		//{
-			//		//  Debug.Log(mod.value);
-			//		//}
-			//	}
-
-			//	//PrefabUtility.ResetToPrefabState(view);
-			//}
+			var component = view.Components[list.index];
+            DestroyImmediate(component, true);
+            view.Components.RemoveAt(list.index);
 		}
 
         private void AddBlueprint(object info)
@@ -371,5 +338,21 @@ namespace AlphaECS
 				this.SaveActiveSceneChanges();
 			}
 		}
+
+        private PrefabType GetPrefabType()
+        {
+            var prefabType = PrefabUtility.GetPrefabType(view.gameObject);
+            if (prefabType == PrefabType.None)
+			{
+				hideFlags = HideFlags.HideAndDontSave;
+                Debug.Log("not a prefab");
+			}
+			else
+			{
+				hideFlags = HideFlags.None;
+				Debug.Log("is a prefab");
+			}
+            return prefabType;
+        }
 	}
 }

@@ -46,7 +46,7 @@ namespace AlphaECS.Unity
 				{
 					return Proxy.Entity;
 				}
-				return entity == null ? (entity = Pool.CreateEntity(CachedId)) : entity;
+				return entity == null ? (entity = Pool.CreateEntity(Id)) : entity;
 			}
 			set
 			{
@@ -64,7 +64,7 @@ namespace AlphaECS.Unity
 		public EntityBehaviour Proxy;
 
 		[SerializeField] [HideInInspector]
-		public string CachedId;
+		public string Id;
 
 		[SerializeField] [HideInInspector]
 		public string PoolName;
@@ -73,7 +73,7 @@ namespace AlphaECS.Unity
 		public bool RemoveEntityOnDestroy = true;
 
 		[SerializeField] [HideInInspector]
-        public List<ComponentBase> CachedComponents = new List<ComponentBase>();
+        public List<ComponentBase> Components = new List<ComponentBase>();
 
 		[SerializeField] [HideInInspector]
         public List<BlueprintBase> Blueprints = new List<BlueprintBase>();
@@ -92,15 +92,15 @@ namespace AlphaECS.Unity
 		{
 			base.Setup (eventSystem);
 
-			for (var i = 0; i < CachedComponents.Count; i++)
+			for (var i = 0; i < Components.Count; i++)
 			{
-				var component = CachedComponents[i];
+				var component = Components[i];
 				Entity.AddComponent(component);
 			}
 
 			if (!Entity.HasComponent<ViewComponent> ())
 			{
-                var viewComponent = ScriptableObject.CreateInstance<ViewComponent>();
+                var viewComponent = new ViewComponent();
 				viewComponent.Transforms.Add (this.transform);
 				Entity.AddComponent (viewComponent);
 			}
@@ -109,6 +109,11 @@ namespace AlphaECS.Unity
 				var viewComponent = Entity.GetComponent<ViewComponent> ();
 				viewComponent.Transforms.Add (this.transform);
 			}
+
+            foreach(var blueprint in Blueprints)
+            {
+                blueprint.Apply(this.Entity);
+            }
 
 			var monoBehaviours = GetComponents<Component>();
 			foreach (var mb in monoBehaviours)
