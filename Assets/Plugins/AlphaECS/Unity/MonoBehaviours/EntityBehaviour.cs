@@ -75,6 +75,9 @@ namespace AlphaECS.Unity
 		[SerializeField] [HideInInspector]
         public List<ComponentBase> CachedComponents = new List<ComponentBase>();
 
+		[SerializeField] [HideInInspector]
+        public List<BlueprintBase> Blueprints = new List<BlueprintBase>();
+
 		public IPoolManager PoolManager
 		{
 			get

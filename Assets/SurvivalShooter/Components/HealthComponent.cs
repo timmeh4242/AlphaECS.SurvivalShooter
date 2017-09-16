@@ -2,6 +2,7 @@
 using AlphaECS.Unity;
 using UniRx;
 using System;
+using UnityEngine;
 
 namespace AlphaECS.SurvivalShooter
 {
