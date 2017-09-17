@@ -46,7 +46,7 @@ namespace AlphaECS
 			if (view == null)
             { view = (EntityBehaviour)target; }
 
-            GetPrefabType();
+            SetHideFlags(PrefabUtility.GetPrefabType(view.gameObject));
 
             reorderableComponents = new ReorderableList(serializedObject, serializedObject.FindProperty("Components"), true, true, true, true);
 			
@@ -55,22 +55,66 @@ namespace AlphaECS
 
             reorderableComponents.drawElementCallback = (rect, index, isActive, isFocused) => 
             {
-                //HACK to fix issue when first creating a prefab from an instance
-                if(view.Components[index] == null)
+                var prefabType = PrefabUtility.GetPrefabType(view.gameObject);
+
+				//for when first creating a prefab from an instance
+                if( prefabType == PrefabType.Prefab && view.Components[index] == null)
                 {
-                    var instance = FindObjectsOfType<EntityBehaviour>()
-						.Where(eb => eb.name == view.name).FirstOrDefault();
-                    //.Where(eb => eb.Id == view.Id).FirstOrDefault();
-                    if (instance == null)
+					var instance = FindObjectsOfType<EntityBehaviour>()
+                        .Where(eb => eb.name == view.name).FirstOrDefault();
+					    //.Where(eb => eb.Id == view.Id).FirstOrDefault();
+					if (instance == null)
+					{
+						Debug.Log("unable to find instance. removing at " + index);
+						view.Components.RemoveAt(index);
+						return;
+					}
+
+					Debug.Log("added at " + index);
+					AssetDatabase.AddObjectToAsset(instance.Components[index], view.gameObject);
+                    AssetDatabase.SaveAssets();
+					view.Components[index] = instance.Components[index];
+                }
+
+                //check whether the prefab root has been updated but not the instance...
+                //...and try to force sync our instance to our prefab root
+                if(prefabType == PrefabType.PrefabInstance)
+                {
+					var prefab = PrefabUtility.GetPrefabParent(view.gameObject);
+                    if (prefab == null)
                     {
-                        Debug.Log("whoops!");
+                        //Debug.LogWarning("Unable to find parent prefab. Returning.");
                         return;
                     }
 
-                    AssetDatabase.AddObjectToAsset(instance.Components[index], view.gameObject);
-                    view.Components[index] = instance.Components[index];
-                    Debug.Log("added component");
-                }
+                    var prefabView = ((GameObject)prefab).GetComponent<EntityBehaviour>();
+                    if (prefabView == null)
+                    {
+						//Debug.LogWarning("Unable to find view on parent prefab. Returning.");
+						return;
+                    }
+
+                    if(!view.Components.SequenceEqual(prefabView.Components))
+                    {
+                        //Debug.LogWarning("Re-syncing instance to prefab root.");
+						view.Components.Clear();
+						for (var i = 0; i < prefabView.Components.Count; i++)
+						{
+							view.Components.Add(prefabView.Components[i]);
+                            //Debug.LogWarning("Added component at " + i);
+						}
+                        return;
+                    }
+				}
+
+				//the prefab has been deleted, and assets along with it, so reset
+				if (prefabType == PrefabType.MissingPrefabInstance)
+				{
+					Debug.LogWarning("Missing instance. Removing at " + index);
+					view.Components.RemoveAt(index);
+					return;
+				}
+
                 OnDrawElement(reorderableComponents, view.Components[index].GetType().ToString(), rect, index, isActive, isFocused);
             };
 
@@ -78,10 +122,26 @@ namespace AlphaECS
             { return OnElementHeight(reorderableComponents, index); };
 
 			reorderableComponents.onAddDropdownCallback = (Rect rect, ReorderableList list) =>
-			{ OnAddDropdown(rect, list, AddComponent, componentBaseTypes.ToArray()); };
+			{
+                var prefabType = PrefabUtility.GetPrefabType(view.gameObject);
+                if (prefabType == PrefabType.PrefabInstance)
+                {
+                    Debug.LogWarning("Edit the root prefab rather than the instance!");
+                    return;
+                }
+                OnAddDropdown(rect, list, AddComponent, componentBaseTypes.ToArray());
+            };
 
 			reorderableComponents.onRemoveCallback = (list) =>
-			{ RemoveComponent(list); };
+			{
+				var prefabType = PrefabUtility.GetPrefabType(view.gameObject);
+				if (prefabType == PrefabType.PrefabInstance)
+				{
+					Debug.LogWarning("Edit the root prefab rather than the instance!");
+					return;
+				}
+                RemoveComponent(list);
+            };
 
 
 
@@ -283,12 +343,15 @@ namespace AlphaECS
 		{
             var componentInfo = (ObjectInfo)info;
 			var component = (ComponentBase)ScriptableObject.CreateInstance(componentInfo.type);
+            component.name = componentInfo.type.Name;
             AddComponent(component);
 		}
 
         private void AddComponent(ComponentBase component)
         {
-			var prefabType = GetPrefabType();
+            var prefabType = PrefabUtility.GetPrefabType(view.gameObject);
+            SetHideFlags(prefabType);
+
 			if (prefabType == PrefabType.None)
 			{
 			}
@@ -297,12 +360,15 @@ namespace AlphaECS
 				if (prefabType == PrefabType.Prefab)
 				{
 					AssetDatabase.AddObjectToAsset(component, view.gameObject);
+					AssetDatabase.SaveAssets();
+					//Debug.Log("added asset to prefab root");
 				}
-				else
+                else if(prefabType == PrefabType.PrefabInstance)
 				{
-					var prefab = PrefabUtility.GetPrefabParent(view);
+                    var prefab = PrefabUtility.GetPrefabParent(view.gameObject);
 					AssetDatabase.AddObjectToAsset(component, prefab);
-                    Debug.Log("found parent");
+					AssetDatabase.SaveAssets();
+					//Debug.Log("added asset from instance to prefab root");
 				}
 			}
 			view.Components.Add(component);
@@ -310,7 +376,7 @@ namespace AlphaECS
 
 		private void RemoveComponent(ReorderableList list)
 		{
-            GetPrefabType();
+            //SetHideFlags(PrefabUtility.GetPrefabType((view.gameObject)));
 
 			var component = view.Components[list.index];
             DestroyImmediate(component, true);
@@ -319,8 +385,9 @@ namespace AlphaECS
 
         private void AddBlueprint(object info)
         {
-			var actionInfo = (ObjectInfo)info;
-            var blueprint = (BlueprintBase)ScriptableObject.CreateInstance(actionInfo.type);
+            var blueprintInfo = (ObjectInfo)info;
+            var blueprint = (BlueprintBase)ScriptableObject.CreateInstance(blueprintInfo.type);
+            blueprint.name = blueprintInfo.type.Name;
             view.Blueprints.Add(blueprint);
         }
 
@@ -336,23 +403,21 @@ namespace AlphaECS
 			if (GUI.changed && !Application.isPlaying)
 			{
 				this.SaveActiveSceneChanges();
+				AssetDatabase.SaveAssets();
 			}
 		}
 
-        private PrefabType GetPrefabType()
+        private void SetHideFlags(PrefabType prefabType)
         {
-            var prefabType = PrefabUtility.GetPrefabType(view.gameObject);
-            if (prefabType == PrefabType.None)
+            //Debug.Log(prefabType);
+			if (prefabType == PrefabType.None)
 			{
 				hideFlags = HideFlags.HideAndDontSave;
-                Debug.Log("not a prefab");
 			}
 			else
 			{
 				hideFlags = HideFlags.None;
-				Debug.Log("is a prefab");
 			}
-            return prefabType;
         }
 	}
 }

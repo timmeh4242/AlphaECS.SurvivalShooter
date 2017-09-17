@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd1718ac708b348dbaf343fe1c40d7d8, type: 3}
+  m_Name: ZomBearBlueprint
+  m_EditorClassIdentifier: 
+  Health: {fileID: 114421203916700154}
+  Melee: {fileID: 114138296438347260}
+--- !u!114 &114138296438347260
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea540a155caf84aa7822990545dc7a1c, type: 3}
+  m_Name: MeleeComponent
+  m_EditorClassIdentifier: 
+  Damage: 10
+  AttacksPerSecond: 2
+  TargetInRange:
+    value: 0
+--- !u!114 &114421203916700154
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c12d597adfe04d55ad3d04541a83b9f, type: 3}
+  m_Name: HealthComponent
+  m_EditorClassIdentifier: 
+  StartingHealth: 100
+  CurrentHealth:
+    value: 0
+  IsDamaged: 0

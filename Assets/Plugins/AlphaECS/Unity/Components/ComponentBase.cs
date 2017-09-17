@@ -22,6 +22,6 @@ namespace AlphaECS.Unity
 			Disposer.Dispose();
 		}
 
-		public ComponentBase() { }
+		//public ComponentBase() { }
 	}
 }

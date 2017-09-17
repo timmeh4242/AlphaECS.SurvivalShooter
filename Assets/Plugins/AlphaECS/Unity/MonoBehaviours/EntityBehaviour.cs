@@ -94,13 +94,13 @@ namespace AlphaECS.Unity
 
 			for (var i = 0; i < Components.Count; i++)
 			{
-				var component = Components[i];
+                var component = Instantiate(Components[i]);
 				Entity.AddComponent(component);
 			}
 
 			if (!Entity.HasComponent<ViewComponent> ())
 			{
-                var viewComponent = new ViewComponent();
+                var viewComponent = ScriptableObject.CreateInstance<ViewComponent>();
 				viewComponent.Transforms.Add (this.transform);
 				Entity.AddComponent (viewComponent);
 			}

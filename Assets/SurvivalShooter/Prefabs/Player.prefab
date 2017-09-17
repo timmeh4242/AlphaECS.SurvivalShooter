@@ -548,7 +548,38 @@ Light:
   m_UseColorTemperature: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
---- !u!114 &114390225041833608
+--- !u!114 &114291072946298464
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ab088ec5f0424381be6ff517c6475d0, type: 3}
+  m_Name: ShooterComponent
+  m_EditorClassIdentifier: 
+  Damage: 10
+  ShotsPerSecond: 10
+  Range: 10
+  IsShooting:
+    value: 0
+--- !u!114 &114361540926760336
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fd874ac1d5dd40b7accd737a825f8d6, type: 3}
+  m_Name: InputComponent
+  m_EditorClassIdentifier: 
+  Horizontal:
+    value: 0
+  Vertical:
+    value: 0
+--- !u!114 &114399828678741010
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
@@ -557,9 +588,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4c12d597adfe04d55ad3d04541a83b9f, type: 3}
-  m_Name: 
+  m_Name: HealthComponent
   m_EditorClassIdentifier: 
-  StartingHealth: 0
+  StartingHealth: 100
   CurrentHealth:
     value: 0
   IsDamaged: 0
@@ -579,36 +610,10 @@ MonoBehaviour:
   PoolName: 
   RemoveEntityOnDestroy: 1
   Components:
-  - {fileID: 114874959727599486}
-  - {fileID: 114390225041833608}
-  - {fileID: 114854458145674564}
+  - {fileID: 114399828678741010}
+  - {fileID: 114361540926760336}
+  - {fileID: 114291072946298464}
   Blueprints: []
---- !u!114 &114854458145674564
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d564cd7356a7942f3bfc68e94f328500, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &114874959727599486
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4c12d597adfe04d55ad3d04541a83b9f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  StartingHealth: 0
-  CurrentHealth:
-    value: 0
-  IsDamaged: 0
 --- !u!120 &120864041337940384
 LineRenderer:
   m_ObjectHideFlags: 1
