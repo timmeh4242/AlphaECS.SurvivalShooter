@@ -14,7 +14,11 @@ public class MeleeEnemyBlueprintEditor : Editor
 		if (view == null)
         { view = (MeleeEnemyBlueprint)target; }
 
-        if (view.Health == null)
+		var path = AssetDatabase.GetAssetPath(view);
+        if (string.IsNullOrEmpty(path))
+        { return;  }
+
+		if (view.Health == null)
         {
             view.Health = ScriptableObject.CreateInstance<HealthComponent>();
             view.Health.name = "HealthComponent";
@@ -33,21 +37,24 @@ public class MeleeEnemyBlueprintEditor : Editor
     {
         base.OnInspectorGUI();
 
-		if (view == null)
-		{ view = (MeleeEnemyBlueprint)target; }
+		//if (view == null)
+		//{ view = (MeleeEnemyBlueprint)target; }
 
-		if (view.Health == null)
-		{
-			view.Health = ScriptableObject.CreateInstance<HealthComponent>();
-			view.Health.name = "HealthComponent";
-			AssetDatabase.AddObjectToAsset(view.Health, view);
-		}
+		//var path = AssetDatabase.GetAssetPath(view);
+		//if (string.IsNullOrEmpty(path))
 
-		if (view.Melee == null)
-		{
-			view.Melee = ScriptableObject.CreateInstance<MeleeComponent>();
-			view.Melee.name = "MeleeComponent";
-			AssetDatabase.AddObjectToAsset(view.Melee, view);
-		}
+		//if (view.Health == null)
+		//{
+		//	view.Health = ScriptableObject.CreateInstance<HealthComponent>();
+		//	view.Health.name = "HealthComponent";
+		//	AssetDatabase.AddObjectToAsset(view.Health, view);
+		//}
+
+		//if (view.Melee == null)
+		//{
+		//	view.Melee = ScriptableObject.CreateInstance<MeleeComponent>();
+		//	view.Melee.name = "MeleeComponent";
+		//	AssetDatabase.AddObjectToAsset(view.Melee, view);
+		//}
 	}
 }

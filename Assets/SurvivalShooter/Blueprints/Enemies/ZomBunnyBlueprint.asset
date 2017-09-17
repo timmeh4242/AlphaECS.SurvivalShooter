@@ -9,11 +9,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fd1718ac708b348dbaf343fe1c40d7d8, type: 3}
-  m_Name: MeleeEnemyBlueprint
+  m_Name: ZomBunnyBlueprint
   m_EditorClassIdentifier: 
-  Health: {fileID: 114421203916700154}
-  Melee: {fileID: 114138296438347260}
---- !u!114 &114138296438347260
+  Health: {fileID: 114980033784071220}
+  Melee: {fileID: 114169587280839104}
+--- !u!114 &114169587280839104
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
@@ -28,7 +28,7 @@ MonoBehaviour:
   AttacksPerSecond: 2
   TargetInRange:
     value: 0
---- !u!114 &114421203916700154
+--- !u!114 &114980033784071220
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
