@@ -7,17 +7,17 @@ using AlphaECS;
 [CreateAssetMenu(menuName = "Blueprint/MeleeEnemy")]
 public class MeleeEnemyBlueprint : BlueprintBase
 {
-    public HealthComponent Health;
-    public MeleeComponent Melee;
+    public HealthComponent Health = new HealthComponent();
+    public MeleeComponent Melee = new MeleeComponent();
 
     public override void Apply(IEntity entity)
     {
         base.Apply(entity);
 
-        var health = Instantiate(Health);
-        entity.AddComponent(health);
+        //var health = Instantiate(Health);
+        entity.AddComponent(Health);
 
-        var melee = Instantiate(Melee);
-        entity.AddComponent(melee);
+        //var melee = Instantiate(Melee);
+        entity.AddComponent(Melee);
     }
 }

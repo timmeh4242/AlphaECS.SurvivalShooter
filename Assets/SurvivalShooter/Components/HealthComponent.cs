@@ -6,6 +6,7 @@ using UnityEngine;
 
 namespace AlphaECS.SurvivalShooter
 {
+    [Serializable]
     public class HealthComponent : ComponentBase
 	{
         public int StartingHealth;

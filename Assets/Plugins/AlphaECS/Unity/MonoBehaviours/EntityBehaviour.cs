@@ -92,23 +92,36 @@ namespace AlphaECS.Unity
 		{
 			base.Setup (eventSystem);
 
-			for (var i = 0; i < Components.Count; i++)
-			{
-                var component = Instantiate(Components[i]);
-				Entity.AddComponent(component);
-			}
-
 			if (!Entity.HasComponent<ViewComponent> ())
 			{
-                var viewComponent = ScriptableObject.CreateInstance<ViewComponent>();
-				viewComponent.Transforms.Add (this.transform);
+                var viewComponent = new ViewComponent();
+				AddTransformToView(viewComponent);
 				Entity.AddComponent (viewComponent);
 			}
 			else
 			{
-				var viewComponent = Entity.GetComponent<ViewComponent> ();
-				viewComponent.Transforms.Add (this.transform);
+				AddTransformToView (Entity.GetComponent<ViewComponent> ());
 			}
+
+			//for (var i = 0; i < Components.Count(); i++)
+			//{
+			//	var typeName = Components[i];
+			//	var type = Type.GetType(typeName);
+			//	if (type == null) { throw new Exception("Cannot resolve type for [" + typeName + "]"); }
+
+			//	var component = (object)Activator.CreateInstance(type);
+			//	var componentProperties = JSON.Parse(CachedProperties[i]);
+			//	component.DeserializeComponent(componentProperties);
+
+			//	Entity.AddComponent(component);
+			//}
+
+
+			//for (var i = 0; i < Components.Count; i++)
+			//{
+   //             var component = Instantiate(Components[i]);
+			//	Entity.AddComponent(component);
+			//}
 
             foreach(var blueprint in Blueprints)
             {
@@ -154,6 +167,19 @@ namespace AlphaECS.Unity
 			poolToUse.RemoveEntity(Entity);
 
 			base.OnDestroy();
+		}
+
+		private void AddTransformToView(ViewComponent viewComponent)
+		{
+			//ensure that the root EntityBehaviour's transform is first
+			if (Proxy == null)
+			{
+				viewComponent.Transforms.Insert (0, this.transform);
+			}
+			else
+			{
+				viewComponent.Transforms.Add(this.transform);
+			}
 		}
 	}
 }

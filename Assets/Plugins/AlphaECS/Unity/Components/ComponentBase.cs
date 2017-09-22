@@ -7,8 +7,9 @@ using System.Collections.Generic;
 
 namespace AlphaECS.Unity
 {
-	public class ComponentBase : ScriptableObject, IComponent, IDisposable, IDisposableContainer
-	//public class ComponentBase : IComponent, IDisposable, IDisposableContainer
+    [Serializable]
+	//public class ComponentBase : ScriptableObject, IComponent, IDisposable, IDisposableContainer
+	public class ComponentBase : IComponent, IDisposable, IDisposableContainer
 	{
 		private CompositeDisposable _disposer = new CompositeDisposable();
 		public CompositeDisposable Disposer

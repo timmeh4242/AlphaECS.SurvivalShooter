@@ -4865,6 +4865,16 @@ Prefab:
   m_Modification:
     m_TransformParent: {fileID: 1384153775}
     m_Modifications:
+    - target: {fileID: 114815174939823910, guid: 0c59860f57f864993a346bfafe7df61f,
+        type: 2}
+      propertyPath: Blueprints.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114815174939823910, guid: 0c59860f57f864993a346bfafe7df61f,
+        type: 2}
+      propertyPath: Components.Array.size
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4362250334424404, guid: 0c59860f57f864993a346bfafe7df61f, type: 2}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -4897,6 +4907,12 @@ Prefab:
       propertyPath: m_RootOrder
       value: 6
       objectReference: {fileID: 0}
+    - target: {fileID: 114815174939823910, guid: 0c59860f57f864993a346bfafe7df61f,
+        type: 2}
+      propertyPath: Blueprints.Array.data[0]
+      value: 
+      objectReference: {fileID: 11400000, guid: 86706bcde00914eb09da888c79b1fed5,
+        type: 2}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 0c59860f57f864993a346bfafe7df61f, type: 2}
   m_IsPrefabParent: 0
@@ -5019,7 +5035,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1989760879
 Transform:
   m_ObjectHideFlags: 0

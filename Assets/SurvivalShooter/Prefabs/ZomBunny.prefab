@@ -71,7 +71,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &121018
 GameObject:
   m_ObjectHideFlags: 0
@@ -585,7 +585,7 @@ MonoBehaviour:
   RemoveEntityOnDestroy: 1
   Components: []
   Blueprints:
-  - {fileID: 11400000, guid: bd9d8801fb3c042d793bf87f22d7551e, type: 2}
+  - {fileID: 0}
 --- !u!135 &13537682
 SphereCollider:
   m_ObjectHideFlags: 1

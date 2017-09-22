@@ -1,10 +1,29 @@
 ﻿using System; // require keep for Windows Universal App
 using UnityEngine;
 using System.Linq;
+using UniRx;
 
 #if !(UNITY_4_0 || UNITY_4_1 || UNITY_4_2 || UNITY_4_3 || UNITY_4_4 || UNITY_4_5)
 using UnityEngine.EventSystems;
 #endif
+
+public interface IDisposableContainer
+{
+	CompositeDisposable Disposer { get; }
+}
+
+public static partial class DisposableExtensions
+{
+	public static IDisposable AddTo(this IDisposable disposable, IDisposableContainer container)
+	{
+		if (container.Disposer.IsDisposed)
+		{
+			throw new Exception(string.Format("IDisposable on {0} object is already disposed", container.GetType().Name));
+		}
+		container.Disposer.Add(disposable);
+		return disposable;
+	}
+}
 
 namespace UniRx.Triggers
 {
