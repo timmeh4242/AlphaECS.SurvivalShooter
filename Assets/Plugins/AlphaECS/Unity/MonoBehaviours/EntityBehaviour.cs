@@ -72,8 +72,14 @@ namespace AlphaECS.Unity
 		[SerializeField] [HideInInspector]
 		public bool RemoveEntityOnDestroy = true;
 
+        //[SerializeField] [HideInInspector]
+        //public List<ComponentBase> Components = new List<ComponentBase>();
+
+        [SerializeField] [HideInInspector]
+        public List<string> ComponentTypes = new List<string>();
+
 		[SerializeField] [HideInInspector]
-        public List<ComponentBase> Components = new List<ComponentBase>();
+        public List<string> ComponentData = new List<string>();
 
 		[SerializeField] [HideInInspector]
         public List<BlueprintBase> Blueprints = new List<BlueprintBase>();
@@ -103,18 +109,15 @@ namespace AlphaECS.Unity
 				AddTransformToView (Entity.GetComponent<ViewComponent> ());
 			}
 
-			//for (var i = 0; i < Components.Count(); i++)
-			//{
-			//	var typeName = Components[i];
-			//	var type = Type.GetType(typeName);
-			//	if (type == null) { throw new Exception("Cannot resolve type for [" + typeName + "]"); }
+            for (var i = 0; i < ComponentTypes.Count(); i++)
+			{
+                var type = ComponentTypes[i].GetTypeWithAssembly();
+                if (type == null) { throw new Exception("Cannot resolve type for [" + ComponentTypes[i] + "]"); }
 
-			//	var component = (object)Activator.CreateInstance(type);
-			//	var componentProperties = JSON.Parse(CachedProperties[i]);
-			//	component.DeserializeComponent(componentProperties);
-
-			//	Entity.AddComponent(component);
-			//}
+                var component = (object)Activator.CreateInstance(type);
+                JsonUtility.FromJsonOverwrite(ComponentData[i], component);
+				Entity.AddComponent(component);
+			}
 
 
 			//for (var i = 0; i < Components.Count; i++)

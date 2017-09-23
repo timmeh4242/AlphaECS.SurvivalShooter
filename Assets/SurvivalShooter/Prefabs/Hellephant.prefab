@@ -613,8 +613,10 @@ MonoBehaviour:
   Id: 
   PoolName: 
   RemoveEntityOnDestroy: 1
-  Components: []
-  Blueprints: []
+  ComponentTypes: []
+  ComponentData: []
+  Blueprints:
+  - {fileID: 11400000, guid: 86706bcde00914eb09da888c79b1fed5, type: 2}
 --- !u!135 &13598538
 SphereCollider:
   m_ObjectHideFlags: 1

@@ -563,7 +563,14 @@ MonoBehaviour:
   Id: 
   PoolName: 
   RemoveEntityOnDestroy: 1
-  Components: []
+  ComponentTypes:
+  - AlphaECS.SurvivalShooter.HealthComponent
+  - AlphaECS.SurvivalShooter.InputComponent
+  - AlphaECS.SurvivalShooter.ShooterComponent
+  ComponentData:
+  - '{"StartingHealth":100,"CurrentHealth":{"value":0},"IsDamaged":false}'
+  - '{"Horizontal":{"value":0.0},"Vertical":{"value":0.0}}'
+  - '{"Damage":10,"ShotsPerSecond":10.0,"Range":10.0,"IsShooting":{"value":false}}'
   Blueprints: []
 --- !u!120 &120864041337940384
 LineRenderer:

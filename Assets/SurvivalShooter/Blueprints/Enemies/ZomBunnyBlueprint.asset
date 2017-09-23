@@ -9,15 +9,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fd1718ac708b348dbaf343fe1c40d7d8, type: 3}
-  m_Name: HellephantBlueprint
+  m_Name: ZomBunnyBlueprint
   m_EditorClassIdentifier: 
   Health:
-    StartingHealth: 300
+    StartingHealth: 100
     CurrentHealth:
       value: 0
     IsDamaged: 0
   Melee:
-    Damage: 30
-    AttacksPerSecond: 1
+    Damage: 10
+    AttacksPerSecond: 2
     TargetInRange:
       value: 0

@@ -14,10 +14,11 @@ public class MeleeEnemyBlueprint : BlueprintBase
     {
         base.Apply(entity);
 
+        var clone = Instantiate(this);
         //var health = Instantiate(Health);
-        entity.AddComponent(Health);
+        entity.AddComponent(clone.Health);
 
         //var melee = Instantiate(Melee);
-        entity.AddComponent(Melee);
+        entity.AddComponent(clone.Melee);
     }
 }

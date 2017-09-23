@@ -35,6 +35,7 @@ namespace AlphaECS
 		int headerProperties = 2;
         float lineHeight = EditorGUIUtility.singleLineHeight;
         float lineSpacing = EditorGUIUtility.standardVerticalSpacing;
+        float elementPadding = EditorGUIUtility.standardVerticalSpacing;
 
 		public float[] componentHeights = new float[100];
 		public float[] blueprintHeights = new float[100];
@@ -51,14 +52,17 @@ namespace AlphaECS
 			if (view == null)
 			{ view = (EntityBehaviour)target; }
 
-			reorderableComponents = new ReorderableList(serializedObject, serializedObject.FindProperty("Components"), true, true, true, true);
+			reorderableComponents = new ReorderableList(serializedObject, serializedObject.FindProperty("ComponentTypes"), true, true, true, true);
 
 			reorderableComponents.drawHeaderCallback = (Rect rect) =>
 			{ EditorGUI.LabelField(rect, "Components", EditorStyles.boldLabel); };
 
 			reorderableComponents.drawElementCallback = (rect, index, isActive, isFocused) =>
 			{
-                OnDrawElement(rect, view.Components[index], index, componentHeights);
+                var component = (object)Activator.CreateInstance(view.ComponentTypes[index].GetTypeWithAssembly());
+                JsonUtility.FromJsonOverwrite(view.ComponentData[index], component);
+                OnDrawElement(rect, component, index, componentHeights);
+                view.ComponentData[index] = JsonUtility.ToJson(component);
 				//OnDrawElement(reorderableComponents, view.Components[index].GetType().ToString(), rect, index, isActive, isFocused, componentHeights);
 			};
 
@@ -98,7 +102,7 @@ namespace AlphaECS
 			};
 
 			reorderableBlueprints.onAddDropdownCallback = (Rect rect, ReorderableList list) =>
-			{ OnAddDropdown(list); };
+			{ OnAddDropdown(list, "Blueprints"); };
 
 			reorderableBlueprints.onRemoveCallback = (list) =>
 			{ RemoveBlueprint(list); };
@@ -138,8 +142,7 @@ namespace AlphaECS
 						OnDrawElement(rect, view.Entity.Components.ElementAt(i), i, componentHeights);
 						EditorGUILayout.EndVertical();
 
-						GUILayoutUtility.GetRect(0f, componentHeights[i]);
-						EditorGUILayout.Space();
+                        GUILayoutUtility.GetRect(0f, componentHeights[i] + lineHeight);
 					}
 				}
 
@@ -171,14 +174,14 @@ namespace AlphaECS
 			{
 				serializedObject.Update();
 				Undo.RecordObject(view, "Added Data");
-
 				reorderableComponents.DoLayoutList();
 				serializedObject.ApplyModifiedProperties();
 			}
 
 			if (componentToRemove > -1)
 			{
-                view.Components.RemoveAt(componentToRemove);
+                view.ComponentTypes.RemoveAt(componentToRemove);
+                view.ComponentData.RemoveAt(componentToRemove);
 
 				//if (component.GetType().IsSubclassOf(typeof(Component)))
 				//{
@@ -201,15 +204,7 @@ namespace AlphaECS
 			{
 				serializedObject.Update();
 				Undo.RecordObject(view, "Added Data");
-
-				if (!Application.isPlaying)
-				{
-					reorderableBlueprints.DoLayoutList();
-				}
-				else
-				{
-					reorderableBlueprints.DoLayoutList();
-				}
+				reorderableBlueprints.DoLayoutList();
 				serializedObject.ApplyModifiedProperties();
 			}
 
@@ -262,6 +257,8 @@ namespace AlphaECS
 		/// </summary>
 		private void OnDrawElement(Rect rect, object component, int index, float[] heightsArray)
 		{
+			serializedObject.Update();
+
 			var componentType = component.GetType();
 			var typeName = componentType == null ? "" : componentType.Name;
 			var typeNamespace = componentType == null ? "" : componentType.Namespace;
@@ -292,6 +289,7 @@ namespace AlphaECS
 			if (componentType.IsSubclassOf(typeof(UnityEngine.Component)))
 			{
 				heightsArray[index] = (headerProperties * lineHeight) + (headerProperties * lineSpacing);
+                serializedObject.ApplyModifiedProperties();
 				return;
 			}
 
@@ -300,14 +298,13 @@ namespace AlphaECS
 			//draw component fields
 			foreach (var field in component.GetType().GetFields())
 			{
-
-				var _type = field.FieldType;
-				var _value = field.GetValue(component);
-				var isTypeSupported = TryDrawValue(rect, _type, ref _value, field.Name, i);
+                var type = field.FieldType;
+                var value = field.GetValue(component);
+				var isTypeSupported = this.TryDrawValue(rect, type, ref value, field.Name, i);
 
 				if (isTypeSupported == true)
 				{
-					field.SetValue(component, _value);
+					field.SetValue(component, value);
 					i++;
 				}
 			}
@@ -315,124 +312,19 @@ namespace AlphaECS
 			//draw component properties
 			foreach (var property in component.GetType().GetProperties())
 			{
-				var _type = property.PropertyType;
-				var _value = property.GetValue(component, null);
-				var isTypeSupported = TryDrawValue(rect, _type, ref _value, property.Name, i);
+                var type = property.PropertyType;
+                var value = property.GetValue(component, null);
+				var isTypeSupported = this.TryDrawValue(rect, type, ref value, property.Name, i);
 
 				if (isTypeSupported == true)
 				{
-					property.SetValue(component, _value, null);
+					property.SetValue(component, value, null);
 					i++;
 				}
 			}
 
+			serializedObject.ApplyModifiedProperties();
 			heightsArray[index] = (i * lineHeight) + (i * lineSpacing);
-		}
-
-		private bool TryDrawValue(Rect rect, Type type, ref object value, string name, int index)
-		{
-			if (name == "hideFlags" || name == "name")
-			{
-				return false;
-			}
-
-			if (type == typeof(int))
-			{
-				value = EditorGUI.IntField(new Rect(rect.x, rect.y + (index * lineHeight) + (index * lineSpacing), rect.width, lineHeight), name, (int)value);
-			}
-			else if (type == typeof(IntReactiveProperty))
-			{
-				var reactiveProperty = value as IntReactiveProperty;
-				reactiveProperty.Value = EditorGUI.IntField(new Rect(rect.x, rect.y + (index * lineHeight) + (index * lineSpacing), rect.width, lineHeight), name, reactiveProperty.Value);
-			}
-			else if (type == typeof(float))
-			{
-				value = EditorGUI.FloatField(new Rect(rect.x, rect.y + (index * lineHeight) + (index * lineSpacing), rect.width, lineHeight), name, (float)value);
-			}
-			else if (type == typeof(FloatReactiveProperty))
-			{
-				var reactiveProperty = value as FloatReactiveProperty;
-				reactiveProperty.Value = EditorGUI.FloatField(new Rect(rect.x, rect.y + (index * lineHeight) + (index * lineSpacing), rect.width, lineHeight), name, reactiveProperty.Value);
-			}
-			else if (type == typeof(bool))
-			{
-				value = EditorGUI.Toggle(new Rect(rect.x, rect.y + (index * lineHeight) + (index * lineSpacing), rect.width, lineHeight), name, (bool)value);
-			}
-			else if (type == typeof(BoolReactiveProperty))
-			{
-				var reactiveProperty = value as BoolReactiveProperty;
-				reactiveProperty.Value = EditorGUI.Toggle(new Rect(rect.x, rect.y + (index * lineHeight) + (index * lineSpacing), rect.width, lineHeight), name, reactiveProperty.Value);
-			}
-			else if (type == typeof(string))
-			{
-				value = EditorGUI.TextField(new Rect(rect.x, rect.y + (index * lineHeight) + (index * lineSpacing), rect.width, lineHeight), name, (string)value);
-			}
-			else if (type == typeof(StringReactiveProperty))
-			{
-				var reactiveProperty = value as StringReactiveProperty;
-				reactiveProperty.Value = EditorGUI.TextField(new Rect(rect.x, rect.y + (index * lineHeight) + (index * lineSpacing), rect.width, lineHeight), name, reactiveProperty.Value);
-			}
-			else if (type == typeof(Vector2))
-			{
-				value = EditorGUI.Vector2Field(new Rect(rect.x, rect.y + (index * lineHeight) + (index * lineSpacing), rect.width, lineHeight), name, (Vector2)value);
-			}
-			else if (type == typeof(Vector2ReactiveProperty))
-			{
-				var reactiveProperty = value as Vector2ReactiveProperty;
-				value = EditorGUI.Vector2Field(new Rect(rect.x, rect.y + (index * lineHeight) + (index * lineSpacing), rect.width, lineHeight), name, reactiveProperty.Value);
-			}
-			else if (type == typeof(Vector3))
-			{
-				value = EditorGUI.Vector3Field(new Rect(rect.x, rect.y + (index * lineHeight) + (index * lineSpacing), rect.width, lineHeight), name, (Vector3)value);
-			}
-			else if (type == typeof(Vector3ReactiveProperty))
-			{
-				var reactiveProperty = value as Vector3ReactiveProperty;
-				value = EditorGUI.Vector3Field(new Rect(rect.x, rect.y + (index * lineHeight) + (index * lineSpacing), rect.width, lineHeight), name, reactiveProperty.Value);
-			}
-			else if (type == typeof(Color))
-			{
-				value = EditorGUI.ColorField(new Rect(rect.x, rect.y + (index * lineHeight) + (index * lineSpacing), rect.width, lineHeight), name, (Color)value);
-			}
-			else if (type == typeof(ColorReactiveProperty))
-			{
-				var reactiveProperty = value as ColorReactiveProperty;
-				reactiveProperty.Value = EditorGUI.ColorField(new Rect(rect.x, rect.y + (index * lineHeight) + (index * lineSpacing), rect.width, lineHeight), name, reactiveProperty.Value);
-			}
-			else if (type == typeof(Bounds))
-			{
-				value = EditorGUI.BoundsField(new Rect(rect.x, rect.y + (index * lineHeight) + (index * lineSpacing), rect.width, lineHeight), name, (Bounds)value);
-			}
-			else if (type == typeof(BoundsReactiveProperty))
-			{
-				var reactiveProperty = value as BoundsReactiveProperty;
-				reactiveProperty.Value = EditorGUI.BoundsField(new Rect(rect.x, rect.y + (index * lineHeight) + (index * lineSpacing), rect.width, lineHeight), name, (Bounds)reactiveProperty.Value);
-			}
-			else if (type == typeof(Rect))
-			{
-				value = EditorGUI.RectField(new Rect(rect.x, rect.y + (index * lineHeight) + (index * lineSpacing), rect.width, lineHeight), name, (Rect)value);
-			}
-			else if (type == typeof(RectReactiveProperty))
-			{
-				var reactiveProperty = value as RectReactiveProperty;
-				reactiveProperty.Value = EditorGUI.RectField(new Rect(rect.x, rect.y + (index * lineHeight) + (index * lineSpacing), rect.width, lineHeight), name, (Rect)reactiveProperty.Value);
-			}
-			else if (type == typeof(Enum))
-			{
-				value = EditorGUI.EnumPopup(new Rect(rect.x, rect.y + (index * lineHeight) + (index * lineSpacing), rect.width, lineHeight), name, (Enum)value);
-			}
-			else if (type == typeof(UnityEngine.GameObject))
-			{
-				value = EditorGUI.ObjectField(new Rect(rect.x, rect.y + (index * lineHeight) + (index * lineSpacing), rect.width, lineHeight), name, (UnityEngine.GameObject)value, type, true);
-			}
-			else
-			{
-				Debug.LogWarning("This type is not supported: " + type.Name + " - In action: " + name);
-				//Debug.LogWarning("This type is not supported!");
-				return false;
-			}
-
-			return true;
 		}
 
 		private void OnAddDropdown(Rect rect, ReorderableList list, Action<object> action, Type[] types)
@@ -447,11 +339,10 @@ namespace AlphaECS
 			dropdownMenu.ShowAsContext();
 		}
 
-		private void OnAddDropdown(ReorderableList list)
+		private void OnAddDropdown(ReorderableList list, string elementName)
 		{
-			//view.Blueprints.Add(null);
-			var blueprints = list.serializedProperty.serializedObject.FindProperty("Blueprints");
-			blueprints.arraySize += 1;
+			var element = list.serializedProperty.serializedObject.FindProperty(elementName);
+			element.arraySize += 1;
 		}
 
 		private void DrawHeaderSection()
@@ -489,14 +380,17 @@ namespace AlphaECS
 		{
 			var componentInfo = (ObjectInfo)info;
             var component = (ComponentBase)Activator.CreateInstance(componentInfo.type);
-			//component.name = componentInfo.type.Name;
-			view.Components.Add(component);
+            var type = component.GetType().ToString();
+            var json = JsonUtility.ToJson(component);
+
+            view.ComponentTypes.Add(type);
+            view.ComponentData.Add(json);
 		}
 
 		private void RemoveComponent(ReorderableList list)
 		{
-			var component = view.Components[list.index];
-			view.Components.RemoveAt(list.index);
+            view.ComponentTypes.RemoveAt(list.index);
+            view.ComponentData.RemoveAt(list.index);
 		}
 
 		private void AddBlueprint(object info)
@@ -517,19 +411,7 @@ namespace AlphaECS
 			if (GUI.changed && !Application.isPlaying)
 			{
 				this.SaveActiveSceneChanges();
-				//              AssetDatabase.SaveAssets();
-			}
-		}
-
-		private void SetHideFlags(PrefabType prefabType)
-		{
-			if (prefabType == PrefabType.None)
-			{
-				hideFlags = HideFlags.HideAndDontSave;
-			}
-			else
-			{
-				hideFlags = HideFlags.None;
+//              AssetDatabase.SaveAssets();
 			}
 		}
 	}
