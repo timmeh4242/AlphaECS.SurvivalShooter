@@ -19,7 +19,7 @@ namespace Zenject
             _container = container;
         }
 
-        public DiContainer CreateSubContainer(List<TypeValuePair> args)
+        public DiContainer CreateSubContainer(List<TypeValuePair> args, InjectContext context)
         {
             Assert.IsEmpty(args);
 
@@ -27,8 +27,8 @@ namespace Zenject
 
             _installMethod(subContainer);
 
-            subContainer.FlushInjectQueue();
             subContainer.ResolveDependencyRoots();
+            subContainer.FlushInjectQueue();
 
             if (subContainer.IsValidating)
             {
@@ -57,7 +57,7 @@ namespace Zenject
             _container = container;
         }
 
-        public DiContainer CreateSubContainer(List<TypeValuePair> args)
+        public DiContainer CreateSubContainer(List<TypeValuePair> args, InjectContext context)
         {
             Assert.IsEqual(args.Count, 1);
             Assert.That(args[0].Type.DerivesFromOrEqual<TParam1>());
@@ -66,8 +66,8 @@ namespace Zenject
 
             _installMethod(subContainer, (TParam1)args[0].Value);
 
-            subContainer.FlushInjectQueue();
             subContainer.ResolveDependencyRoots();
+            subContainer.FlushInjectQueue();
 
             if (subContainer.IsValidating)
             {
@@ -96,7 +96,7 @@ namespace Zenject
             _container = container;
         }
 
-        public DiContainer CreateSubContainer(List<TypeValuePair> args)
+        public DiContainer CreateSubContainer(List<TypeValuePair> args, InjectContext context)
         {
             Assert.IsEqual(args.Count, 2);
             Assert.That(args[0].Type.DerivesFromOrEqual<TParam1>());
@@ -109,8 +109,8 @@ namespace Zenject
                 (TParam1)args[0].Value,
                 (TParam2)args[1].Value);
 
-            subContainer.FlushInjectQueue();
             subContainer.ResolveDependencyRoots();
+            subContainer.FlushInjectQueue();
 
             if (subContainer.IsValidating)
             {
@@ -139,7 +139,7 @@ namespace Zenject
             _container = container;
         }
 
-        public DiContainer CreateSubContainer(List<TypeValuePair> args)
+        public DiContainer CreateSubContainer(List<TypeValuePair> args, InjectContext context)
         {
             Assert.IsEqual(args.Count, 3);
             Assert.That(args[0].Type.DerivesFromOrEqual<TParam1>());
@@ -154,8 +154,8 @@ namespace Zenject
                 (TParam2)args[1].Value,
                 (TParam3)args[2].Value);
 
-            subContainer.FlushInjectQueue();
             subContainer.ResolveDependencyRoots();
+            subContainer.FlushInjectQueue();
 
             if (subContainer.IsValidating)
             {
@@ -184,7 +184,7 @@ namespace Zenject
             _container = container;
         }
 
-        public DiContainer CreateSubContainer(List<TypeValuePair> args)
+        public DiContainer CreateSubContainer(List<TypeValuePair> args, InjectContext context)
         {
             Assert.IsEqual(args.Count, 4);
             Assert.That(args[0].Type.DerivesFromOrEqual<TParam1>());
@@ -201,8 +201,8 @@ namespace Zenject
                 (TParam3)args[2].Value,
                 (TParam4)args[3].Value);
 
-            subContainer.FlushInjectQueue();
             subContainer.ResolveDependencyRoots();
+            subContainer.FlushInjectQueue();
 
             if (subContainer.IsValidating)
             {
@@ -231,7 +231,7 @@ namespace Zenject
             _container = container;
         }
 
-        public DiContainer CreateSubContainer(List<TypeValuePair> args)
+        public DiContainer CreateSubContainer(List<TypeValuePair> args, InjectContext context)
         {
             Assert.IsEqual(args.Count, 5);
             Assert.That(args[0].Type.DerivesFromOrEqual<TParam1>());
@@ -250,8 +250,8 @@ namespace Zenject
                 (TParam4)args[3].Value,
                 (TParam5)args[4].Value);
 
-            subContainer.FlushInjectQueue();
             subContainer.ResolveDependencyRoots();
+            subContainer.FlushInjectQueue();
 
             if (subContainer.IsValidating)
             {

@@ -94,13 +94,21 @@ namespace AlphaECS.Unity
 		}
 		private IPoolManager poolManager;
 
-		public override void Setup (IEventSystem eventSystem)
+		public override void Initialize (IEventSystem eventSystem)
 		{
-			base.Setup (eventSystem);
+			base.Initialize (eventSystem);
+		}
 
+		/* TODO
+		 * this gets us around the "force enable" issue but
+		 * we still may have a problem of garbage entities
+		 * because the entity gets added to the pool with or without awake being called
+		*/
+		void Awake()
+		{
 			if (!Entity.HasComponent<ViewComponent> ())
 			{
-                var viewComponent = new ViewComponent();
+				var viewComponent = new ViewComponent();
 				AddTransformToView(viewComponent);
 				Entity.AddComponent (viewComponent);
 			}
@@ -109,27 +117,27 @@ namespace AlphaECS.Unity
 				AddTransformToView (Entity.GetComponent<ViewComponent> ());
 			}
 
-            for (var i = 0; i < ComponentTypes.Count(); i++)
+			for (var i = 0; i < ComponentTypes.Count(); i++)
 			{
-                var type = ComponentTypes[i].GetTypeWithAssembly();
-                if (type == null) { throw new Exception("Cannot resolve type for [" + ComponentTypes[i] + "]"); }
+				var type = ComponentTypes[i].GetTypeWithAssembly();
+				if (type == null) { throw new Exception("Cannot resolve type for [" + ComponentTypes[i] + "]"); }
 
-                var component = (object)Activator.CreateInstance(type);
-                JsonUtility.FromJsonOverwrite(ComponentData[i], component);
+				var component = (object)Activator.CreateInstance(type);
+				JsonUtility.FromJsonOverwrite(ComponentData[i], component);
 				Entity.AddComponent(component);
 			}
 
 
 			//for (var i = 0; i < Components.Count; i++)
 			//{
-   //             var component = Instantiate(Components[i]);
+			//             var component = Instantiate(Components[i]);
 			//	Entity.AddComponent(component);
 			//}
 
-            foreach(var blueprint in Blueprints)
-            {
-                blueprint.Apply(this.Entity);
-            }
+			foreach(var blueprint in Blueprints)
+			{
+				blueprint.Apply(this.Entity);
+			}
 
 			var monoBehaviours = GetComponents<Component>();
 			foreach (var mb in monoBehaviours)
@@ -148,26 +156,11 @@ namespace AlphaECS.Unity
 
 		public override void OnDestroy()
 		{
-			if (IsQuitting) return;
-			if (!RemoveEntityOnDestroy) return;
-			if (Proxy != null) return;
+			if (EcsApplication.IsQuitting) { return; }
+			if (!RemoveEntityOnDestroy) { return; }
+			if (Proxy != null) { return; }
 
-			IPool poolToUse;
-
-			if (string.IsNullOrEmpty(PoolName))
-			{
-				poolToUse = PoolManager.GetPool();
-			}
-			else if (PoolManager.Pools.All(x => x.Name != PoolName))
-			{
-				poolToUse = PoolManager.CreatePool(PoolName);
-			}
-			else
-			{
-				poolToUse = PoolManager.GetPool(PoolName);
-			}
-
-			poolToUse.RemoveEntity(Entity);
+			this.Pool.RemoveEntity (Entity);
 
 			base.OnDestroy();
 		}

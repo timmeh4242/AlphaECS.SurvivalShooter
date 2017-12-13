@@ -299,13 +299,13 @@ namespace UniRx.Triggers
 
 
 
-		public static IObservable<ObservableStateMachineTrigger.OnStateInfo> OnStateEnter(this Animator animator, string fullPath) 
+		public static IObservable<ObservableStateMachineTrigger.OnStateInfo> OnStateEnter(this Animator animator, params string[] fullPaths) 
 		{
-			int fullPathHash = Animator.StringToHash(fullPath);
-            return animator.OnStateEnter(fullPathHash);
+			var fullPathHashes = fullPaths.Select(s => Animator.StringToHash(s)).ToArray();
+			return animator.OnStateEnter(fullPathHashes);
 		}
 
-        public static IObservable<ObservableStateMachineTrigger.OnStateInfo> OnStateEnter(this Animator animator, int fullPathHash) 
+        public static IObservable<ObservableStateMachineTrigger.OnStateInfo> OnStateEnter(this Animator animator, params int[] fullPathHashes) 
         {
             var observableStateMachineTriggers = animator.GetBehaviours<ObservableStateMachineTrigger>();
 			if (observableStateMachineTriggers.Length <= 0 || observableStateMachineTriggers == null)
@@ -315,7 +315,7 @@ namespace UniRx.Triggers
 			}
 
             var observableTriggers = observableStateMachineTriggers.Select(trigger => trigger.OnStateEnterAsObservable()
-                .Where(onStateInfo => onStateInfo.StateInfo.fullPathHash == fullPathHash));
+				.Where(onStateInfo => fullPathHashes.Contains(onStateInfo.StateInfo.fullPathHash)));
 
             return Observable.Merge(observableTriggers);
         }
@@ -341,7 +341,13 @@ namespace UniRx.Triggers
 			return Observable.Merge(observableTriggers);
 		}
 
-        public static IObservable<ObservableStateMachineTrigger.OnStateInfo> OnStateNormalizedTime(this Animator animator, string fullPath, float normalizedTime) 
+		public static IObservable<ObservableStateMachineTrigger.OnStateInfo> OnStateNormalizedTime(this Animator animator, string fullPath, float normalizedTime) 
+		{
+			var fullPathHash = Animator.StringToHash (fullPath);
+			return animator.OnStateNormalizedTime (fullPathHash, normalizedTime);
+		}
+
+        public static IObservable<ObservableStateMachineTrigger.OnStateInfo> OnStateNormalizedTime(this Animator animator, int fullPathHash, float normalizedTime) 
         {
             var observableStateMachineTriggers = animator.GetBehaviours<ObservableStateMachineTrigger>();
 			if (observableStateMachineTriggers.Length <= 0 || observableStateMachineTriggers == null)
@@ -349,9 +355,7 @@ namespace UniRx.Triggers
 				Debug.LogWarning ("No ObservableStateMachineTriggers were found on " + animator.name + " animator!");
 				return null;
 			}
-
-            int fullPathHash = Animator.StringToHash(fullPath);
-
+				
             var emit = false;
 
             var observableTriggers = observableStateMachineTriggers.Select(trigger => trigger.OnStateUpdateAsObservable()
@@ -425,13 +429,13 @@ namespace UniRx.Triggers
 			return Observable.Merge(observableTriggers);
 		}
 
-        public static IObservable<ObservableStateMachineTrigger.OnStateInfo> OnStateExit(this Animator animator, string fullPath) 
+        public static IObservable<ObservableStateMachineTrigger.OnStateInfo> OnStateExit(this Animator animator, params string[] fullPaths) 
         {
-            int fullPathHash = Animator.StringToHash(fullPath);
-            return animator.OnStateExit(fullPathHash);
+			var fullPathHashes = fullPaths.Select(s => Animator.StringToHash(s)).ToArray();
+            return animator.OnStateExit(fullPathHashes);
         }
 
-        public static IObservable<ObservableStateMachineTrigger.OnStateInfo> OnStateExit(this Animator animator, int fullPathHash) 
+        public static IObservable<ObservableStateMachineTrigger.OnStateInfo> OnStateExit(this Animator animator, params int[] fullPathHashes) 
         {
             var observableStateMachineTriggers = animator.GetBehaviours<ObservableStateMachineTrigger>();
 			if (observableStateMachineTriggers.Length <= 0 || observableStateMachineTriggers == null)
@@ -441,7 +445,7 @@ namespace UniRx.Triggers
 			}
 
             var observableTriggers = observableStateMachineTriggers.Select(trigger => trigger.OnStateExitAsObservable()
-                .Where(onStateInfo => onStateInfo.StateInfo.fullPathHash == fullPathHash));
+				.Where(onStateInfo => fullPathHashes.Contains(onStateInfo.StateInfo.fullPathHash)));
 
             return Observable.Merge(observableTriggers);
         }

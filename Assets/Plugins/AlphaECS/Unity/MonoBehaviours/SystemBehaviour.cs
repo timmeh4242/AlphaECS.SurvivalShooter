@@ -22,23 +22,36 @@ namespace AlphaECS.Unity
             get { return _disposer; }
             private set { _disposer = value; }
         }
-
-        void OnDestroy()
-        {
-            Dispose();
-        }
-
+			
         [Inject]
-		public virtual void Setup(IEventSystem eventSystem, IPoolManager poolManager, GroupFactory groupFactory)
+		public virtual void Initialize(IEventSystem eventSystem, IPoolManager poolManager, GroupFactory groupFactory)
         {
 			EventSystem = eventSystem;
 			PoolManager = poolManager;
 			GroupFactory = groupFactory;
         }
 
+		public virtual void OnEnable() { }
+
+		public virtual void OnDisable()
+		{
+			Disposer.Clear ();
+		}
+
+		public virtual void OnDestroy()
+		{
+			if (EcsApplication.IsQuitting) { return; }
+			Dispose();
+		}
+
         public virtual void Dispose()
         {
             Disposer.Dispose();
         }
+
+		public virtual void OnApplicationQuit()
+		{
+			EcsApplication.IsQuitting = true;
+		}
     }
 }

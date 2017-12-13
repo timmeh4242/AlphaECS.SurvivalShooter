@@ -1,5 +1,7 @@
 ﻿using System;
 using UnityEngine;
+using System.Linq;
+using Zenject;
 
 namespace AlphaECS.Unity
 {
@@ -28,8 +30,30 @@ namespace AlphaECS.Unity
 		public static void ForceEnable(this GameObject gameObject)
 		{
 			var isActive = gameObject.activeSelf;
+			var parent = gameObject.transform.parent;
+            var index = gameObject.transform.GetSiblingIndex();
+
+			gameObject.transform.SetParent (ProjectContext.Instance.Container.DefaultParent, true);
 			gameObject.SetActive (true);
 			gameObject.SetActive (isActive);
+			gameObject.transform.SetParent (parent, true);
+            gameObject.transform.SetSiblingIndex(index);
 		}
+
+//		//if a parent is disabled and the child enabled, the above won't work
+//		public static void ForceEnable(this GameObject[] gameObjects)
+//		{
+//			var isActive = gameObjects.Select (go => go.activeSelf).ToArray();
+//
+//			for (var i = 0; i < gameObjects.Length; i++)
+//			{
+//				gameObjects[i].SetActive (true);
+//			}
+//
+//			for (var i = 0; i < gameObjects.Length; i++)
+//			{
+//				gameObjects[i].SetActive (isActive[i]);
+//			}
+//		}
 	}
 }

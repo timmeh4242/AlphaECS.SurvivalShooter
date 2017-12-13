@@ -53,7 +53,7 @@ namespace AlphaECS
         }
 
 		[Inject]
-		public virtual void Setup(IEventSystem eventSystem, IPoolManager poolManager)
+		public virtual void Initialize(IEventSystem eventSystem, IPoolManager poolManager)
 		{
 			EventSystem = eventSystem;
 			EntityPool = poolManager.GetPool ();

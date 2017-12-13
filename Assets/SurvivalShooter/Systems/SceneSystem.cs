@@ -9,9 +9,9 @@ namespace AlphaECS.SurvivalShooter
 {
 	public class SceneSystem : SystemBehaviour
 	{
-		public override void Setup (IEventSystem eventSystem, IPoolManager poolManager, GroupFactory groupFactory)
+		public override void Initialize (IEventSystem eventSystem, IPoolManager poolManager, GroupFactory groupFactory)
 		{
-			base.Setup (eventSystem, poolManager, groupFactory);
+			base.Initialize (eventSystem, poolManager, groupFactory);
 
 			EventSystem.OnEvent<LoadSceneEvent> ().Subscribe (e =>
 			{

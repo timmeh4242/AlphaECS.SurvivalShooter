@@ -133,20 +133,23 @@ namespace Zenject
             // Do nothing - Initialize occurs in Instance property
         }
 
+        public void Awake()
+        {
+            if (Application.isPlaying)
+                // DontDestroyOnLoad can only be called when in play mode and otherwise produces errors
+                // ProjectContext is created during design time (in an empty scene) when running validation
+                // and also when running unit tests
+                // In these cases we don't need DontDestroyOnLoad so just skip it
+            {
+                DontDestroyOnLoad(gameObject);
+            }
+        }
+
         void Initialize()
         {
             Log.Debug("Initializing ProjectContext");
 
             Assert.IsNull(_container);
-
-            if (Application.isPlaying)
-            // DontDestroyOnLoad can only be called when in play mode and otherwise produces errors
-            // ProjectContext is created during design time (in an empty scene) when running validation
-            // and also when running unit tests
-            // In these cases we don't need DontDestroyOnLoad so just skip it
-            {
-                DontDestroyOnLoad(gameObject);
-            }
 
             bool isValidating = false;
 
@@ -158,9 +161,12 @@ namespace Zenject
 #endif
 
             _container = new DiContainer(
-                StaticContext.Container, isValidating);
+                new DiContainer[] { StaticContext.Container }, isValidating);
 
-            foreach (var instance in GetInjectableMonoBehaviours().Cast<object>())
+            var injectableMonoBehaviours = new List<MonoBehaviour>();
+            GetInjectableMonoBehaviours(injectableMonoBehaviours);
+
+            foreach (var instance in injectableMonoBehaviours)
             {
                 _container.QueueForInject(instance);
             }
@@ -169,26 +175,25 @@ namespace Zenject
 
             try
             {
-                InstallBindings();
+                InstallBindings(injectableMonoBehaviours);
             }
             finally
             {
                 _container.IsInstalling = false;
             }
 
-            _container.FlushInjectQueue();
-
             Assert.That(_dependencyRoots.IsEmpty());
-
             _dependencyRoots.AddRange(_container.ResolveDependencyRoots());
+
+            _container.FlushInjectQueue();
         }
 
-        protected override IEnumerable<MonoBehaviour> GetInjectableMonoBehaviours()
+        protected override void GetInjectableMonoBehaviours(List<MonoBehaviour> monoBehaviours)
         {
-            return ZenUtilInternal.GetInjectableMonoBehaviours(this.gameObject);
+            ZenUtilInternal.GetInjectableMonoBehaviours(this.gameObject, monoBehaviours);
         }
 
-        void InstallBindings()
+        void InstallBindings(List<MonoBehaviour> injectableMonoBehaviours)
         {
             _container.DefaultParent = this.transform;
 
@@ -206,10 +211,10 @@ namespace Zenject
             _container.Bind<SignalManager>().AsSingle();
             _container.Bind<Context>().FromInstance(this);
 
-            _container.Bind<ProjectKernel>().FromNewComponentOn(this.gameObject).AsSingle().NonLazy();
+            _container.Bind(typeof(ProjectKernel), typeof(MonoKernel))
+                .To<ProjectKernel>().FromNewComponentOn(this.gameObject).AsSingle().NonLazy();
 
-            InstallSceneBindings();
-
+            InstallSceneBindings(injectableMonoBehaviours);
             InstallInstallers();
         }
     }

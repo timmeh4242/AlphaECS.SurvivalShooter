@@ -12,9 +12,9 @@ public class GameOverScreen : ComponentBehaviour
 {
 	public Animator animator;
 
-	public override void Setup (IEventSystem eventSystem)
+	public override void Initialize (IEventSystem eventSystem)
 	{
-		base.Setup (eventSystem);
+		base.Initialize (eventSystem);
 
 		EventSystem.OnEvent<DeathEvent> ().Where (_ => _.Target.HasComponent<InputComponent> ()).Subscribe (_ =>
 		{

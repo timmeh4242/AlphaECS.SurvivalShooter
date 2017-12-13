@@ -32,19 +32,39 @@ namespace AlphaECS
 			GameObject gameObject = null;
 			if (fastInject)
 			{
-				var isActive = prefab.activeSelf;
-				prefab.SetActive (false);
+				var wasActive = prefab.activeSelf;
+				if (wasActive)
+				{
+					#if UNITY_EDITOR
+					Container.DefaultParent.gameObject.SetActive(false);
+					prefab = GameObject.Instantiate (prefab, Container.DefaultParent);
+					#endif
+
+					prefab.SetActive (false);
+				}
 				gameObject = parent == null ? GameObject.Instantiate (prefab) : GameObject.Instantiate (prefab, parent);
 
+				gameObject.name = prefab.name;
+
 				Inject (gameObject);
-				prefab.SetActive (isActive);
-				gameObject.SetActive (isActive);
+
+				if (wasActive)
+				{
+					#if UNITY_EDITOR
+					GameObject.Destroy(prefab);
+					Container.DefaultParent.gameObject.SetActive(true);
+					#else
+					prefab.SetActive(true);
+					#endif
+					gameObject.SetActive (true);
+				}
 			}
 			else
 			{
 				gameObject = parent == null ? Container.InstantiatePrefab (prefab) : Container.InstantiatePrefab (prefab, parent);
+				gameObject.name = prefab.name;
 			}
-
+				
 			gameObject.ForceEnable ();
 			return gameObject;
 		}
@@ -57,6 +77,7 @@ namespace AlphaECS
 		public GameObject Instantiate(IEntity entity, GameObject prefab, Transform parent, bool fastInject)
 		{
 			var gameObject = GameObject.Instantiate(prefab, parent);
+			gameObject.name = prefab.name;
 
 			if (!gameObject.GetComponent<EntityBehaviour>())
 			{
@@ -85,7 +106,7 @@ namespace AlphaECS
 		{
 			var components = gameObject.GetComponentsInChildren<ComponentBehaviour> (true);
 			foreach (var component in components)
-			{ component.Setup (EventSystem); }
+			{ component.Initialize (EventSystem); }
 		}
 
         public Transform DefaultParent

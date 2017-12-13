@@ -13,9 +13,9 @@ namespace AlphaECS.SurvivalShooter
 		RaycastHit ShotRaycastHit;
 		int ShootableMask;
 			
-		public override void Setup (IEventSystem eventSystem, IPoolManager poolManager, GroupFactory groupFactory)
+		public override void Initialize (IEventSystem eventSystem, IPoolManager poolManager, GroupFactory groupFactory)
 		{
-			base.Setup (eventSystem, poolManager, groupFactory);
+			base.Initialize (eventSystem, poolManager, groupFactory);
 
 			ShootableMask = LayerMask.GetMask("Shootable");
 

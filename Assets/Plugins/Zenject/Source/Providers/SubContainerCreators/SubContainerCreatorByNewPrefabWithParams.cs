@@ -44,18 +44,18 @@ namespace Zenject
                     .Where(x => argPair.Type.DerivesFromOrEqual(x.MemberType))
                     .OrderBy(x => ZenUtilInternal.GetInheritanceDelta(argPair.Type, x.MemberType)).FirstOrDefault();
 
-                Assert.IsNotNull(match,
+                Assert.That(match != null,
                     "Could not find match for argument type '{0}' when injecting into sub container installer '{1}'",
                     argPair.Type, _installerType);
 
                 tempSubContainer.Bind(match.MemberType)
-                    .FromInstance(argPair.Value, true).WhenInjectedInto(_installerType);
+                    .FromInstance(argPair.Value).WhenInjectedInto(_installerType);
             }
 
             return tempSubContainer;
         }
 
-        public DiContainer CreateSubContainer(List<TypeValuePair> args)
+        public DiContainer CreateSubContainer(List<TypeValuePair> args, InjectContext parentContext)
         {
             Assert.That(!args.IsEmpty());
 
@@ -64,7 +64,7 @@ namespace Zenject
 
             var context = gameObject.GetComponent<GameObjectContext>();
 
-            Assert.IsNotNull(context,
+            Assert.That(context != null,
                 "Expected prefab with name '{0}' to container a component of type 'GameObjectContext'", prefab.name);
 
             // Note: We don't need to call ValidateValidatables here because GameObjectContext does this for us

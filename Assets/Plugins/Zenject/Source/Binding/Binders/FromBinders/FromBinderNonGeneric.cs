@@ -40,12 +40,7 @@ namespace Zenject
 
         public ScopeConditionCopyNonLazyBinder FromInstance(object instance)
         {
-            return FromInstance(instance, false);
-        }
-
-        public ScopeConditionCopyNonLazyBinder FromInstance(object instance, bool allowNull)
-        {
-            return FromInstanceBase(instance, allowNull);
+            return FromInstanceBase(instance);
         }
     }
 }

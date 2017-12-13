@@ -28,7 +28,7 @@ namespace Zenject
         {
         }
 
-        public DiContainer CreateSubContainer(List<TypeValuePair> args)
+        public DiContainer CreateSubContainer(List<TypeValuePair> args, InjectContext context)
         {
             var subContainer = _container.CreateSubContainer();
 
@@ -36,8 +36,8 @@ namespace Zenject
                 _installerType, args.Concat(_extraArgs).ToList());
             installer.InstallBindings();
 
-            subContainer.FlushInjectQueue();
             subContainer.ResolveDependencyRoots();
+            subContainer.FlushInjectQueue();
 
             if (subContainer.IsValidating)
             {

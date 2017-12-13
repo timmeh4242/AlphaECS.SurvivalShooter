@@ -10,7 +10,7 @@ namespace AlphaECS.SurvivalShooter
 {
 	public class DeadEntities : Group
 	{
-		public override void Setup (IEventSystem eventSystem, IPoolManager poolManager)
+		public override void Initialize (IEventSystem eventSystem, IPoolManager poolManager)
 		{
 			Components = new Type[] { typeof(HealthComponent) };
 
@@ -25,7 +25,7 @@ namespace AlphaECS.SurvivalShooter
 
 			Predicates.Add(checkIsDead);
 
-			base.Setup (eventSystem, poolManager);
+			base.Initialize (eventSystem, poolManager);
 		} 
 	}
 }

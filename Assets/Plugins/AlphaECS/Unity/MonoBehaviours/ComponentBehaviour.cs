@@ -16,14 +16,12 @@ namespace AlphaECS.Unity
             get { return _disposer; }
             private set { _disposer = value; }
         }
-
-        protected bool IsQuitting = false;
-
+			
         public virtual void OnDestroy()
         {
-            Dispose();
+			if (EcsApplication.IsQuitting) { return; }
 
-            if (IsQuitting) return;
+            Dispose();
 
 			if (EventSystem == null)
 			{
@@ -34,7 +32,7 @@ namespace AlphaECS.Unity
         }
 
         [Inject]
-		public virtual void Setup(IEventSystem eventSystem)
+		public virtual void Initialize(IEventSystem eventSystem)
         {
 			EventSystem = eventSystem;
             EventSystem.Publish(new ComponentCreated() { Component = this });
@@ -47,7 +45,7 @@ namespace AlphaECS.Unity
 
         public virtual void OnApplicationQuit()
         {
-            IsQuitting = true;
+			EcsApplication.IsQuitting = true;
         }
     }
 }

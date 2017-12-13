@@ -6,6 +6,7 @@ namespace AlphaECS
 	{
 		IEventSystem EventSystem { get; set; }
 		IPoolManager PoolManager { get; set; }
-		void Setup(IEventSystem eventSystem, IPoolManager poolManager, GroupFactory groupFactory);
+		GroupFactory GroupFactory { get; set; }
+		void Initialize(IEventSystem eventSystem, IPoolManager poolManager, GroupFactory groupFactory);
 	}
 }

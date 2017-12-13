@@ -20,3 +20,8 @@ namespace AlphaECS
         }
     }
 }
+
+public static class EcsApplication
+{
+	public static bool IsQuitting { get; set; }
+}

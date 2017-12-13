@@ -47,33 +47,44 @@ namespace Zenject
 
         public ScopeConditionCopyNonLazyBinder FromInstance(TContract instance)
         {
-            return FromInstance(instance, false);
-        }
-
-        public ScopeConditionCopyNonLazyBinder FromInstance(TContract instance, bool allowNull)
-        {
-            return FromInstanceBase(instance, allowNull);
+            return FromInstanceBase(instance);
         }
 
 #if !NOT_UNITY3D
 
-        public ScopeArgConditionCopyNonLazyBinder FromComponentInChildren(bool excludeSelf = false)
+        public ScopeArgConditionCopyNonLazyBinder FromComponentInChildren(
+            Func<TContract, bool> predicate, bool includeInactive = false)
+        {
+            return FromComponentInChildren(false, predicate, includeInactive);
+        }
+
+
+        public ScopeArgConditionCopyNonLazyBinder FromComponentInChildren(
+            bool excludeSelf = false, Func<TContract, bool> predicate = null, bool includeInactive = false)
         {
             BindingUtil.AssertIsInterfaceOrComponent(AllParentTypes);
 
-            return FromMethodMultiple((ctx) =>
+            return FromMethodMultiple((ctx) => {
+                Assert.That(ctx.ObjectType.DerivesFromOrEqual<MonoBehaviour>());
+                Assert.IsNotNull(ctx.ObjectInstance);
+
+                var res = ((MonoBehaviour)ctx.ObjectInstance).GetComponentsInChildren<TContract>(includeInactive)
+                    .Where(x => !ReferenceEquals(x, ctx.ObjectInstance));
+
+                if (excludeSelf)
                 {
-                    Assert.That(ctx.ObjectType.DerivesFromOrEqual<MonoBehaviour>());
-                    Assert.IsNotNull(ctx.ObjectInstance);
+                    res = res.Where(x => (x as Component).gameObject != (ctx.ObjectInstance as Component).gameObject);
+                }
 
-                    var res = ((MonoBehaviour)ctx.ObjectInstance).GetComponentsInChildren<TContract>()
-                                                                 .Where(x => !ReferenceEquals(x, ctx.ObjectInstance));
+                if (predicate != null)
+                {
+                    res = res.Where(predicate);
+                }
 
-                    if (excludeSelf) res = res.Where(x => (x as Component).gameObject != (ctx.ObjectInstance as Component).gameObject);
-
-                    return res;
-                });
+                return res;
+            });
         }
+
 
         public ScopeArgConditionCopyNonLazyBinder FromComponentInParents(bool excludeSelf = false)
         {
@@ -87,7 +98,10 @@ namespace Zenject
                     var res = ((MonoBehaviour)ctx.ObjectInstance).GetComponentsInParent<TContract>()
                         .Where(x => !ReferenceEquals(x, ctx.ObjectInstance));
 
-                    if (excludeSelf) res = res.Where(x => (x as Component).gameObject != (ctx.ObjectInstance as Component).gameObject);
+                    if (excludeSelf)
+                    {
+                        res = res.Where(x => (x as Component).gameObject != (ctx.ObjectInstance as Component).gameObject);
+                    }
 
                     return res;
                 });
@@ -107,16 +121,23 @@ namespace Zenject
                 });
         }
 
-        public ScopeArgConditionCopyNonLazyBinder FromComponentInHierarchy()
+        public ScopeArgConditionCopyNonLazyBinder FromComponentInHierarchy(
+            Func<TContract, bool> predicate = null, bool includeInactive = false)
         {
             BindingUtil.AssertIsInterfaceOrComponent(AllParentTypes);
 
-            return FromMethodMultiple((ctx) =>
+            return FromMethodMultiple((ctx) => {
+                var res = ctx.Container.Resolve<Context>().GetRootGameObjects()
+                    .SelectMany(x => x.GetComponentsInChildren<TContract>(includeInactive))
+                    .Where(x => !ReferenceEquals(x, ctx.ObjectInstance));
+
+                if (predicate != null)
                 {
-                    return ctx.Container.Resolve<Context>().GetRootGameObjects()
-                        .SelectMany(x => x.GetComponentsInChildren<TContract>())
-                        .Where(x => !ReferenceEquals(x, ctx.ObjectInstance));
-                });
+                    res = res.Where(predicate);
+                }
+
+                return res;
+            });
         }
 #endif
     }

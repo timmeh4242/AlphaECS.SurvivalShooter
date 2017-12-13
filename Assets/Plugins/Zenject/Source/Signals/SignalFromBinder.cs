@@ -62,13 +62,6 @@ namespace Zenject
             return new ScopeNonLazyBinder(_info);
         }
 
-        public ScopeNonLazyBinder FromInstance(TContract instance, bool allowNull)
-        {
-            _subBinder.FromInstance(instance, allowNull);
-            return new ScopeNonLazyBinder(_info);
-        }
-
-
 #if !NOT_UNITY3D
 
         // These ones don't make sense for signals
@@ -125,6 +118,20 @@ namespace Zenject
 
         // This one doesn't make sense for signals
         //public ArgNonLazyBinder FromNewComponentSibling()
+
+        public NameTransformScopeArgNonLazyBinder FromNewComponentOnNewPrefab(UnityEngine.Object prefab)
+        {
+            var gameObjectInfo = new GameObjectCreationParameters();
+            _subBinder.FromNewComponentOnNewPrefab(prefab, gameObjectInfo);
+            return new NameTransformScopeArgNonLazyBinder(_info, gameObjectInfo);
+        }
+
+        public NameTransformScopeArgNonLazyBinder FromNewComponentOnNewPrefabResource(string resourcePath)
+        {
+            var gameObjectInfo = new GameObjectCreationParameters();
+            _subBinder.FromNewComponentOnNewPrefabResource(resourcePath, gameObjectInfo);
+            return new NameTransformScopeArgNonLazyBinder(_info, gameObjectInfo);
+        }
 
         public NameTransformScopeArgNonLazyBinder FromNewComponentOnNewGameObject()
         {

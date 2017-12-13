@@ -21,8 +21,8 @@ namespace AlphaECS
 
 		private ReorderableList reorderableBlueprints;
 
-		private bool showComponents = true;
-		private bool showBlueprints = true;
+		private bool showComponents = false;
+		private bool showBlueprints = false;
 
 		private readonly IEnumerable<Type> componentBaseTypes = AppDomain.CurrentDomain.GetAssemblies()
 			.SelectMany(s => s.GetTypes())

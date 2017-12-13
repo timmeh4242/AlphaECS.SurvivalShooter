@@ -13,9 +13,9 @@ public class ScoreHUD : ComponentBehaviour
 
 	Text ScoreText;
 
-	public override void Setup (IEventSystem eventSystem)
+	public override void Initialize (IEventSystem eventSystem)
 	{
-		base.Setup (eventSystem);
+		base.Initialize (eventSystem);
 
 		ScoreText = GetComponent<Text> ();
 		ScoringSystem.Score.DistinctUntilChanged ().Subscribe (value =>
