@@ -4,7 +4,7 @@
     {
         public IPool Pool { get; private set; }
 
-        public PoolRemovedEvent(IPool pool)
+		public PoolRemovedEvent(IPool pool)
         {
             Pool = pool;
         }

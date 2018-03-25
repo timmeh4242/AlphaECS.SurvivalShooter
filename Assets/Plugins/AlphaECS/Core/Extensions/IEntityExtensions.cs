@@ -21,8 +21,8 @@ namespace AlphaECS
                 .Select(x => entity);
         }
 
-//        public static bool MatchesGroup(this IEntity entity, IGroup group)
-//        { return entity.HasComponents(group.TargettedComponents.ToArray()); }
+        public static bool MatchesGroup(this IEntity entity, IGroup group)
+        { return entity.HasComponents(group.Components.ToArray()); }
 
         public static IEntity ApplyBlueprint(this IEntity entity, IBlueprint blueprint)
         {
@@ -42,10 +42,10 @@ namespace AlphaECS
             return entity;
         }
 
-        public static void RemoveComponents(this IEntity entity, Func<IComponent, bool> predicate)
+        public static void RemoveComponents(this IEntity entity, Func<object, bool> predicate)
         {
-//            var matchingComponents = entity.Components.Where(predicate).ToArray();
-//            matchingComponents.ForEachRun(entity.RemoveComponent);
+            var matchingComponents = entity.Components.Where(predicate).ToArray();
+            matchingComponents.ForEachRun(entity.RemoveComponent);
         }
 
         public static void RemoveComponents(this IEntity entity, params IComponent[] components)

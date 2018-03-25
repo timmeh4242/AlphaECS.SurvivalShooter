@@ -21,7 +21,7 @@ namespace AlphaECS
 
 		private ReorderableList reorderableBlueprints;
 
-		private bool showComponents = false;
+		private bool showComponents = true;
 		private bool showBlueprints = false;
 
 		private readonly IEnumerable<Type> componentBaseTypes = AppDomain.CurrentDomain.GetAssemblies()
@@ -52,18 +52,22 @@ namespace AlphaECS
 			if (view == null)
 			{ view = (EntityBehaviour)target; }
 
-			reorderableComponents = new ReorderableList(serializedObject, serializedObject.FindProperty("ComponentTypes"), true, true, true, true);
+//			reorderableComponents = new ReorderableList(serializedObject, serializedObject.FindProperty("ComponentTypes"), true, true, true, true);
+			reorderableComponents = new ReorderableList(serializedObject, serializedObject.FindProperty("Components"), true, true, true, true);
 
 			reorderableComponents.drawHeaderCallback = (Rect rect) =>
 			{ EditorGUI.LabelField(rect, "Components", EditorStyles.boldLabel); };
 
 			reorderableComponents.drawElementCallback = (rect, index, isActive, isFocused) =>
 			{
-                var component = (object)Activator.CreateInstance(view.ComponentTypes[index].GetTypeWithAssembly());
-                JsonUtility.FromJsonOverwrite(view.ComponentData[index], component);
-                OnDrawElement(rect, component, index, componentHeights);
-                view.ComponentData[index] = JsonUtility.ToJson(component);
-				//OnDrawElement(reorderableComponents, view.Components[index].GetType().ToString(), rect, index, isActive, isFocused, componentHeights);
+//                var component = (object)Activator.CreateInstance(view.ComponentTypes[index].GetTypeWithAssembly());
+//                JsonUtility.FromJsonOverwrite(view.ComponentData[index], component);
+//                OnDrawElement(rect, component, index, componentHeights);
+//                view.ComponentData[index] = JsonUtility.ToJson(component);
+//				//OnDrawElement(reorderableComponents, view.Components[index].GetType().ToString(), rect, index, isActive, isFocused, componentHeights);
+
+				var label = view.Components[index] != null ? view.Components[index].GetType().ToString() : "None";
+				OnDrawElement(reorderableComponents, label, rect, index, isActive, isFocused, componentHeights, false);
 			};
 
 			reorderableComponents.elementHeightCallback = (index) =>
@@ -74,12 +78,15 @@ namespace AlphaECS
 
 			reorderableComponents.onAddDropdownCallback = (Rect rect, ReorderableList list) =>
 			{
-				OnAddDropdown(rect, list, AddComponent, componentBaseTypes.ToArray());
+//				OnAddDropdown(rect, list, AddComponent, componentBaseTypes.ToArray());
+				view.Components = view.GetComponents<Component> ().Where (c => c.GetType () != typeof(Transform) && c.GetType () != typeof(EntityBehaviour)).ToArray ();
+				EditorUtility.SetDirty(target);
 			};
 
 			reorderableComponents.onRemoveCallback = (list) =>
 			{
-				RemoveComponent(list);
+//				RemoveComponent(list);
+				view.Components = null;
 			};
 
 
@@ -121,43 +128,43 @@ namespace AlphaECS
 
             componentToRemove = -1;
 
-			if (Application.isPlaying)
-			{
-				if (showComponents)
-				{
-					if (this.WithIconButton("▾"))
-					{ showComponents = false; }
-				}
-				else
-				{
-					if (this.WithIconButton("▸"))
-					{ showComponents = true; }
-				}
-
-				if (showComponents)
-				{
-					for (var i = 0; i < view.Entity.Components.Count(); i++)
-					{
-						var rect = EditorGUILayout.BeginVertical();
-						OnDrawElement(rect, view.Entity.Components.ElementAt(i), i, componentHeights);
-						EditorGUILayout.EndVertical();
-
-                        GUILayoutUtility.GetRect(0f, componentHeights[i] + lineHeight);
-					}
-				}
-
-                if(componentToRemove > -1)
-                {
-                    var component = view.Entity.Components.ElementAt(componentToRemove);
-                    view.Entity.RemoveComponent(component);
-
-                    if (component.GetType().IsSubclassOf(typeof(Component)))
-                    {
-                        Destroy((UnityEngine.Object)component);
-                    }
-				}
-				return;
-			}
+//			if (Application.isPlaying)
+//			{
+//				if (showComponents)
+//				{
+//					if (this.WithIconButton("▾"))
+//					{ showComponents = false; }
+//				}
+//				else
+//				{
+//					if (this.WithIconButton("▸"))
+//					{ showComponents = true; }
+//				}
+//
+//				if (showComponents)
+//				{
+//					for (var i = 0; i < view.Entity.Components.Count(); i++)
+//					{
+//						var rect = EditorGUILayout.BeginVertical();
+//						OnDrawElement(rect, view.Entity.Components.ElementAt(i), i, componentHeights);
+//						EditorGUILayout.EndVertical();
+//
+//                        GUILayoutUtility.GetRect(0f, componentHeights[i] + lineHeight);
+//					}
+//				}
+//
+//                if(componentToRemove > -1)
+//                {
+//                    var component = view.Entity.Components.ElementAt(componentToRemove);
+//                    view.Entity.RemoveComponent(component);
+//
+//                    if (component.GetType().IsSubclassOf(typeof(Component)))
+//                    {
+//                        Destroy((UnityEngine.Object)component);
+//                    }
+//				}
+//				return;
+//			}
 
 			if (showComponents)
 			{
@@ -167,21 +174,32 @@ namespace AlphaECS
 			else
 			{
 				if (this.WithIconButton("▸"))
-				{ showComponents = true; }
+				{
+//					view.Components = view.GetComponents<Component> ().Where (c => c.GetType () != typeof(Transform) && c.GetType () != typeof(EntityBehaviour)).ToArray ();
+//					EditorUtility.SetDirty(target);
+					showComponents = true;
+				}
 			}
 
 			if (showComponents)
 			{
-				serializedObject.Update();
-				Undo.RecordObject(view, "Added Data");
+//				if (GUILayout.Button("Preload Components"))
+//				{
+//					view.Components = view.GetComponents<Component> ().Where (c => c.GetType () != typeof(Transform) && c.GetType () != typeof(EntityBehaviour)).ToArray ();
+//					EditorUtility.SetDirty(target);
+//				}
+
+//				serializedObject.Update();
+//				Undo.RecordObject(view, "Added Data");
 				reorderableComponents.DoLayoutList();
-				serializedObject.ApplyModifiedProperties();
+//				serializedObject.ApplyModifiedProperties();
 			}
 
 			if (componentToRemove > -1)
 			{
-                view.ComponentTypes.RemoveAt(componentToRemove);
-                view.ComponentData.RemoveAt(componentToRemove);
+//                view.ComponentTypes.RemoveAt(componentToRemove);
+//                view.ComponentData.RemoveAt(componentToRemove);
+//				view.Components.RemoveAt(componentToRemove);
 
 				//if (component.GetType().IsSubclassOf(typeof(Component)))
 				//{
@@ -217,18 +235,19 @@ namespace AlphaECS
         /// <summary>
         /// Draws an element of type serialized property in a reorderable list
         /// </summary>
-		private void OnDrawElement(ReorderableList list, string labelName, Rect rect, int index, bool isActive, bool isFocused, float[] heightsArray)
+		private void OnDrawElement(ReorderableList list, string labelName, Rect rect, int index, bool isActive, bool isFocused, float[] heightsArray, bool showChildren = true)
 		{
 			var element = list.serializedProperty.GetArrayElementAtIndex(index);
 
 			EditorGUI.LabelField(new Rect(rect.x, rect.y, rect.width, lineHeight), labelName, EditorStyles.boldLabel);
 			EditorGUI.ObjectField(new Rect(rect.x, rect.y + lineHeight, rect.width, lineHeight), element);
 
-			if (element.objectReferenceValue == null)
+			if (element.objectReferenceValue == null || showChildren == false)
 			{
                 heightsArray[index] = (headerProperties * lineHeight) + (headerProperties * lineSpacing);
 				return;
 			}
+
 
 			var so = new SerializedObject(element.objectReferenceValue);
 			so.Update();
@@ -237,7 +256,7 @@ namespace AlphaECS
 			iterator.NextVisible(true); // skip the script reference
 
 			var i = headerProperties;
-			var showChildren = true;
+//			var showChildren = true;
 			while (iterator.NextVisible(showChildren))
 			{
                 EditorGUI.PropertyField(new Rect(rect.x, rect.y + (i * lineHeight) + (i * lineSpacing), rect.width, lineHeight), iterator);
@@ -378,19 +397,19 @@ namespace AlphaECS
 
 		private void AddComponent(object info)
 		{
-			var componentInfo = (ObjectInfo)info;
-            var component = (ComponentBase)Activator.CreateInstance(componentInfo.type);
-            var type = component.GetType().ToString();
-            var json = JsonUtility.ToJson(component);
-
-            view.ComponentTypes.Add(type);
-            view.ComponentData.Add(json);
+//			var componentInfo = (ObjectInfo)info;
+//            var component = (ComponentBase)Activator.CreateInstance(componentInfo.type);
+//            var type = component.GetType().ToString();
+//            var json = JsonUtility.ToJson(component);
+//
+//            view.ComponentTypes.Add(type);
+//            view.ComponentData.Add(json);
 		}
 
 		private void RemoveComponent(ReorderableList list)
 		{
-            view.ComponentTypes.RemoveAt(list.index);
-            view.ComponentData.RemoveAt(list.index);
+//            view.ComponentTypes.RemoveAt(list.index);
+//            view.ComponentData.RemoveAt(list.index);
 		}
 
 		private void AddBlueprint(object info)
@@ -411,7 +430,7 @@ namespace AlphaECS
 			if (GUI.changed && !Application.isPlaying)
 			{
 				this.SaveActiveSceneChanges();
-//              AssetDatabase.SaveAssets();
+            	AssetDatabase.SaveAssets();
 			}
 		}
 	}

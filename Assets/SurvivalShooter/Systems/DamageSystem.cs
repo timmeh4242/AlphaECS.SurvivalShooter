@@ -26,8 +26,7 @@ namespace AlphaECS.SurvivalShooter
 				}).AddTo(viewComponent.Disposer);
 			}).AddTo (this.Disposer);
 
-			var group = GroupFactory.AddTypes (new Type[] { typeof(ViewComponent), typeof(HealthComponent) }).Create ();
-			group.AddTo (this.Disposer);
+			var group = this.CreateGroup (new Type[] { typeof(ViewComponent), typeof(HealthComponent) });
 				
 			EventSystem.OnEvent<DamageEvent> ().Subscribe (_ =>
 			{

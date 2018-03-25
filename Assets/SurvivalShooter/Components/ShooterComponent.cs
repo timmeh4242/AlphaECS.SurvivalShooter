@@ -5,6 +5,7 @@ using AlphaECS.Unity;
 
 namespace AlphaECS.SurvivalShooter
 {
+    [Serializable]
 	public class ShooterComponent : ComponentBase
 	{
         public int Damage;

@@ -25,7 +25,10 @@ namespace AlphaECS.Unity
 
 			if (EventSystem == null)
 			{
-				Debug.LogWarning("A COMPONENT ON " + this.gameObject.name + " WAS NOT INJECTED PROPERLY!");
+				if (Debug.isDebugBuild)
+				{
+					Debug.LogWarning ("A COMPONENT ON " + this.gameObject.name + " WAS NOT INJECTED PROPERLY!");
+				}
 				return;
 			}
             EventSystem.Publish(new ComponentDestroyed() { Component = this });

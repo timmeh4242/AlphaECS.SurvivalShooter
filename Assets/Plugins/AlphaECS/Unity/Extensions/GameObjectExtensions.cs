@@ -29,6 +29,8 @@ namespace AlphaECS.Unity
 		*/
 		public static void ForceEnable(this GameObject gameObject)
 		{
+			if (gameObject.activeInHierarchy) { return; }
+
 			var isActive = gameObject.activeSelf;
 			var parent = gameObject.transform.parent;
             var index = gameObject.transform.GetSiblingIndex();

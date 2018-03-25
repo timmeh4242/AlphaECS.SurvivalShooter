@@ -11,7 +11,8 @@ namespace AlphaECS
 		IEnumerable<object> Components { get; }
 
 		object AddComponent(object component);
-		T AddComponent<T> () where T : class, new(); 
+		T AddComponent<T> () where T : class, new();
+        object[] AddComponents(object[] components);
 		void RemoveComponent(object component);
         void RemoveComponent<T>() where T : class;
         void RemoveAllComponents();
@@ -20,6 +21,7 @@ namespace AlphaECS
 
         bool HasComponent<T>() where T : class;
 		bool HasComponent(Type componentType);
-        bool HasComponents(params Type[] component);
+        bool HasComponents(params Type[] components);
+		bool HasComponents(HashSet<Type> components);
     }
 }

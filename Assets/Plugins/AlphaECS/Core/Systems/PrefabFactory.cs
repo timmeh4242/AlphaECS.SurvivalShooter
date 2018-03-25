@@ -64,8 +64,10 @@ namespace AlphaECS
 				gameObject = parent == null ? Container.InstantiatePrefab (prefab) : Container.InstantiatePrefab (prefab, parent);
 				gameObject.name = prefab.name;
 			}
-				
-			gameObject.ForceEnable ();
+
+			if (!gameObject.activeInHierarchy)
+			{ gameObject.ForceEnable (); }
+
 			return gameObject;
 		}
 
@@ -88,7 +90,8 @@ namespace AlphaECS
 			entityBehaviour.Entity = entity;
 			entityBehaviour.RemoveEntityOnDestroy = false;
 
-			gameObject.ForceEnable ();
+			if (!gameObject.activeInHierarchy)
+			{ gameObject.ForceEnable (); }
 
 			if (fastInject)
 			{

@@ -12,7 +12,7 @@ namespace AlphaECS.SurvivalShooter
 	{
 		public override void Initialize (IEventSystem eventSystem, IPoolManager poolManager)
 		{
-			Components = new Type[] { typeof(HealthComponent) };
+			Components = new HashSet<Type> { typeof(HealthComponent) };
 
 			Func<IEntity, ReactiveProperty<bool>> checkIsDead = (e) =>
 			{

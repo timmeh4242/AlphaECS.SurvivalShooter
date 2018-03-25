@@ -387,7 +387,14 @@ namespace UniRx.Triggers
             return Observable.Merge(observableTriggers);
         }
 
+
 		public static IObservable<ObservableStateMachineTrigger.OnStateInfo> OnStateTime(this Animator animator, string fullPath, float time) 
+		{
+			var fullPathHash = Animator.StringToHash (fullPath);
+			return animator.OnStateTime (fullPathHash, time);
+		}
+
+		public static IObservable<ObservableStateMachineTrigger.OnStateInfo> OnStateTime(this Animator animator, int fullPathHash, float time) 
 		{
 			var observableStateMachineTriggers = animator.GetBehaviours<ObservableStateMachineTrigger>();
 			if (observableStateMachineTriggers.Length <= 0 || observableStateMachineTriggers == null)
@@ -395,9 +402,7 @@ namespace UniRx.Triggers
 				Debug.LogWarning ("No ObservableStateMachineTriggers were found on " + animator.name + " animator!");
 				return null;
 			}
-
-			int fullPathHash = Animator.StringToHash(fullPath);
-
+				
 			var emit = false;
 
 			var observableTriggers = observableStateMachineTriggers.Select(trigger => trigger.OnStateUpdateAsObservable()
@@ -428,6 +433,7 @@ namespace UniRx.Triggers
 
 			return Observable.Merge(observableTriggers);
 		}
+
 
         public static IObservable<ObservableStateMachineTrigger.OnStateInfo> OnStateExit(this Animator animator, params string[] fullPaths) 
         {

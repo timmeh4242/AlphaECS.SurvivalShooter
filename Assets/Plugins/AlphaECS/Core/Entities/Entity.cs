@@ -39,6 +39,25 @@ namespace AlphaECS
 			return component;
         }
 
+
+        public object[] AddComponents(object[] components)
+        {
+            for(int i = 0; i < components.Length; i++)
+            {
+                if (_components.ContainsKey(components[i].GetType()))
+                {
+                    components[i] = _components[components[i].GetType ()];
+                }
+                else
+                {
+                    _components.Add(components[i].GetType(), components[i]);
+                }
+//				EventSystem.Publish(new ComponentAddedEvent(this, components[i]));
+            }
+            EventSystem.Publish(new ComponentsAddedEvent(this, components));
+            return components;
+        }
+
 		public T AddComponent<T>() where T : class, new()
 		{ return (T)AddComponent(new T()); }
 
@@ -79,9 +98,35 @@ namespace AlphaECS
         {
             if(_components.Count == 0)
             { return false; }
-
-            return componentTypes.All(x => _components.ContainsKey(x));
+				
+			var hasComponents = true;
+			for (var i = 0; i < componentTypes.Length; i++)
+			{
+				if (!_components.ContainsKey (componentTypes [i]))
+				{
+					hasComponents = false;
+					break;
+				}
+			}
+			return hasComponents;
         }
+
+		public bool HasComponents(HashSet<Type> componentTypes)
+		{
+			if(_components.Count == 0)
+			{ return false; }
+
+			var hasComponents = true;
+			foreach (var type in componentTypes)
+			{
+				if (!_components.ContainsKey (type))
+				{
+					hasComponents = false;
+					break;
+				}
+			}
+			return hasComponents;
+		}
 
 		public T GetComponent<T>() where T : class
         {

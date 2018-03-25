@@ -4,6 +4,7 @@ using UniRx;
 using UnityEngine;
 using Zenject;
 using AlphaECS;
+using System.Collections.Generic;
 
 namespace AlphaECS.Unity
 {
@@ -16,12 +17,17 @@ namespace AlphaECS.Unity
 		[Inject]
         public PrefabFactory PrefabFactory { get; set; }
 
+		[Inject]
+		public FastString StringFactory { get; set; }
+
         private CompositeDisposable _disposer = new CompositeDisposable();
         public CompositeDisposable Disposer
         {
             get { return _disposer; }
             private set { _disposer = value; }
         }
+
+		private List<Group> groups = new List<Group>();
 			
         [Inject]
 		public virtual void Initialize(IEventSystem eventSystem, IPoolManager poolManager, GroupFactory groupFactory)
@@ -35,10 +41,34 @@ namespace AlphaECS.Unity
 
 		public virtual void OnDisable()
 		{
+			if (EcsApplication.IsQuitting) { return; }
 			Disposer.Clear ();
 		}
 
-		public virtual void OnDestroy()
+		public Group CreateGroup(Type[] types)
+		{
+			var group = GroupFactory.Create (types);
+			groups.Add (group);
+			return group;
+		}
+
+		//public Group CreateGroup(HashSet<Type> types)
+		//{
+		//	var group = GroupFactory.Create (types);
+		//	groups.Add (group);
+		//	return group;
+		//}
+
+        public Group CreateGroup(HashSet<Type> types, params Func<IEntity, ReactiveProperty<bool>>[] predicates)
+        {
+            var group = GroupFactory
+                .WithPredicates(predicates)
+                .Create(types);
+            groups.Add(group);
+            return group;
+        }
+
+        public virtual void OnDestroy()
 		{
 			if (EcsApplication.IsQuitting) { return; }
 			Dispose();
@@ -46,6 +76,8 @@ namespace AlphaECS.Unity
 
         public virtual void Dispose()
         {
+			foreach (var group in groups)
+			{ group.Dispose (); }
             Disposer.Dispose();
         }
 

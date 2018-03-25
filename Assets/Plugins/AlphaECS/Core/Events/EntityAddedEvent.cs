@@ -1,11 +1,11 @@
 ﻿namespace AlphaECS
 {
-    public class EntityAddedEvent
+	public class EntityAddedEvent
     {
         public IEntity Entity { get; private set; }
         public IPool Pool { get; private set; }
 
-        public EntityAddedEvent(IEntity entity, IPool pool)
+		public EntityAddedEvent(IEntity entity, IPool pool)
         {
             Entity = entity;
             Pool = pool;

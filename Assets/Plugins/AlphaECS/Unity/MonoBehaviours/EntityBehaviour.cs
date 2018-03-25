@@ -1,9 +1,10 @@
 ﻿using SimpleJSON;
-using System;
+//using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Zenject;
+//using SubjectNerd.Utilities;
 
 namespace AlphaECS.Unity
 {
@@ -53,7 +54,7 @@ namespace AlphaECS.Unity
 				// TODO add some logic for killing rogue entities
 				if (entity != null)
 				{
-
+//					Pool.RemoveEntity (entity); ???
 				}
 				entity = value;
 			}
@@ -72,14 +73,8 @@ namespace AlphaECS.Unity
 		[SerializeField] [HideInInspector]
 		public bool RemoveEntityOnDestroy = true;
 
-        //[SerializeField] [HideInInspector]
-        //public List<ComponentBase> Components = new List<ComponentBase>();
-
-        [SerializeField] [HideInInspector]
-        public List<string> ComponentTypes = new List<string>();
-
 		[SerializeField] [HideInInspector]
-        public List<string> ComponentData = new List<string>();
+		public UnityEngine.Object[] Components;
 
 		[SerializeField] [HideInInspector]
         public List<BlueprintBase> Blueprints = new List<BlueprintBase>();
@@ -93,11 +88,6 @@ namespace AlphaECS.Unity
 			set { poolManager = value; }
 		}
 		private IPoolManager poolManager;
-
-		public override void Initialize (IEventSystem eventSystem)
-		{
-			base.Initialize (eventSystem);
-		}
 
 		/* TODO
 		 * this gets us around the "force enable" issue but
@@ -117,41 +107,21 @@ namespace AlphaECS.Unity
 				AddTransformToView (Entity.GetComponent<ViewComponent> ());
 			}
 
-			for (var i = 0; i < ComponentTypes.Count(); i++)
-			{
-				var type = ComponentTypes[i].GetTypeWithAssembly();
-				if (type == null) { throw new Exception("Cannot resolve type for [" + ComponentTypes[i] + "]"); }
-
-				var component = (object)Activator.CreateInstance(type);
-				JsonUtility.FromJsonOverwrite(ComponentData[i], component);
-				Entity.AddComponent(component);
-			}
-
-
-			//for (var i = 0; i < Components.Count; i++)
-			//{
-			//             var component = Instantiate(Components[i]);
-			//	Entity.AddComponent(component);
-			//}
-
 			foreach(var blueprint in Blueprints)
 			{
 				blueprint.Apply(this.Entity);
 			}
 
-			var monoBehaviours = GetComponents<Component>();
-			foreach (var mb in monoBehaviours)
-			{
-				if (mb == null)
-				{
-					Debug.LogWarning("Component on " + this.gameObject.name + " is null!");
-				}
-				else
-				{
-					if (mb.GetType() != typeof(Transform) && mb.GetType() != typeof(EntityBehaviour))
-					{ Entity.AddComponent(mb); }
-				}
-			}
+			if (Components != null && Components.Length > 0)
+            {
+				Entity.AddComponents(Components.Select(c => c as object).Where(o => o != null).ToArray());
+//				Entity.AddComponents(Components);
+            }
+            else
+            {
+				var monoBehaviours = GetComponents<Component> ().Where (c => c != null && c.GetType () != typeof(Transform) && c.GetType () != typeof(EntityBehaviour)).ToArray();
+				Entity.AddComponents (monoBehaviours);
+            }
 		}
 
 		public override void OnDestroy()

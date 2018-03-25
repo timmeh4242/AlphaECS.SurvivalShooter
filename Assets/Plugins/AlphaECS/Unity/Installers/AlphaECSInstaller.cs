@@ -16,6 +16,7 @@ namespace AlphaECS
 			Container.Bind<IGroup> ().To<Group> ().AsTransient ();
 			Container.Bind<GroupFactory> ().To<GroupFactory> ().AsSingle ();
             Container.Bind<PrefabFactory>().To<PrefabFactory>().AsSingle();
+			Container.Bind<FastString>().To<FastString>().AsSingle();
 //			Container.BindFactory<Type[], Group, GroupFactory> ();
         }
     }

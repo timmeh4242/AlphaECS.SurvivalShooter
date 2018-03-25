@@ -13,10 +13,16 @@ namespace AlphaECS
 		[Inject] protected DiContainer Container = null;
 //		protected Dictionary<HashSet<Type>, Group> Groups = new Dictionary<HashSet<Type>, Group>();
 
-		private Type[] types;
+		private HashSet<Type> types;
 		private List<Func<IEntity, ReactiveProperty<bool>>> predicates = new List<Func<IEntity, ReactiveProperty<bool>>> ();
 
 		public Group Create(Type[] _types)
+		{
+			this.types = new HashSet<Type>(_types);
+			return this.Create ();
+		}
+
+		public Group Create(HashSet<Type> _types)
 		{
 			this.types = _types;
 			return this.Create ();
@@ -44,16 +50,19 @@ namespace AlphaECS
 			return group;
 		}
 
-		public GroupFactory AddTypes(Type[] _types)
-		{
-			this.types = _types;
-			return this;
-		}
+//		public GroupFactory AddTypes(Type[] _types)
+//		{
+//			this.types = _types;
+//			return this;
+//		}
 
-		public GroupFactory WithPredicate(Func<IEntity, ReactiveProperty<bool>> predicate)
+		public GroupFactory WithPredicates(params Func<IEntity, ReactiveProperty<bool>>[] predicates)
 		{
-			this.predicates.Add (predicate);
-			return this;
+            foreach(var predicate in predicates)
+            {
+                this.predicates.Add(predicate);
+            }
+            return this;
 		}
     }
 }
