@@ -2,6 +2,7 @@
 using UnityEngine;
 using System.Linq;
 using UniRx;
+using System.Collections.Generic;
 
 #if !(UNITY_4_0 || UNITY_4_1 || UNITY_4_2 || UNITY_4_3 || UNITY_4_4 || UNITY_4_5)
 using UnityEngine.EventSystems;
@@ -23,6 +24,52 @@ public static partial class DisposableExtensions
 		container.Disposer.Add(disposable);
 		return disposable;
 	}
+}
+
+namespace UniRx
+{
+    public static partial class ObservableCollectionExtensions
+    {
+        public static IObservable<CollectionAddEvent<T>> OnAdd<T>(this IEnumerable<T> collection)
+        {
+            var previousCollection = new List<T>();
+            return Observable.EveryUpdate().SelectMany(_ =>
+            {
+                var changedItems = collection.Where(item => !previousCollection.Contains(item)).ToList();
+
+                var index = 0;
+                var events = changedItems.Select(item =>
+                {
+                    var evt = new CollectionAddEvent<T>(index, item);
+                    index += 1;
+                    return evt;
+                });
+
+                previousCollection = collection.ToList();
+                return events;
+            });
+        }
+
+        public static IObservable<CollectionRemoveEvent<T>> OnRemove<T>(this IEnumerable<T> collection)
+        {
+            var previousCollection = new List<T>();
+            return Observable.EveryUpdate().SelectMany(_ =>
+            {
+                var changedItems = previousCollection.Where(item => !collection.Contains(item)).ToList();
+
+                var index = 0;
+                var events = changedItems.Select(item =>
+                {
+                    var evt = new CollectionRemoveEvent<T>(index, item);
+                    index += 1;
+                    return evt;
+                });
+
+                previousCollection = collection.ToList();
+                return events;
+            });
+        }
+    }
 }
 
 namespace UniRx.Triggers
@@ -452,7 +499,7 @@ namespace UniRx.Triggers
 
             var observableTriggers = observableStateMachineTriggers.Select(trigger => trigger.OnStateExitAsObservable()
 				.Where(onStateInfo => fullPathHashes.Contains(onStateInfo.StateInfo.fullPathHash)));
-
+            
             return Observable.Merge(observableTriggers);
         }
 	}

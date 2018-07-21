@@ -153,6 +153,8 @@ namespace AlphaECS
         //slow and safe
         public static IEntity Deserialize(this IEntity entity, JSONNode node, Type[] includedTypes = null, Type[] ignoredTypes = null)
         {
+            if(node == null || node[TypesKey] == null || node[TypesKey].Count <= 0) { return entity; }
+
             for (var i = 0; i < node[TypesKey].Count; i++)
             {
                 type = node[TypesKey][i].ToString().Replace("\"", "").GetTypeWithAssembly();
@@ -184,7 +186,7 @@ namespace AlphaECS
                     {
                         entity.AddComponent(new ViewComponent());
 #if UNITY_EDITOR
-                        Debug.LogWarning("No view found for component " + type.ToString() + " !");
+                        Debug.LogWarning("No view found for component " + type.ToString() + "!");
 #endif
                     }
 
@@ -227,13 +229,16 @@ namespace AlphaECS
                 shouldIgnore = true;
             }
 
-            foreach (var t in ignoredTypes)
+            if(ignoredTypes != null)
             {
-                if (t.IsAssignableFrom(type))
+                foreach (var t in ignoredTypes)
                 {
-                    shouldIgnore = true;
-                    break;
-                }
+                    if (t.IsAssignableFrom(type))
+                    {
+                        shouldIgnore = true;
+                        break;
+                    }
+                }  
             }
 
             return shouldIgnore;

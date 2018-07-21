@@ -1,4 +1,5 @@
 ﻿using UniRx;
+using System;
 
 namespace AlphaECS
 {
