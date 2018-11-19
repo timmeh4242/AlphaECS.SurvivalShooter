@@ -10,11 +10,13 @@ namespace AlphaECS.Unity
 {
     public abstract class SystemBehaviour : MonoBehaviour, ISystem, IDisposableContainer, IDisposable
     {
-		public IEventSystem EventSystem { get; set; }
+        public IEventSystem EventSystem { get; set; }
 		public IPoolManager PoolManager { get; set; }
 		public GroupFactory GroupFactory { get; set; }
 
-		[Inject]
+        protected DiContainer Container { get { return ProjectContext.Instance.Container; } }
+
+        [Inject]
         public PrefabFactory PrefabFactory { get; set; }
 
 		[Inject]
@@ -41,7 +43,7 @@ namespace AlphaECS.Unity
 
 		public virtual void OnDisable()
 		{
-			if (EcsApplication.IsQuitting) { return; }
+			//if (EcsApplication.IsQuitting) { return; }
 			Disposer.Clear ();
 		}
 
@@ -59,7 +61,7 @@ namespace AlphaECS.Unity
 		//	return group;
 		//}
 
-        public Group CreateGroup(HashSet<Type> types, params Func<IEntity, ReactiveProperty<bool>>[] predicates)
+        public Group CreateGroup(HashSet<Type> types, params Func<IEntity, IReadOnlyReactiveProperty<bool>>[] predicates)
         {
             var group = GroupFactory
                 .WithPredicates(predicates)
@@ -70,12 +72,13 @@ namespace AlphaECS.Unity
 
         public virtual void OnDestroy()
 		{
-			if (EcsApplication.IsQuitting) { return; }
+			//if (EcsApplication.IsQuitting) { return; }
 			Dispose();
 		}
 
         public virtual void Dispose()
         {
+            Disposer.Clear();
 			foreach (var group in groups)
 			{ group.Dispose (); }
             Disposer.Dispose();
@@ -84,6 +87,7 @@ namespace AlphaECS.Unity
 		public virtual void OnApplicationQuit()
 		{
 			EcsApplication.IsQuitting = true;
-		}
+            Dispose();
+        }
     }
 }

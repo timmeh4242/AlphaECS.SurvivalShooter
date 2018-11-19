@@ -12,7 +12,7 @@ namespace AlphaECS
 
 		object AddComponent(object component);
 		T AddComponent<T> () where T : class, new();
-        object[] AddComponents(object[] components);
+        object[] AddComponents(params object[] components);
 		void RemoveComponent(object component);
         void RemoveComponent<T>() where T : class;
         void RemoveAllComponents();

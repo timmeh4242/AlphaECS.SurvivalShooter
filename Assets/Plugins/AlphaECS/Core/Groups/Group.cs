@@ -27,8 +27,8 @@ namespace AlphaECS
 
 		public HashSet<Type> Components { get; set; }
 
-		protected List<Func<IEntity, ReactiveProperty<bool>>> _predicates = new List<Func<IEntity, ReactiveProperty<bool>>> ();
-		public List<Func<IEntity, ReactiveProperty<bool>>> Predicates
+        protected List<Func<IEntity, IReadOnlyReactiveProperty<bool>>> _predicates = new List<Func<IEntity, IReadOnlyReactiveProperty<bool>>> ();
+        public List<Func<IEntity, IReadOnlyReactiveProperty<bool>>> Predicates
 		{
 			get { return _predicates; }
 			private set { _predicates = value; }
@@ -44,7 +44,7 @@ namespace AlphaECS
 
         public Group(){}
 
-		public Group(Type[] components, List<Func<IEntity, ReactiveProperty<bool>>> predicates)
+        public Group(Type[] components, List<Func<IEntity, IReadOnlyReactiveProperty<bool>>> predicates)
         {
 			Components = new HashSet<Type>(components);
 
@@ -54,7 +54,7 @@ namespace AlphaECS
 			}
         }
 
-		public Group(HashSet<Type> components, List<Func<IEntity, ReactiveProperty<bool>>> predicates)
+        public Group(HashSet<Type> components, List<Func<IEntity, IReadOnlyReactiveProperty<bool>>> predicates)
 		{
 			Components = components;
 
@@ -81,7 +81,7 @@ namespace AlphaECS
 					return;
 				}
 				
-				var bools = new List<ReactiveProperty<bool>>();
+                var bools = new List<IReadOnlyReactiveProperty<bool>>();
 				foreach (var predicate in Predicates)
 				{
 					bools.Add(predicate.Invoke(entity));

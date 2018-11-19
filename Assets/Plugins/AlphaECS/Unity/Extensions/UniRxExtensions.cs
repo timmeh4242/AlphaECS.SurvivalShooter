@@ -178,13 +178,6 @@ namespace UniRx.Triggers
 			return GetOrAddComponent<ObservableScrollTrigger>(component.gameObject).OnScrollAsObservable();
 		}
 
-
-
-
-
-
-
-
 		public static IObservable<BaseEventData> OnDeselectAsObservable(this GameObject component)
 		{
 			if (component == null || component.gameObject == null) return Observable.Empty<BaseEventData>();
@@ -287,11 +280,6 @@ namespace UniRx.Triggers
 			return GetOrAddComponent<ObservableScrollTrigger>(component.gameObject).OnScrollAsObservable();
 		}
 
-
-
-
-
-
 		public static IObservable<ObservableStateMachineTrigger.OnStateMachineInfo> OnStateMachineEnter(this Animator animator, string fullPath) 
 		{
 			int fullPathHash = Animator.StringToHash(fullPath);
@@ -313,14 +301,6 @@ namespace UniRx.Triggers
 			return Observable.Merge(observableTriggers);
 		}
 
-
-
-
-
-
-
-
-
 		public static IObservable<ObservableStateMachineTrigger.OnStateMachineInfo> OnStateMachineExit(this Animator animator, string fullPath) 
 		{
 			int fullPathHash = Animator.StringToHash(fullPath);
@@ -341,10 +321,6 @@ namespace UniRx.Triggers
 
 			return Observable.Merge(observableTriggers);
 		}
-
-
-
-
 
 		public static IObservable<ObservableStateMachineTrigger.OnStateInfo> OnStateEnter(this Animator animator, params string[] fullPaths) 
 		{
@@ -434,7 +410,6 @@ namespace UniRx.Triggers
             return Observable.Merge(observableTriggers);
         }
 
-
 		public static IObservable<ObservableStateMachineTrigger.OnStateInfo> OnStateTime(this Animator animator, string fullPath, float time) 
 		{
 			var fullPathHash = Animator.StringToHash (fullPath);
@@ -480,7 +455,6 @@ namespace UniRx.Triggers
 
 			return Observable.Merge(observableTriggers);
 		}
-
 
         public static IObservable<ObservableStateMachineTrigger.OnStateInfo> OnStateExit(this Animator animator, params string[] fullPaths) 
         {

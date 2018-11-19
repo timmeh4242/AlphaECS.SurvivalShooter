@@ -89,42 +89,42 @@ namespace AlphaECS.Unity
 		}
 		private IPoolManager poolManager;
 
-		/* TODO
-		 * this gets us around the "force enable" issue but
-		 * we still may have a problem of garbage entities
-		 * because the entity gets added to the pool with or without awake being called
-		*/
-		void Awake()
-		{
-			if (!Entity.HasComponent<ViewComponent> ())
-			{
-				var viewComponent = new ViewComponent();
-				AddTransformToView(viewComponent);
-				Entity.AddComponent (viewComponent);
-			}
-			else
-			{
-				AddTransformToView (Entity.GetComponent<ViewComponent> ());
-			}
+        //TODO -> previously, we had this in awake to get around an issue where entities present in the scene that never had Awake() called
+        //we not properly being disposed of -> OnDestroy + Disposer.Dispose() is not called
+        //however, this made setup not so straightforward when instantiating entities from prefabs
+        //need to work out a proper solution for both cases
+        public override void Initialize(IEventSystem eventSystem)
+        {
+            base.Initialize(eventSystem);
 
-			foreach(var blueprint in Blueprints)
-			{
-				blueprint.Apply(this.Entity);
-			}
-
-			if (Components != null && Components.Length > 0)
+            if (!Entity.HasComponent<ViewComponent>())
             {
-				Entity.AddComponents(Components.Select(c => c as object).Where(o => o != null).ToArray());
-//				Entity.AddComponents(Components);
+                var viewComponent = new ViewComponent();
+                AddTransformToView(viewComponent);
+                Entity.AddComponent(viewComponent);
             }
             else
             {
-				var monoBehaviours = GetComponents<Component> ().Where (c => c != null && c.GetType () != typeof(Transform) && c.GetType () != typeof(EntityBehaviour)).ToArray();
-				Entity.AddComponents (monoBehaviours);
+                AddTransformToView(Entity.GetComponent<ViewComponent>());
             }
-		}
 
-		public override void OnDestroy()
+            foreach (var blueprint in Blueprints)
+            {
+                blueprint.Apply(this.Entity);
+            }
+
+            if (Components != null && Components.Length > 0)
+            {
+                Entity.AddComponents(Components.Select(c => c as object).Where(o => o != null).ToArray());
+            }
+            else
+            {
+                var monoBehaviours = GetComponents<Component>().Where(c => c != null && c.GetType() != typeof(Transform) && c.GetType() != typeof(EntityBehaviour)).ToArray();
+                Entity.AddComponents(monoBehaviours);
+            }
+        }
+
+        public override void OnDestroy()
 		{
 			if (EcsApplication.IsQuitting) { return; }
 			if (!RemoveEntityOnDestroy) { return; }

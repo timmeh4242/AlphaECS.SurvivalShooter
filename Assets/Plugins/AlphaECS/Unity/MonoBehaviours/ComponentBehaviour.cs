@@ -19,11 +19,11 @@ namespace AlphaECS.Unity
 			
         public virtual void OnDestroy()
         {
-			if (EcsApplication.IsQuitting) { return; }
-
             Dispose();
 
-			if (EventSystem == null)
+            if (EcsApplication.IsQuitting) { return; }
+
+            if (EventSystem == null)
 			{
 				if (Debug.isDebugBuild)
 				{
@@ -43,6 +43,7 @@ namespace AlphaECS.Unity
 
         public virtual void Dispose()
         {
+            Disposer.Clear();
             Disposer.Dispose();
         }
 

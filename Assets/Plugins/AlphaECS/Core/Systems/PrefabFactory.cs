@@ -75,7 +75,8 @@ namespace AlphaECS
 
 			var entityBehaviour = gameObject.GetComponent<EntityBehaviour>();
 			entityBehaviour.Entity = entity;
-			entityBehaviour.RemoveEntityOnDestroy = false;
+            //TODO!!!
+			//entityBehaviour.RemoveEntityOnDestroy = false;
 
             if(!string.IsNullOrEmpty(data))
             {

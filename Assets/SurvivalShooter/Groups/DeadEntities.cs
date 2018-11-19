@@ -14,7 +14,7 @@ namespace AlphaECS.SurvivalShooter
 		{
 			Components = new HashSet<Type> { typeof(HealthComponent) };
 
-			Func<IEntity, ReactiveProperty<bool>> checkIsDead = (e) =>
+			Func<IEntity, IReadOnlyReactiveProperty<bool>> checkIsDead = (e) =>
 			{
 				var health = e.GetComponent<HealthComponent> ();
 				health.CurrentHealth.Value = health.StartingHealth;

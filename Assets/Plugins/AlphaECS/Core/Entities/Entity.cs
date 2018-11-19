@@ -40,7 +40,7 @@ namespace AlphaECS
         }
 
 
-        public object[] AddComponents(object[] components)
+        public object[] AddComponents(params object[] components)
         {
             for(int i = 0; i < components.Length; i++)
             {

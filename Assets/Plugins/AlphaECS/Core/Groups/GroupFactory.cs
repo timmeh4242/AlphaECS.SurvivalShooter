@@ -14,7 +14,7 @@ namespace AlphaECS
 //		protected Dictionary<HashSet<Type>, Group> Groups = new Dictionary<HashSet<Type>, Group>();
 
 		private HashSet<Type> types;
-		private List<Func<IEntity, ReactiveProperty<bool>>> predicates = new List<Func<IEntity, ReactiveProperty<bool>>> ();
+        private List<Func<IEntity, IReadOnlyReactiveProperty<bool>>> predicates = new List<Func<IEntity, IReadOnlyReactiveProperty<bool>>> ();
 
 		public Group Create(Type[] _types)
 		{
@@ -56,7 +56,7 @@ namespace AlphaECS
 //			return this;
 //		}
 
-		public GroupFactory WithPredicates(params Func<IEntity, ReactiveProperty<bool>>[] predicates)
+        public GroupFactory WithPredicates(params Func<IEntity, IReadOnlyReactiveProperty<bool>>[] predicates)
 		{
             foreach(var predicate in predicates)
             {

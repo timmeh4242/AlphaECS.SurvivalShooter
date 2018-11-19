@@ -14,6 +14,6 @@ namespace AlphaECS
 		ReactiveCollection<IEntity> Entities { get; set; }
 
 		HashSet<Type> Components { get; set; }
-		List<Func<IEntity, ReactiveProperty<bool>>> Predicates { get; }
+        List<Func<IEntity, IReadOnlyReactiveProperty<bool>>> Predicates { get; }
     }
 }

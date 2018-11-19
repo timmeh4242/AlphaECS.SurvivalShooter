@@ -26,7 +26,7 @@ public class SceneInstaller : MonoInstaller
         }
     }
 
-	public override void Start ()
+    public override void Start ()
 	{
 		base.Start ();
 
