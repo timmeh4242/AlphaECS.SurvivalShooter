@@ -1,4 +1,4 @@
-﻿#if NET_4_6
+﻿#if !NET_LEGACY
 using System;
 #else
 using UniRx;

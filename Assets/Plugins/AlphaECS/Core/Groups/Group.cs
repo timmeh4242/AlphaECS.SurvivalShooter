@@ -25,7 +25,19 @@ namespace AlphaECS
 			set { _entities = value; }
 		}
 
-		public HashSet<Type> Components { get; set; }
+        public IEntity this[int index]
+        {
+            get { return Entities[index]; }
+        }
+
+        public IEnumerator<IEntity> GetEnumerator()
+        {
+            { return Entities.GetEnumerator(); }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() { return GetEnumerator(); }
+
+        public HashSet<Type> Components { get; set; }
 
         protected List<Func<IEntity, IReadOnlyReactiveProperty<bool>>> _predicates = new List<Func<IEntity, IReadOnlyReactiveProperty<bool>>> ();
         public List<Func<IEntity, IReadOnlyReactiveProperty<bool>>> Predicates
@@ -199,11 +211,21 @@ namespace AlphaECS
 			Disposer.Dispose ();
 		}
 
-		Subject<IEntity> onPreAdd;
+        public IObservable<IEntity> OnAdd()
+        {
+            return Entities.ObserveAdd().Select(x => x.Value).StartWith(Entities);
+        }
+
+        public IObservable<IEntity> OnRemove()
+        {
+            return Entities.ObserveRemove().Select(x => x.Value);
+        }
+
+        Subject<IEntity> onPreAdd;
 
 		protected virtual void PreAdd(IEntity entity)
 		{
-			if (onPreAdd != null) onPreAdd.OnNext (entity);
+			onPreAdd?.OnNext (entity);
 		}
 
 		public IObservable<IEntity> OnPreAdd()
@@ -215,7 +237,7 @@ namespace AlphaECS
 
 		protected virtual void PreRemove(IEntity entity)
 		{
-			if (onPreRemove != null) onPreRemove.OnNext (entity);
+			onPreRemove?.OnNext (entity);
 		}
 
 		public IObservable<IEntity> OnPreRemove()
