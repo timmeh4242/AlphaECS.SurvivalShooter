@@ -1,7 +1,0 @@
-﻿using AlphaECS;
-using AlphaECS.Unity;
-
-public class #SCRIPTNAME# : ComponentBehaviour
-{
-
-}

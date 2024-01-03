@@ -4,6 +4,7 @@ using AlphaECS.Unity;
 using Zenject;
 using System;
 using System.Collections;
+using System.Linq;
 using AlphaECS;
 
 namespace AlphaECS.SurvivalShooter
@@ -31,8 +32,7 @@ namespace AlphaECS.SurvivalShooter
 
 					var movement = Vector3.zero;
 					movement.Set(input.Horizontal.Value, 0f, input.Vertical.Value);
-					var speed = 6f;
-					movement = movement.normalized * speed * Time.deltaTime;
+					movement = movement.normalized * MovementSpeed * Time.deltaTime;
 					var rb = entity.GetComponent<Rigidbody>();
 					rb.MovePosition(rb.transform.position + movement);
 

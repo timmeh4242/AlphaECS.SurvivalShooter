@@ -1,7 +1,5 @@
-﻿using AlphaECS;
+﻿using AlphaECS.Unity;
 using UniRx;
-using System;
-using AlphaECS.Unity;
 
 namespace AlphaECS.SurvivalShooter
 {
